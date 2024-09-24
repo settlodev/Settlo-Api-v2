@@ -1,11 +1,11 @@
-name: Settlo API CI/CD
+name: Settlo API CI/CD for UAT
 
 on:
   push:
     branches: [ "uat" ]
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,24 +20,7 @@ jobs:
       - name: Build with Maven
         run: mvn clean package
 
-  deploy:
-    needs: build
-    if: github.ref == 'refs/heads/uat'
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v3
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-
-      - name: Build with Maven
-        run: mvn clean package
-
-      - name: Deploy to server
+      - name: Deploy to UAT server
         env:
           PRIVATE_KEY: ${{ secrets.SERVER_PEM_KEY }}
           HOST: 3.70.170.43
@@ -51,11 +34,14 @@ jobs:
           echo "Contents of settlo_dev_server.pub:"
           cat settlo_dev_server.pub
 
-          ssh -i settlo_dev_server.pem -o StrictHostKeyChecking=no -vvv $USER@$HOST '
-            echo "SSH connection successful"
-          '
+          echo "Attempting SSH connection..."
+          ssh -i settlo_dev_server.pem -o StrictHostKeyChecking=no -vvv $USER@$HOST 'echo "SSH connection successful"'
 
+          echo "Copying JAR file..."
           scp -i settlo_dev_server.pem -o StrictHostKeyChecking=no target/api-0.0.1-SNAPSHOT.jar $USER@$HOST:/home/ubuntu/settlo/
-          ssh -i settlo_dev_server.pem -o StrictHostKeyChecking=no $USER@$HOST '
-            sudo service settlo restart
-          '
+
+          echo "Restarting service..."
+          ssh -i settlo_dev_server.pem -o StrictHostKeyChecking=no $USER@$HOST 'sudo service settlo restart'
+
+      - name: Deployment status
+        run: echo "Deployment completed"
