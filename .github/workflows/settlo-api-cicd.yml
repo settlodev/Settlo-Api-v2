@@ -20,44 +20,28 @@ jobs:
       - name: Build with Maven
         run: mvn clean package
 
-      - name: Deploy to UAT server
+      - name: Debug SSH key
         env:
           PRIVATE_KEY: ${{ secrets.SERVER_PEM_KEY }}
+        run: |
+          echo "Length of PRIVATE_KEY: ${#PRIVATE_KEY}"
+          echo "First 20 characters of PRIVATE_KEY: ${PRIVATE_KEY:0:20}"
+          echo "Does PRIVATE_KEY start with '-----BEGIN'? $(echo "$PRIVATE_KEY" | grep -q '^-----BEGIN' && echo 'Yes' || echo 'No')"
+          echo "$PRIVATE_KEY" > settlo_dev_server.pem
+          chmod 600 settlo_dev_server.pem
+          echo "Content of key file (first line):"
+          head -n 1 settlo_dev_server.pem
+          echo "File permissions:"
+          ls -l settlo_dev_server.pem
+
+      - name: Deploy to UAT server
+        env:
           HOST: 3.70.170.43
           USER: ubuntu
         run: |
-          echo "$PRIVATE_KEY" > settlo_dev_server.pem
-          chmod 600 settlo_dev_server.pem
-          
-          # Debug: Check the content of the key file (Be careful not to expose the full key in logs)
-          echo "First few characters of the key file:"
-          head -n 1 settlo_dev_server.pem
-          
-          # Attempt to generate public key
-          if ssh-keygen -y -f settlo_dev_server.pem > settlo_dev_server.pub 2>/dev/null; then
-            echo "Public key generated successfully"
-            echo "Contents of settlo_dev_server.pub:"
-            cat settlo_dev_server.pub
-          else
-            echo "Failed to generate public key. Error was:"
-            ssh-keygen -y -f settlo_dev_server.pem
-          fi
-
-          # Attempt SSH connection with detailed debugging
-          echo "Attempting SSH connection..."
-          ssh -i settlo_dev_server.pem -o StrictHostKeyChecking=no -vvv $USER@$HOST 'echo "SSH connection successful"'
-
-          # If SSH connection succeeds, proceed with deployment
-          if [ $? -eq 0 ]; then
-            echo "Copying JAR file..."
-            scp -i settlo_dev_server.pem -o StrictHostKeyChecking=no target/api-0.0.1-SNAPSHOT.jar $USER@$HOST:/home/ubuntu/settlo/
-          
-            echo "Restarting service..."
-            ssh -i settlo_dev_server.pem -o StrictHostKeyChecking=no $USER@$HOST 'sudo service settlo restart'
-          else
-            echo "SSH connection failed. Deployment aborted."
-            exit 1
-          fi
+          ssh -i settlo_dev_server.pem -o StrictHostKeyChecking=no $USER@$HOST 'echo "SSH connection successful"'
+          scp -i settlo_dev_server.pem -o StrictHostKeyChecking=no target/api-0.0.1-SNAPSHOT.jar $USER@$HOST:/home/ubuntu/settlo/
+          ssh -i settlo_dev_server.pem -o StrictHostKeyChecking=no $USER@$HOST 'sudo service settlo restart'
 
       - name: Deployment status
         run: echo "Deployment process completed"
