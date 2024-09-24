@@ -28,5 +28,4 @@ public class TagDTO {
 
     @NotNull
     private Boolean canDelete;
-
 }
