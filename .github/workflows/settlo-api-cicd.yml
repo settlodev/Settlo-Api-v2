@@ -26,9 +26,19 @@ jobs:
           HOST: 3.70.170.43
           USER: ubuntu
         run: |
-          echo "$PRIVATE_KEY" > settlo_dev_server.pem
-          chmod 400 settlo_dev_server.pem
-          scp -i settlo_dev_server.pem -o StrictHostKeyChecking=no target/api-0.0.1-SNAPSHOT.jar $USER@$HOST:/home/ubuntu/settlo/
-          ssh -i settlo_dev_server.pem -o StrictHostKeyChecking=no $USER@$HOST '
+          echo "$PRIVATE_KEY" > settlo_server.pem
+          chmod 600 settlo_server.pem
+          ssh-keygen -y -f settlo_server.pem > settlo_server.pub
+
+          # Debug information
+          echo "Contents of settlo_server.pub:"
+          cat settlo_server.pub
+
+          ssh -i settlo_server.pem -o StrictHostKeyChecking=no -vvv $USER@$HOST '
+            echo "SSH connection successful"
+          '
+
+          scp -i settlo_server.pem -o StrictHostKeyChecking=no target/api-0.0.1-SNAPSHOT.jar $USER@$HOST:/home/ubuntu/settlo/
+          ssh -i settlo_server.pem -o StrictHostKeyChecking=no $USER@$HOST '
             sudo service settlo restart
           '
