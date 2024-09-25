@@ -6,8 +6,13 @@ import co.tz.settlo.api.util.NotFoundException;
 import co.tz.settlo.api.util.ReferencedWarning;
 import java.util.List;
 import java.util.UUID;
-import org.springframework.data.domain.Sort;
+
+import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import co.tz.settlo.api.util.RestApiFilter.SearchSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -22,25 +27,38 @@ public class CategoryService {
         this.discountRepository = discountRepository;
     }
 
-    public List<CategoryDTO> findAll() {
-        final List<Category> categories = categoryRepository.findAll(Sort.by("id"));
+    @Transactional(readOnly = true)
+    public List<CategoryDTO> findAll(final UUID locationId) {
+        final List<Category> categories = categoryRepository.findAllByLocationId(locationId);
         return categories.stream()
                 .map(category -> mapToDTO(category, new CategoryDTO()))
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public Page<CategoryDTO> searchAll(SearchRequest request) {
+        SearchSpecification<Category> specification = new SearchSpecification<>(request);
+        Pageable pageable = SearchSpecification.getPageable(request.getPage(), request.getSize());
+        Page<Category> categoryPage = categoryRepository.findAll(specification, pageable);
+
+        return categoryPage.map(category -> mapToDTO(category, new CategoryDTO()));
+    }
+
+    @Transactional(readOnly = true)
     public CategoryDTO get(final UUID id) {
         return categoryRepository.findById(id)
                 .map(category -> mapToDTO(category, new CategoryDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
+    @Transactional
     public UUID create(final CategoryDTO categoryDTO) {
         final Category category = new Category();
         mapToEntity(categoryDTO, category);
         return categoryRepository.save(category).getId();
     }
 
+    @Transactional
     public void update(final UUID id, final CategoryDTO categoryDTO) {
         final Category category = categoryRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
@@ -48,6 +66,7 @@ public class CategoryService {
         categoryRepository.save(category);
     }
 
+    @Transactional
     public void delete(final UUID id) {
         categoryRepository.deleteById(id);
     }

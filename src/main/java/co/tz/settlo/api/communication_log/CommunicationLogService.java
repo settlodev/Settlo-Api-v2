@@ -5,8 +5,14 @@ import co.tz.settlo.api.campaign.CampaignRepository;
 import co.tz.settlo.api.util.NotFoundException;
 import java.util.List;
 import java.util.UUID;
+
+import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import co.tz.settlo.api.util.RestApiFilter.SearchSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -21,25 +27,38 @@ public class CommunicationLogService {
         this.campaignRepository = campaignRepository;
     }
 
-    public List<CommunicationLogDTO> findAll() {
+    @Transactional(readOnly = true)
+    public List<CommunicationLogDTO> findAll(final UUID locationId) {
         final List<CommunicationLog> communicationLogs = communicationLogRepository.findAll(Sort.by("id"));
         return communicationLogs.stream()
                 .map(communicationLog -> mapToDTO(communicationLog, new CommunicationLogDTO()))
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public CommunicationLogDTO get(final UUID id) {
         return communicationLogRepository.findById(id)
                 .map(communicationLog -> mapToDTO(communicationLog, new CommunicationLogDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
+    @Transactional(readOnly = true)
+    public Page<CommunicationLogDTO> searchAll(SearchRequest request) {
+        SearchSpecification<CommunicationLog> specification = new SearchSpecification<>(request);
+        Pageable pageable = SearchSpecification.getPageable(request.getPage(), request.getSize());
+        Page<CommunicationLog> communicationLogPage = communicationLogRepository.findAll(specification, pageable);
+
+        return communicationLogPage.map(communicationLog -> mapToDTO(communicationLog, new CommunicationLogDTO()));
+    }
+
+    @Transactional
     public UUID create(final CommunicationLogDTO communicationLogDTO) {
         final CommunicationLog communicationLog = new CommunicationLog();
         mapToEntity(communicationLogDTO, communicationLog);
         return communicationLogRepository.save(communicationLog).getId();
     }
 
+    @Transactional
     public void update(final UUID id, final CommunicationLogDTO communicationLogDTO) {
         final CommunicationLog communicationLog = communicationLogRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
@@ -47,6 +66,7 @@ public class CommunicationLogService {
         communicationLogRepository.save(communicationLog);
     }
 
+    @Transactional
     public void delete(final UUID id) {
         communicationLogRepository.deleteById(id);
     }
@@ -73,7 +93,7 @@ public class CommunicationLogService {
         communicationLog.setIsArchived(communicationLogDTO.getIsArchived());
         communicationLog.setCanDelete(communicationLogDTO.getCanDelete());
         final Campaign campaign = communicationLogDTO.getCampaign() == null ? null : campaignRepository.findById(communicationLogDTO.getCampaign())
-                .orElseThrow(() -> new NotFoundException("campaign not found"));
+                .orElseThrow(() -> new NotFoundException("Campaign not found"));
         communicationLog.setCampaign(campaign);
         return communicationLog;
     }

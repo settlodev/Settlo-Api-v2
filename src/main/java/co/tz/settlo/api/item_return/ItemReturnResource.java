@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping(value = "/api/itemReturns", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/returns/{locationId}", produces = MediaType.APPLICATION_JSON_VALUE)
 public class ItemReturnResource {
 
     private final ItemReturnService itemReturnService;
@@ -28,33 +28,38 @@ public class ItemReturnResource {
     }
 
     @GetMapping
-    public ResponseEntity<List<ItemReturnDTO>> getAllItemReturns() {
-        return ResponseEntity.ok(itemReturnService.findAll());
+    public ResponseEntity<List<ItemReturnDTO>> getAllItemReturns(@PathVariable UUID locationId) {
+        return ResponseEntity.ok(itemReturnService.findAll(locationId));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ItemReturnDTO> getItemReturn(@PathVariable(name = "id") final UUID id) {
+    public ResponseEntity<ItemReturnDTO> getItemReturn(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(itemReturnService.get(id));
     }
 
     @PostMapping
     @ApiResponse(responseCode = "201")
-    public ResponseEntity<UUID> createItemReturn(
+    public ResponseEntity<UUID> createItemReturn( @PathVariable UUID locationId,
             @RequestBody @Valid final ItemReturnDTO itemReturnDTO) {
+
+        itemReturnDTO.setLocation(locationId);
+
         final UUID createdId = itemReturnService.create(itemReturnDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UUID> updateItemReturn(@PathVariable(name = "id") final UUID id,
+    public ResponseEntity<UUID> updateItemReturn(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final ItemReturnDTO itemReturnDTO) {
+        itemReturnDTO.setLocation(locationId);
+
         itemReturnService.update(id, itemReturnDTO);
         return ResponseEntity.ok(id);
     }
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
-    public ResponseEntity<Void> deleteItemReturn(@PathVariable(name = "id") final UUID id) {
+    public ResponseEntity<Void> deleteItemReturn(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         itemReturnService.delete(id);
         return ResponseEntity.noContent().build();
     }

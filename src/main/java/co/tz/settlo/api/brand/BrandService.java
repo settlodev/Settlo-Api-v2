@@ -6,8 +6,13 @@ import co.tz.settlo.api.util.NotFoundException;
 import co.tz.settlo.api.util.ReferencedWarning;
 import java.util.List;
 import java.util.UUID;
-import org.springframework.data.domain.Sort;
+
+import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import co.tz.settlo.api.util.RestApiFilter.SearchSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -22,25 +27,38 @@ public class BrandService {
         this.productRepository = productRepository;
     }
 
-    public List<BrandDTO> findAll() {
-        final List<Brand> brands = brandRepository.findAll(Sort.by("id"));
+    @Transactional(readOnly = true)
+    public List<BrandDTO> findAll(final UUID locationId) {
+        final List<Brand> brands = brandRepository.findAllByLocationId(locationId);
         return brands.stream()
                 .map(brand -> mapToDTO(brand, new BrandDTO()))
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public Page<BrandDTO> searchAll(SearchRequest request) {
+        SearchSpecification<Brand> specification = new SearchSpecification<>(request);
+        Pageable pageable = SearchSpecification.getPageable(request.getPage(), request.getSize());
+        Page<Brand> brandPage = brandRepository.findAll(specification, pageable);
+
+        return brandPage.map(brand -> mapToDTO(brand, new BrandDTO()));
+    }
+
+    @Transactional(readOnly = true)
     public BrandDTO get(final UUID id) {
         return brandRepository.findById(id)
                 .map(brand -> mapToDTO(brand, new BrandDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
+    @Transactional
     public UUID create(final BrandDTO brandDTO) {
         final Brand brand = new Brand();
         mapToEntity(brandDTO, brand);
         return brandRepository.save(brand).getId();
     }
 
+    @Transactional
     public void update(final UUID id, final BrandDTO brandDTO) {
         final Brand brand = brandRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
@@ -48,6 +66,7 @@ public class BrandService {
         brandRepository.save(brand);
     }
 
+    @Transactional
     public void delete(final UUID id) {
         brandRepository.deleteById(id);
     }

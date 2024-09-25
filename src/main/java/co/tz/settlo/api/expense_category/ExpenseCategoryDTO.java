@@ -32,4 +32,6 @@ public class ExpenseCategoryDTO {
     @NotNull
     private UUID business;
 
+    private UUID location;
+
 }

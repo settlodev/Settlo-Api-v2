@@ -7,7 +7,6 @@ import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 
-
 @Getter
 @Setter
 public class CategoryDTO {
@@ -35,4 +34,5 @@ public class CategoryDTO {
     @NotNull
     private Boolean canDelete;
 
+    private UUID location;
 }

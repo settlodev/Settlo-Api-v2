@@ -1,5 +1,6 @@
 package co.tz.settlo.api.item_return;
 
+import co.tz.settlo.api.location.Location;
 import co.tz.settlo.api.order_item.OrderItem;
 import co.tz.settlo.api.staff.Staff;
 import co.tz.settlo.api.stock_variant.StockVariant;
@@ -65,6 +66,10 @@ public class ItemReturn {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "stock_variant_id", nullable = false)
     private StockVariant stockVariant;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "location_id")
+    private Location location;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)

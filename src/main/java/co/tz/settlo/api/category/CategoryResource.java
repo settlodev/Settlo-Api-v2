@@ -2,10 +2,16 @@ package co.tz.settlo.api.category;
 
 import co.tz.settlo.api.util.ReferencedException;
 import co.tz.settlo.api.util.ReferencedWarning;
+import co.tz.settlo.api.util.RestApiFilter.FieldType;
+import co.tz.settlo.api.util.RestApiFilter.FilterRequest;
+import co.tz.settlo.api.util.RestApiFilter.Operator;
+import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
+
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping(value = "/api/categories", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/categories/{locationId}", produces = MediaType.APPLICATION_JSON_VALUE)
 public class CategoryResource {
 
     private final CategoryService categoryService;
@@ -30,32 +36,52 @@ public class CategoryResource {
     }
 
     @GetMapping
-    public ResponseEntity<List<CategoryDTO>> getAllCategories() {
-        return ResponseEntity.ok(categoryService.findAll());
+    public ResponseEntity<List<CategoryDTO>> getAllCategories(@PathVariable UUID locationId) {
+        return ResponseEntity.ok(categoryService.findAll(locationId));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CategoryDTO> getCategory(@PathVariable(name = "id") final UUID id) {
+    public ResponseEntity<CategoryDTO> getCategory(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(categoryService.get(id));
     }
 
     @PostMapping
+    public Page<CategoryDTO> searchCategory(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
+        // Enforce Location filter
+        FilterRequest locationFilter = new FilterRequest();
+        locationFilter.setKey("location");
+        locationFilter.setOperator(Operator.EQUAL);
+        locationFilter.setFieldType(FieldType.STRING);
+        locationFilter.setValue(locationId);
+
+        request.getFilters().add(locationFilter);
+
+        return categoryService.searchAll(request);
+    }
+
+    @PostMapping("/create")
     @ApiResponse(responseCode = "201")
-    public ResponseEntity<UUID> createCategory(@RequestBody @Valid final CategoryDTO categoryDTO) {
+    public ResponseEntity<UUID> createCategory(@PathVariable UUID locationId, @RequestBody @Valid final CategoryDTO categoryDTO) {
+
+        categoryDTO.setLocation(locationId);
+
         final UUID createdId = categoryService.create(categoryDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UUID> updateCategory(@PathVariable(name = "id") final UUID id,
+    public ResponseEntity<UUID> updateCategory(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final CategoryDTO categoryDTO) {
+
+        categoryDTO.setLocation(locationId);
+
         categoryService.update(id, categoryDTO);
         return ResponseEntity.ok(id);
     }
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
-    public ResponseEntity<Void> deleteCategory(@PathVariable(name = "id") final UUID id) {
+    public ResponseEntity<Void> deleteCategory(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         final ReferencedWarning referencedWarning = categoryService.getReferencedWarning(id);
         if (referencedWarning != null) {
             throw new ReferencedException(referencedWarning);

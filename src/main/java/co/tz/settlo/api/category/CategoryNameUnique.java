@@ -17,7 +17,6 @@ import java.util.Map;
 import java.util.UUID;
 import org.springframework.web.servlet.HandlerMapping;
 
-
 /**
  * Validate that the name value isn't taken yet.
  */

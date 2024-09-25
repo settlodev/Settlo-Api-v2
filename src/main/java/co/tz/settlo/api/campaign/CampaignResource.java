@@ -1,6 +1,5 @@
 package co.tz.settlo.api.campaign;
 
-import co.tz.settlo.api.expense.ExpenseDTO;
 import co.tz.settlo.api.util.ReferencedException;
 import co.tz.settlo.api.util.ReferencedWarning;
 import co.tz.settlo.api.util.RestApiFilter.FieldType;
@@ -25,7 +24,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 
 @RestController
 @RequestMapping(value = "/api/campaigns/{locationId}", produces = MediaType.APPLICATION_JSON_VALUE)

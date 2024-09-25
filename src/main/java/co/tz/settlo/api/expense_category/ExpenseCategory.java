@@ -1,6 +1,7 @@
 package co.tz.settlo.api.expense_category;
 
 import co.tz.settlo.api.business.Business;
+import co.tz.settlo.api.location.Location;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -48,6 +49,10 @@ public class ExpenseCategory {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "business_id", nullable = false)
     private Business business;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "location_id")
+    private Location location;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)

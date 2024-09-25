@@ -6,8 +6,14 @@ import co.tz.settlo.api.util.NotFoundException;
 import co.tz.settlo.api.util.ReferencedWarning;
 import java.util.List;
 import java.util.UUID;
+
+import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import co.tz.settlo.api.util.RestApiFilter.SearchSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -23,25 +29,38 @@ public class CommunicationTemplateService {
         this.campaignRepository = campaignRepository;
     }
 
-    public List<CommunicationTemplateDTO> findAll() {
-        final List<CommunicationTemplate> communicationTemplates = communicationTemplateRepository.findAll(Sort.by("id"));
+    @Transactional(readOnly = true)
+    public List<CommunicationTemplateDTO> findAll(final UUID locationId) {
+        final List<CommunicationTemplate> communicationTemplates = communicationTemplateRepository.findAllByLocationId(locationId);
         return communicationTemplates.stream()
                 .map(communicationTemplate -> mapToDTO(communicationTemplate, new CommunicationTemplateDTO()))
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public CommunicationTemplateDTO get(final UUID id) {
         return communicationTemplateRepository.findById(id)
                 .map(communicationTemplate -> mapToDTO(communicationTemplate, new CommunicationTemplateDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
+    @Transactional(readOnly = true)
+    public Page<CommunicationTemplateDTO> searchAll(SearchRequest request) {
+        SearchSpecification<CommunicationTemplate> specification = new SearchSpecification<>(request);
+        Pageable pageable = SearchSpecification.getPageable(request.getPage(), request.getSize());
+        Page<CommunicationTemplate> communicationTemplatesPage = communicationTemplateRepository.findAll(specification, pageable);
+
+        return communicationTemplatesPage.map(communicationTemplate -> mapToDTO(communicationTemplate, new CommunicationTemplateDTO()));
+    }
+
+    @Transactional
     public UUID create(final CommunicationTemplateDTO communicationTemplateDTO) {
         final CommunicationTemplate communicationTemplate = new CommunicationTemplate();
         mapToEntity(communicationTemplateDTO, communicationTemplate);
         return communicationTemplateRepository.save(communicationTemplate).getId();
     }
 
+    @Transactional
     public void update(final UUID id, final CommunicationTemplateDTO communicationTemplateDTO) {
         final CommunicationTemplate communicationTemplate = communicationTemplateRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
@@ -49,6 +68,7 @@ public class CommunicationTemplateService {
         communicationTemplateRepository.save(communicationTemplate);
     }
 
+    @Transactional
     public void delete(final UUID id) {
         communicationTemplateRepository.deleteById(id);
     }

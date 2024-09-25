@@ -9,9 +9,13 @@ import co.tz.settlo.api.stock_variant.StockVariantRepository;
 import co.tz.settlo.api.util.NotFoundException;
 import java.util.List;
 import java.util.UUID;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
 
+import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import co.tz.settlo.api.util.RestApiFilter.SearchSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ItemReturnService {
@@ -30,25 +34,38 @@ public class ItemReturnService {
         this.stockVariantRepository = stockVariantRepository;
     }
 
-    public List<ItemReturnDTO> findAll() {
-        final List<ItemReturn> itemReturns = itemReturnRepository.findAll(Sort.by("id"));
+    @Transactional(readOnly = true)
+    public List<ItemReturnDTO> findAll(final UUID locationId) {
+        final List<ItemReturn> itemReturns = itemReturnRepository.findAllByLocationId(locationId);
         return itemReturns.stream()
                 .map(itemReturn -> mapToDTO(itemReturn, new ItemReturnDTO()))
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public ItemReturnDTO get(final UUID id) {
         return itemReturnRepository.findById(id)
                 .map(itemReturn -> mapToDTO(itemReturn, new ItemReturnDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
+    @Transactional(readOnly = true)
+    public Page<ItemReturnDTO> searchAll(SearchRequest request) {
+        SearchSpecification<ItemReturn> specification = new SearchSpecification<>(request);
+        Pageable pageable = SearchSpecification.getPageable(request.getPage(), request.getSize());
+        Page<ItemReturn> returnsPage = itemReturnRepository.findAll(specification, pageable);
+
+        return returnsPage.map(itemReturn -> mapToDTO(itemReturn, new ItemReturnDTO()));
+    }
+
+    @Transactional
     public UUID create(final ItemReturnDTO itemReturnDTO) {
         final ItemReturn itemReturn = new ItemReturn();
         mapToEntity(itemReturnDTO, itemReturn);
         return itemReturnRepository.save(itemReturn).getId();
     }
 
+    @Transactional
     public void update(final UUID id, final ItemReturnDTO itemReturnDTO) {
         final ItemReturn itemReturn = itemReturnRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
@@ -56,6 +73,7 @@ public class ItemReturnService {
         itemReturnRepository.save(itemReturn);
     }
 
+    @Transactional
     public void delete(final UUID id) {
         itemReturnRepository.deleteById(id);
     }

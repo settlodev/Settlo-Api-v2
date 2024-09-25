@@ -8,8 +8,13 @@ import co.tz.settlo.api.util.NotFoundException;
 import co.tz.settlo.api.util.ReferencedWarning;
 import java.util.List;
 import java.util.UUID;
-import org.springframework.data.domain.Sort;
+
+import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import co.tz.settlo.api.util.RestApiFilter.SearchSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -27,11 +32,20 @@ public class ExpenseCategoryService {
         this.expenseRepository = expenseRepository;
     }
 
-    public List<ExpenseCategoryDTO> findAll() {
-        final List<ExpenseCategory> expenseCategories = expenseCategoryRepository.findAll(Sort.by("id"));
+    public List<ExpenseCategoryDTO> findAll(final UUID locationId) {
+        final List<ExpenseCategory> expenseCategories = expenseCategoryRepository.findAllByLocationId(locationId);
         return expenseCategories.stream()
                 .map(expenseCategory -> mapToDTO(expenseCategory, new ExpenseCategoryDTO()))
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ExpenseCategoryDTO> searchAll(SearchRequest request) {
+        SearchSpecification<ExpenseCategory> specification = new SearchSpecification<>(request);
+        Pageable pageable = SearchSpecification.getPageable(request.getPage(), request.getSize());
+        Page<ExpenseCategory> expenseCategoryPage = expenseCategoryRepository.findAll(specification, pageable);
+
+        return expenseCategoryPage.map(expense -> mapToDTO(expense, new ExpenseCategoryDTO()));
     }
 
     public ExpenseCategoryDTO get(final UUID id) {

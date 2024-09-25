@@ -35,4 +35,5 @@ public class CommunicationLogDTO {
     @NotNull
     private UUID campaign;
 
+    private UUID location;
 }

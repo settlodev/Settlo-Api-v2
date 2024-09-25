@@ -41,4 +41,6 @@ public class ItemReturnDTO {
     @NotNull
     private UUID stockVariant;
 
+    private UUID location;
+
 }

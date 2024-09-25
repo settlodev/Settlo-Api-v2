@@ -33,4 +33,6 @@ public class CommunicationTemplateDTO {
 
     private BroadcastType broadcastType;
 
+    private UUID location;
+
 }
