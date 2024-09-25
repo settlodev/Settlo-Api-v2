@@ -25,6 +25,8 @@ public class DeliveryDTO {
     @NotNull
     private Boolean canDelete;
 
+    private UUID location;
+
     @NotNull
     private OrderStatus orderStatus;
 

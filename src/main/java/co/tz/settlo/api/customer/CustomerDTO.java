@@ -33,6 +33,8 @@ public class CustomerDTO {
     @Size(max = 255)
     private String email;
 
+    private UUID location;
+
     @NotNull
     private Boolean allowNotifications;
 
