@@ -52,6 +52,23 @@ public class RoleService {
         roleRepository.save(role);
     }
 
+    public UUID getDefaultRole() {
+        return roleRepository.findByNameIgnoreCase("User")
+                .map(Role::getId)
+                .orElseGet(this::createDefaultRole);
+    }
+
+    private UUID createDefaultRole() {
+        RoleDTO defaultRoleDTO = new RoleDTO();
+        defaultRoleDTO.setName("User");
+
+        return create(defaultRoleDTO);
+    }
+
+    public boolean nameExists(final String name) {
+        return roleRepository.existsByNameIgnoreCase(name);
+    }
+
     public void delete(final UUID id) {
         roleRepository.deleteById(id);
     }

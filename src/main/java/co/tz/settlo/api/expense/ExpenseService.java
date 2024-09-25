@@ -4,11 +4,19 @@ import co.tz.settlo.api.business.Business;
 import co.tz.settlo.api.business.BusinessRepository;
 import co.tz.settlo.api.expense_category.ExpenseCategory;
 import co.tz.settlo.api.expense_category.ExpenseCategoryRepository;
+import co.tz.settlo.api.reservation.Reservation;
+import co.tz.settlo.api.reservation.ReservationDTO;
 import co.tz.settlo.api.util.NotFoundException;
 import java.util.List;
 import java.util.UUID;
+
+import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import co.tz.settlo.api.util.RestApiFilter.SearchSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -26,25 +34,38 @@ public class ExpenseService {
         this.businessRepository = businessRepository;
     }
 
-    public List<ExpenseDTO> findAll() {
-        final List<Expense> expenses = expenseRepository.findAll(Sort.by("id"));
+    @Transactional(readOnly = true)
+    public List<ExpenseDTO> findAll(final UUID locationId) {
+        final List<Expense> expenses = expenseRepository.findAllByLocationId(locationId);
         return expenses.stream()
                 .map(expense -> mapToDTO(expense, new ExpenseDTO()))
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public ExpenseDTO get(final UUID id) {
         return expenseRepository.findById(id)
                 .map(expense -> mapToDTO(expense, new ExpenseDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
+    @Transactional(readOnly = true)
+    public Page<ExpenseDTO> searchAll(SearchRequest request) {
+        SearchSpecification<Expense> specification = new SearchSpecification<>(request);
+        Pageable pageable = SearchSpecification.getPageable(request.getPage(), request.getSize());
+        Page<Expense> expensesPage = expenseRepository.findAll(specification, pageable);
+
+        return expensesPage.map(expense -> mapToDTO(expense, new ExpenseDTO()));
+    }
+
+    @Transactional
     public UUID create(final ExpenseDTO expenseDTO) {
         final Expense expense = new Expense();
         mapToEntity(expenseDTO, expense);
         return expenseRepository.save(expense).getId();
     }
 
+    @Transactional
     public void update(final UUID id, final ExpenseDTO expenseDTO) {
         final Expense expense = expenseRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
@@ -52,6 +73,7 @@ public class ExpenseService {
         expenseRepository.save(expense);
     }
 
+    @Transactional
     public void delete(final UUID id) {
         expenseRepository.deleteById(id);
     }

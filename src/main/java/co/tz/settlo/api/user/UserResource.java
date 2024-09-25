@@ -1,9 +1,12 @@
 package co.tz.settlo.api.user;
 
+import co.tz.settlo.api.auth.UserCheckDTO;
 import co.tz.settlo.api.util.ReferencedException;
 import co.tz.settlo.api.util.ReferencedWarning;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
@@ -39,11 +42,29 @@ public class UserResource {
         return ResponseEntity.ok(userService.get(id));
     }
 
-    @PostMapping
-    @ApiResponse(responseCode = "201")
-    public ResponseEntity<UUID> createUser(@RequestBody @Valid final UserDTO userDTO) {
-        final UUID createdId = userService.create(userDTO);
-        return new ResponseEntity<>(createdId, HttpStatus.CREATED);
+    @GetMapping("/user-check/{username}")
+    public ResponseEntity<UserCheckDTO> getUserByEmail(@PathVariable(name = "username") final String username) {
+        return ResponseEntity.ok(userService.userCheck(username));
+    }
+
+    @PutMapping("/verify-email/{id}")
+    public ResponseEntity<Void> verifyEmail(@PathVariable(name = "id") final UUID id) {
+        UserDTO user = userService.get(id);
+
+        user.setEmailVerified(LocalDateTime.now());
+        userService.update(id, user);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/verify-phone/{id}")
+    public ResponseEntity<Void> verifyPhoneNumber(@PathVariable(name = "id") final UUID id) {
+        UserDTO user = userService.get(id);
+
+        user.setPhoneNumberVerified(LocalDateTime.now());
+        userService.update(id, user);
+
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{id}")

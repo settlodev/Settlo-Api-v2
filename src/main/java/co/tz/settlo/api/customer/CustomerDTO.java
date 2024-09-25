@@ -1,12 +1,12 @@
 package co.tz.settlo.api.customer;
 
+import co.tz.settlo.api.common.models.Gender;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
-
 
 @Getter
 @Setter
@@ -24,7 +24,7 @@ public class CustomerDTO {
 
     @NotNull
     @Size(max = 255)
-    private String gender;
+    private Gender gender;
 
     @NotNull
     @Size(max = 15)

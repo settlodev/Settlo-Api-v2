@@ -2,12 +2,18 @@ package co.tz.settlo.api.tag;
 
 import co.tz.settlo.api.util.NotFoundException;
 import co.tz.settlo.api.util.ReferencedWarning;
+import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import co.tz.settlo.api.util.RestApiFilter.SearchSpecification;
 import co.tz.settlo.api.variant.Variant;
 import co.tz.settlo.api.variant.VariantRepository;
 import java.util.List;
 import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -22,25 +28,39 @@ public class TagService {
         this.variantRepository = variantRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<TagDTO> findAll() {
         final List<Tag> tags = tagRepository.findAll(Sort.by("id"));
         return tags.stream()
                 .map(tag -> mapToDTO(tag, new TagDTO()))
                 .toList();
     }
+  
+    @Transactional(readOnly = true)
+    public Page<TagDTO> searchAll(SearchRequest request) {
+        SearchSpecification<Tag> specification = new SearchSpecification<>(request);
+        Pageable pageable = SearchSpecification.getPageable(request.getPage(), request.getSize());
+        Page<Tag> tagsPage = tagRepository.findAll(pageable);
 
+        return tagsPage.map(product -> mapToDTO(product, new TagDTO()));
+    }
+    
+
+    @Transactional(readOnly = true)
     public TagDTO get(final UUID id) {
         return tagRepository.findById(id)
                 .map(tag -> mapToDTO(tag, new TagDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
+    @Transactional
     public UUID create(final TagDTO tagDTO) {
         final Tag tag = new Tag();
         mapToEntity(tagDTO, tag);
         return tagRepository.save(tag).getId();
     }
 
+    @Transactional
     public void update(final UUID id, final TagDTO tagDTO) {
         final Tag tag = tagRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
@@ -48,6 +68,7 @@ public class TagService {
         tagRepository.save(tag);
     }
 
+    @Transactional
     public void delete(final UUID id) {
         tagRepository.deleteById(id);
     }

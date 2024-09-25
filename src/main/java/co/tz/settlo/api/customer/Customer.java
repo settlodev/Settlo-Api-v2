@@ -1,11 +1,8 @@
 package co.tz.settlo.api.customer;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import co.tz.settlo.api.common.models.Gender;
+import jakarta.persistence.*;
+
 import java.time.OffsetDateTime;
 import java.util.UUID;
 import lombok.Getter;
@@ -36,7 +33,8 @@ public class Customer {
     private String lastName;
 
     @Column(nullable = false)
-    private String gender;
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
 
     @Column(nullable = false, length = 15)
     private String phoneNumber;

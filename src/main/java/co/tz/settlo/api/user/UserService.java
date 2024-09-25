@@ -1,17 +1,28 @@
 package co.tz.settlo.api.user;
 
+import co.tz.settlo.api.auth.*;
 import co.tz.settlo.api.business.Business;
 import co.tz.settlo.api.business.BusinessRepository;
 import co.tz.settlo.api.country.Country;
 import co.tz.settlo.api.country.CountryRepository;
 import co.tz.settlo.api.kyc.Kyc;
 import co.tz.settlo.api.kyc.KycRepository;
+import co.tz.settlo.api.role.Role;
+import co.tz.settlo.api.role.RoleRepository;
+import co.tz.settlo.api.role.RoleService;
 import co.tz.settlo.api.util.NotFoundException;
 import co.tz.settlo.api.util.ReferencedWarning;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+
+import co.tz.settlo.api.util.UniqueIdGenerator;
+import io.sentry.Sentry;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -21,16 +32,34 @@ public class UserService {
     private final CountryRepository countryRepository;
     private final BusinessRepository businessRepository;
     private final KycRepository kycRepository;
+    private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final RoleService roleService;
+    private final VerificationTokenRepository verificationTokenRepository;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
+
+    private static final int VERIFICATION_TOKEN_EXPIRY_HOURS = 1;
+    private static final String TOKEN_NOT_FOUND = "Token not found";
+    private static final String USER_NOT_FOUND = "User not found";
+    private final UniqueIdGenerator uniqueIdGenerator;
 
     public UserService(final UserRepository userRepository,
-            final CountryRepository countryRepository, final BusinessRepository businessRepository,
-            final KycRepository kycRepository) {
+                       final CountryRepository countryRepository, final BusinessRepository businessRepository,
+                       final KycRepository kycRepository, final RoleRepository roleRepository, final PasswordEncoder passwordEncoder,
+                       final RoleService roleService, final VerificationTokenRepository verificationTokenRepository, final PasswordResetTokenRepository passwordResetTokenRepository, UniqueIdGenerator uniqueIdGenerator) {
         this.userRepository = userRepository;
         this.countryRepository = countryRepository;
         this.businessRepository = businessRepository;
         this.kycRepository = kycRepository;
+        this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.roleService = roleService;
+        this.verificationTokenRepository = verificationTokenRepository;
+        this.passwordResetTokenRepository = passwordResetTokenRepository;
+        this.uniqueIdGenerator = uniqueIdGenerator;
     }
 
+    @Transactional(readOnly = true)
     public List<UserDTO> findAll() {
         final List<User> users = userRepository.findAll(Sort.by("id"));
         return users.stream()
@@ -38,18 +67,44 @@ public class UserService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public UserDTO get(final UUID id) {
         return userRepository.findById(id)
                 .map(user -> mapToDTO(user, new UserDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
-    public UUID create(final UserDTO userDTO) {
-        final User user = new User();
-        mapToEntity(userDTO, user);
+    @Transactional(readOnly = true)
+    public UserDTO get(final String email) {
+        return userRepository.findFirstByEmail(email)
+                .map(user -> mapToDTO(user, new UserDTO()))
+                .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
+    }
+
+    @Transactional
+    public UUID create(final UserRegistrationDTO userRegistrationDTO) {
+        UserDTO userDTO = new UserDTO();
+
+        userDTO.setEmail(userRegistrationDTO.getEmail());
+        userDTO.setFirstName(userRegistrationDTO.getFirstName());
+        userDTO.setLastName(userRegistrationDTO.getLastName());
+        userDTO.setPassword(passwordEncoder.encode(userRegistrationDTO.getPassword()));
+        userDTO.setPhoneNumber(userRegistrationDTO.getPhoneNumber());
+        userDTO.setEmail(userRegistrationDTO.getEmail());
+        userDTO.setAccountNumber(uniqueIdGenerator.generate());
+        userDTO.setTheme("light");
+        userDTO.setCanDelete(false);
+        userDTO.setCountry(userRegistrationDTO.getCountry());
+        userDTO.setStatus(true);
+        userDTO.setConsent(true);
+        userDTO.setIsArchived(false);
+        userDTO.setIsOwner(true);
+
+        User user = mapToEntity(userDTO, new User());
         return userRepository.save(user).getId();
     }
 
+    @Transactional
     public void update(final UUID id, final UserDTO userDTO) {
         final User user = userRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
@@ -57,21 +112,116 @@ public class UserService {
         userRepository.save(user);
     }
 
+    @Transactional
+    public UserCheckDTO userCheck(final String username) {
+        if (username == null || username.trim().isEmpty()) {
+            return createUserCheckErrorResponse(400, "Username cannot be null or empty");
+        }
+
+        return userRepository.findFirstByEmail(username)
+                .map(this::createUserCheckSuccessResponse)
+                .orElseGet(() -> createUserCheckErrorResponse(404, "Account not found"));
+    }
+
+    @Transactional
+    public UUID generateVerificationToken(String email) {
+        verificationTokenRepository.deleteByEmail(email);
+
+        VerificationToken verificationToken = VerificationToken.builder()
+                .used(false)
+                .email(email)
+                .expiresAt(LocalDateTime.now().plusHours(VERIFICATION_TOKEN_EXPIRY_HOURS))
+                .build();
+
+        return verificationTokenRepository.save(verificationToken).getId();
+    }
+
+    @Transactional
+    public UUID verifyToken(UUID token) {
+        VerificationToken tokenData = verificationTokenRepository.findById(token)
+                .orElseThrow(() -> {
+                    Sentry.captureException(new Error(TOKEN_NOT_FOUND + ": " + token));
+                    return new NotFoundException(TOKEN_NOT_FOUND);
+                });
+
+        if (tokenData.getUsed()) {
+            Sentry.captureException(new Error("Token already used: " + token));
+            throw new IllegalStateException("Token already used");
+        }
+
+        UserDTO userDTO = get(tokenData.getEmail());
+        userDTO.setEmailVerified(LocalDateTime.now());
+        update(userDTO.getId(), userDTO);
+
+        tokenData.setUsed(true);
+        verificationTokenRepository.save(tokenData);
+
+        return tokenData.getId();
+    }
+
+    @Transactional
+    public UUID updatePassword(UpdatePasswordDTO updatePasswordDTO) {
+        PasswordResetToken tokenData = passwordResetTokenRepository.findById(updatePasswordDTO.token())
+                .orElseThrow(() -> new NotFoundException(TOKEN_NOT_FOUND));
+
+        if (tokenData.getUsed()) {
+            throw new IllegalStateException("Token already used");
+        }
+
+        UserDTO userDTO = get(tokenData.getEmail());
+        userDTO.setPassword(passwordEncoder.encode(updatePasswordDTO.password()));
+        update(userDTO.getId(), userDTO);
+
+        tokenData.setUsed(true);
+        passwordResetTokenRepository.save(tokenData);
+
+        return tokenData.getId();
+    }
+
+    @Transactional
     public void delete(final UUID id) {
         userRepository.deleteById(id);
     }
 
+    public boolean accountNumberExists(final String accountNumber) {
+        return userRepository.existsByAccountNumber(accountNumber);
+    }
+
+    public boolean emailExists(final String email) {
+        return userRepository.existsByEmailIgnoreCase(email);
+    }
+
+    private UserCheckDTO createUserCheckSuccessResponse(User user) {
+        return UserCheckDTO.builder()
+                .username(user.getEmail())
+                .phoneVerified(user.getPhoneNumberVerified())
+                .emailVerified(user.getEmailVerified())
+                .responseCode(200)
+                .message("Account response success")
+                .build();
+    }
+
+    private UserCheckDTO createUserCheckErrorResponse(int responseCode, String message) {
+        return UserCheckDTO.builder()
+                .username(null)
+                .emailVerified(null)
+                .phoneVerified(null)
+                .responseCode(responseCode)
+                .message(message)
+                .build();
+    }
+
     private UserDTO mapToDTO(final User user, final UserDTO userDTO) {
         userDTO.setId(user.getId());
-        userDTO.setPrefix(user.getPrefix());
+        userDTO.setAccountNumber(user.getAccountNumber());
         userDTO.setFirstName(user.getFirstName());
         userDTO.setLastName(user.getLastName());
         userDTO.setAvatar(user.getAvatar());
         userDTO.setEmail(user.getEmail());
-        userDTO.setCompanyName(user.getCompanyName());
         userDTO.setSlug(user.getSlug());
-        userDTO.setPhone(user.getPhone());
-        userDTO.setVerificationStatus(user.getVerificationStatus());
+        userDTO.setPhoneNumber(user.getPhoneNumber());
+        userDTO.setEmailVerified(user.getEmailVerified());
+        userDTO.setPhoneNumberVerified(user.getPhoneNumberVerified());
         userDTO.setRegion(user.getRegion());
         userDTO.setDistrict(user.getDistrict());
         userDTO.setWard(user.getWard());
@@ -87,15 +237,15 @@ public class UserService {
     }
 
     private User mapToEntity(final UserDTO userDTO, final User user) {
-        user.setPrefix(userDTO.getPrefix());
+        user.setAccountNumber(userDTO.getAccountNumber());
         user.setFirstName(userDTO.getFirstName());
         user.setLastName(userDTO.getLastName());
         user.setAvatar(userDTO.getAvatar());
         user.setEmail(userDTO.getEmail());
-        user.setCompanyName(userDTO.getCompanyName());
         user.setSlug(userDTO.getSlug());
-        user.setPhone(userDTO.getPhone());
-        user.setVerificationStatus(userDTO.getVerificationStatus());
+        user.setPhoneNumber(userDTO.getPhoneNumber());
+        user.setEmailVerified(userDTO.getEmailVerified());
+        user.setPhoneNumberVerified(userDTO.getPhoneNumberVerified());
         user.setRegion(userDTO.getRegion());
         user.setDistrict(userDTO.getDistrict());
         user.setWard(userDTO.getWard());
@@ -106,18 +256,17 @@ public class UserService {
         user.setIsArchived(userDTO.getIsArchived());
         user.setIsOwner(userDTO.getIsOwner());
         user.setCanDelete(userDTO.getCanDelete());
+        user.setTheme(userDTO.getTheme());
+        user.setPassword(userDTO.getPassword());
+
+        final Role role = userDTO.getRole() == null ? null : roleRepository.findById(userDTO.getRole())
+                .orElseThrow(() -> new NotFoundException("Role not found"));
+        user.setRole(role);
+
         final Country country = userDTO.getCountry() == null ? null : countryRepository.findById(userDTO.getCountry())
                 .orElseThrow(() -> new NotFoundException("country not found"));
         user.setCountry(country);
         return user;
-    }
-
-    public boolean prefixExists(final Integer prefix) {
-        return userRepository.existsByPrefix(prefix);
-    }
-
-    public boolean emailExists(final String email) {
-        return userRepository.existsByEmailIgnoreCase(email);
     }
 
     public ReferencedWarning getReferencedWarning(final UUID id) {

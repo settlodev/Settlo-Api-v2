@@ -2,10 +2,16 @@ package co.tz.settlo.api.tag;
 
 import co.tz.settlo.api.util.ReferencedException;
 import co.tz.settlo.api.util.ReferencedWarning;
+import co.tz.settlo.api.util.RestApiFilter.FieldType;
+import co.tz.settlo.api.util.RestApiFilter.FilterRequest;
+import co.tz.settlo.api.util.RestApiFilter.Operator;
+import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
+
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping(value = "/api/tags", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/tags/{locationId}", produces = MediaType.APPLICATION_JSON_VALUE)
 public class TagResource {
 
     private final TagService tagService;
@@ -29,25 +35,41 @@ public class TagResource {
         this.tagService = tagService;
     }
 
+    
+    @PostMapping
+    public Page<TagDTO> searchProducts(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
+        // Enforce Location filter
+        FilterRequest locationFilter = new FilterRequest();
+        locationFilter.setKey("location");
+        locationFilter.setOperator(Operator.EQUAL);
+        locationFilter.setFieldType(FieldType.STRING);
+        locationFilter.setValue(locationId);
+
+        request.getFilters().add(locationFilter);
+
+        return tagService.searchAll(request);
+    }
+
     @GetMapping
-    public ResponseEntity<List<TagDTO>> getAllTags() {
+    public ResponseEntity<List<TagDTO>> getAllTags(@PathVariable UUID locationId) {
         return ResponseEntity.ok(tagService.findAll());
     }
+    
 
     @GetMapping("/{id}")
     public ResponseEntity<TagDTO> getTag(@PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(tagService.get(id));
     }
 
-    @PostMapping
+    @PostMapping("/create")
     @ApiResponse(responseCode = "201")
-    public ResponseEntity<UUID> createTag(@RequestBody @Valid final TagDTO tagDTO) {
+    public ResponseEntity<UUID> createTag(@PathVariable(name = "locationId") final UUID locationId, @RequestBody @Valid final TagDTO tagDTO) {
         final UUID createdId = tagService.create(tagDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UUID> updateTag(@PathVariable(name = "id") final UUID id,
+    public ResponseEntity<UUID> updateTag(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final TagDTO tagDTO) {
         tagService.update(id, tagDTO);
         return ResponseEntity.ok(id);
@@ -55,7 +77,7 @@ public class TagResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
-    public ResponseEntity<Void> deleteTag(@PathVariable(name = "id") final UUID id) {
+    public ResponseEntity<Void> deleteTag(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         final ReferencedWarning referencedWarning = tagService.getReferencedWarning(id);
         if (referencedWarning != null) {
             throw new ReferencedException(referencedWarning);
