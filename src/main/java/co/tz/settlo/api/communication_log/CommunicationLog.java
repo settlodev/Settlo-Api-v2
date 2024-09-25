@@ -1,6 +1,7 @@
 package co.tz.settlo.api.communication_log;
 
 import co.tz.settlo.api.campaign.Campaign;
+import co.tz.settlo.api.location.Location;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -54,6 +55,10 @@ public class CommunicationLog {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "campaign_id", nullable = false)
     private Campaign campaign;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "location_id", nullable = false)
+    private Location location;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)

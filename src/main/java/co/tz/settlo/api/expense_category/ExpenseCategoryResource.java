@@ -1,11 +1,18 @@
 package co.tz.settlo.api.expense_category;
 
+import co.tz.settlo.api.expense.ExpenseDTO;
 import co.tz.settlo.api.util.ReferencedException;
 import co.tz.settlo.api.util.ReferencedWarning;
+import co.tz.settlo.api.util.RestApiFilter.FieldType;
+import co.tz.settlo.api.util.RestApiFilter.FilterRequest;
+import co.tz.settlo.api.util.RestApiFilter.Operator;
+import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
+
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping(value = "/api/expenseCategories", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/expense-categories/{locationId}", produces = MediaType.APPLICATION_JSON_VALUE)
 public class ExpenseCategoryResource {
 
     private final ExpenseCategoryService expenseCategoryService;
@@ -30,8 +37,8 @@ public class ExpenseCategoryResource {
     }
 
     @GetMapping
-    public ResponseEntity<List<ExpenseCategoryDTO>> getAllExpenseCategories() {
-        return ResponseEntity.ok(expenseCategoryService.findAll());
+    public ResponseEntity<List<ExpenseCategoryDTO>> getAllExpenseCategories(@PathVariable UUID locationId) {
+        return ResponseEntity.ok(expenseCategoryService.findAll(locationId));
     }
 
     @GetMapping("/{id}")
@@ -41,23 +48,44 @@ public class ExpenseCategoryResource {
     }
 
     @PostMapping
+    public Page<ExpenseCategoryDTO> searchExpenseCategories(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
+        // Enforce Location filter
+        FilterRequest locationFilter = new FilterRequest();
+        locationFilter.setKey("location");
+        locationFilter.setOperator(Operator.EQUAL);
+        locationFilter.setFieldType(FieldType.STRING);
+        locationFilter.setValue(locationId);
+
+        request.getFilters().add(locationFilter);
+
+        return expenseCategoryService.searchAll(request);
+    }
+
+    @PostMapping("/create")
     @ApiResponse(responseCode = "201")
     public ResponseEntity<UUID> createExpenseCategory(
+            @PathVariable UUID locationId,
             @RequestBody @Valid final ExpenseCategoryDTO expenseCategoryDTO) {
+
+        expenseCategoryDTO.setLocation(locationId);
+
         final UUID createdId = expenseCategoryService.create(expenseCategoryDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UUID> updateExpenseCategory(@PathVariable(name = "id") final UUID id,
+    public ResponseEntity<UUID> updateExpenseCategory(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final ExpenseCategoryDTO expenseCategoryDTO) {
+
+        expenseCategoryDTO.setLocation(locationId);
+
         expenseCategoryService.update(id, expenseCategoryDTO);
         return ResponseEntity.ok(id);
     }
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
-    public ResponseEntity<Void> deleteExpenseCategory(@PathVariable(name = "id") final UUID id) {
+    public ResponseEntity<Void> deleteExpenseCategory(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         final ReferencedWarning referencedWarning = expenseCategoryService.getReferencedWarning(id);
         if (referencedWarning != null) {
             throw new ReferencedException(referencedWarning);

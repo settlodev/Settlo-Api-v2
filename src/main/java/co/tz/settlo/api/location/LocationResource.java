@@ -1,6 +1,5 @@
 package co.tz.settlo.api.location;
 
-import co.tz.settlo.api.expense.ExpenseDTO;
 import co.tz.settlo.api.util.ReferencedException;
 import co.tz.settlo.api.util.ReferencedWarning;
 import co.tz.settlo.api.util.RestApiFilter.FieldType;

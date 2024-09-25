@@ -29,4 +29,5 @@ public class BrandDTO {
     @JsonProperty("isArchived")
     private Boolean isArchived;
 
+    private UUID location;
 }

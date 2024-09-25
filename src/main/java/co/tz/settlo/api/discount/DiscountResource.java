@@ -40,7 +40,7 @@ public class DiscountResource {
     }
 
     @PostMapping
-    public Page<DiscountDTO> searchExpenses(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
+    public Page<DiscountDTO> searchDiscounts(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
         // Enforce Location filter
         FilterRequest locationFilter = new FilterRequest();
         locationFilter.setKey("location");

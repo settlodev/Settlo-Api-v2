@@ -41,4 +41,5 @@ public class AddonDTO {
 
     private UUID orderItem;
 
+    private UUID location;
 }

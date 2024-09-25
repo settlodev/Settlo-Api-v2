@@ -1,11 +1,8 @@
 package co.tz.settlo.api.category;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import co.tz.settlo.api.location.Location;
+import jakarta.persistence.*;
+
 import java.time.OffsetDateTime;
 import java.util.UUID;
 import lombok.Getter;
@@ -14,7 +11,6 @@ import org.hibernate.annotations.UuidGenerator;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
 
 @Entity
 @Table(name = "Categories")
@@ -46,6 +42,10 @@ public class Category {
 
     @Column(nullable = false)
     private Boolean canDelete;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "location_id", nullable = false)
+    private Location location;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)

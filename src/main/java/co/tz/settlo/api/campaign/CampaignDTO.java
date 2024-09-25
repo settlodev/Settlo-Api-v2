@@ -48,7 +48,5 @@ public class CampaignDTO {
     @NotNull
     private UUID business;
 
-    @NotNull
     private UUID location;
-
 }

@@ -1,9 +1,16 @@
 package co.tz.settlo.api.delivery;
 
+import co.tz.settlo.api.customer.CustomerDTO;
+import co.tz.settlo.api.util.RestApiFilter.FieldType;
+import co.tz.settlo.api.util.RestApiFilter.FilterRequest;
+import co.tz.settlo.api.util.RestApiFilter.Operator;
+import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
+
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping(value = "/api/deliveries", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/deliveries/{locationId}", produces = MediaType.APPLICATION_JSON_VALUE)
 public class DeliveryResource {
 
     private final DeliveryService deliveryService;
@@ -28,32 +35,52 @@ public class DeliveryResource {
     }
 
     @GetMapping
-    public ResponseEntity<List<DeliveryDTO>> getAllDeliveries() {
-        return ResponseEntity.ok(deliveryService.findAll());
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<DeliveryDTO> getDelivery(@PathVariable(name = "id") final UUID id) {
-        return ResponseEntity.ok(deliveryService.get(id));
+    public ResponseEntity<List<DeliveryDTO>> getAllDeliveries(@PathVariable UUID locationId) {
+        return ResponseEntity.ok(deliveryService.findAll(locationId));
     }
 
     @PostMapping
+    public Page<DeliveryDTO> searchDeliveries(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
+        // Enforce Location filter
+        FilterRequest locationFilter = new FilterRequest();
+        locationFilter.setKey("location");
+        locationFilter.setOperator(Operator.EQUAL);
+        locationFilter.setFieldType(FieldType.STRING);
+        locationFilter.setValue(locationId);
+
+        request.getFilters().add(locationFilter);
+
+        return deliveryService.searchAll(request);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<DeliveryDTO> getDelivery(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
+        return ResponseEntity.ok(deliveryService.get(id));
+    }
+
+    @PostMapping("/create")
     @ApiResponse(responseCode = "201")
-    public ResponseEntity<UUID> createDelivery(@RequestBody @Valid final DeliveryDTO deliveryDTO) {
+    public ResponseEntity<UUID> createDelivery(@PathVariable UUID locationId, @RequestBody @Valid final DeliveryDTO deliveryDTO) {
+
+        deliveryDTO.setLocation(locationId);
+
         final UUID createdId = deliveryService.create(deliveryDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UUID> updateDelivery(@PathVariable(name = "id") final UUID id,
+    public ResponseEntity<UUID> updateDelivery(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final DeliveryDTO deliveryDTO) {
+
+        deliveryDTO.setLocation(locationId);
+
         deliveryService.update(id, deliveryDTO);
         return ResponseEntity.ok(id);
     }
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
-    public ResponseEntity<Void> deleteDelivery(@PathVariable(name = "id") final UUID id) {
+    public ResponseEntity<Void> deleteDelivery(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         deliveryService.delete(id);
         return ResponseEntity.noContent().build();
     }

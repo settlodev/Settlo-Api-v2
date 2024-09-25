@@ -1,11 +1,8 @@
 package co.tz.settlo.api.brand;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import co.tz.settlo.api.location.Location;
+import jakarta.persistence.*;
+
 import java.time.OffsetDateTime;
 import java.util.UUID;
 import lombok.Getter;
@@ -40,6 +37,10 @@ public class Brand {
 
     @Column(nullable = false)
     private Boolean isArchived;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "location_id", nullable = false)
+    private Location location;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)

@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping(value = "/api/kycs", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/kyc/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 public class KycResource {
 
     private final KycService kycService;
@@ -28,8 +28,8 @@ public class KycResource {
     }
 
     @GetMapping
-    public ResponseEntity<List<KycDTO>> getAllKycs() {
-        return ResponseEntity.ok(kycService.findAll());
+    public ResponseEntity<KycDTO> getUserKyc(@PathVariable UUID userId) {
+        return ResponseEntity.ok(kycService.findByUserId(userId));
     }
 
     @GetMapping("/{id}")
@@ -39,21 +39,26 @@ public class KycResource {
 
     @PostMapping
     @ApiResponse(responseCode = "201")
-    public ResponseEntity<UUID> createKyc(@RequestBody @Valid final KycDTO kycDTO) {
+    public ResponseEntity<UUID> createKyc(@PathVariable UUID userId, @RequestBody @Valid final KycDTO kycDTO) {
+        kycDTO.setUser(userId);
+
         final UUID createdId = kycService.create(kycDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UUID> updateKyc(@PathVariable(name = "id") final UUID id,
+    public ResponseEntity<UUID> updateKyc(@PathVariable UUID userId, @PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final KycDTO kycDTO) {
+
+        kycDTO.setUser(userId);
+
         kycService.update(id, kycDTO);
         return ResponseEntity.ok(id);
     }
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
-    public ResponseEntity<Void> deleteKyc(@PathVariable(name = "id") final UUID id) {
+    public ResponseEntity<Void> deleteKyc(@PathVariable UUID userId, @PathVariable(name = "id") final UUID id) {
         kycService.delete(id);
         return ResponseEntity.noContent().build();
     }

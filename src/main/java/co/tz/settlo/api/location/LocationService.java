@@ -8,8 +8,6 @@ import co.tz.settlo.api.department.Department;
 import co.tz.settlo.api.department.DepartmentRepository;
 import co.tz.settlo.api.discount.Discount;
 import co.tz.settlo.api.discount.DiscountRepository;
-import co.tz.settlo.api.expense.Expense;
-import co.tz.settlo.api.expense.ExpenseDTO;
 import co.tz.settlo.api.location_setting.LocationSetting;
 import co.tz.settlo.api.location_setting.LocationSettingRepository;
 import co.tz.settlo.api.product.Product;
@@ -32,12 +30,8 @@ import java.util.UUID;
 import co.tz.settlo.api.util.RestApiFilter.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 
 @Service
