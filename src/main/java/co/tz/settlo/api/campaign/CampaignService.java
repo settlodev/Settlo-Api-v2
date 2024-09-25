@@ -6,6 +6,8 @@ import co.tz.settlo.api.communication_log.CommunicationLog;
 import co.tz.settlo.api.communication_log.CommunicationLogRepository;
 import co.tz.settlo.api.communication_template.CommunicationTemplate;
 import co.tz.settlo.api.communication_template.CommunicationTemplateRepository;
+import co.tz.settlo.api.expense.Expense;
+import co.tz.settlo.api.expense.ExpenseDTO;
 import co.tz.settlo.api.location.Location;
 import co.tz.settlo.api.location.LocationRepository;
 import co.tz.settlo.api.sender_id.SenderId;
@@ -14,8 +16,14 @@ import co.tz.settlo.api.util.NotFoundException;
 import co.tz.settlo.api.util.ReferencedWarning;
 import java.util.List;
 import java.util.UUID;
+
+import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import co.tz.settlo.api.util.RestApiFilter.SearchSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -42,25 +50,38 @@ public class CampaignService {
         this.communicationLogRepository = communicationLogRepository;
     }
 
-    public List<CampaignDTO> findAll() {
-        final List<Campaign> campaigns = campaignRepository.findAll(Sort.by("id"));
+    @Transactional(readOnly = true)
+    public Page<CampaignDTO> searchAll(SearchRequest request) {
+        SearchSpecification<Campaign> specification = new SearchSpecification<>(request);
+        Pageable pageable = SearchSpecification.getPageable(request.getPage(), request.getSize());
+        Page<Campaign> campaignsPage = campaignRepository.findAll(specification, pageable);
+
+        return campaignsPage.map(expense -> mapToDTO(expense, new CampaignDTO()));
+    }
+
+    @Transactional(readOnly = true)
+    public List<CampaignDTO> findAll(final UUID locationId) {
+        final List<Campaign> campaigns = campaignRepository.findAllByLocationId(locationId);
         return campaigns.stream()
                 .map(campaign -> mapToDTO(campaign, new CampaignDTO()))
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public CampaignDTO get(final UUID id) {
         return campaignRepository.findById(id)
                 .map(campaign -> mapToDTO(campaign, new CampaignDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
+    @Transactional
     public UUID create(final CampaignDTO campaignDTO) {
         final Campaign campaign = new Campaign();
         mapToEntity(campaignDTO, campaign);
         return campaignRepository.save(campaign).getId();
     }
 
+    @Transactional
     public void update(final UUID id, final CampaignDTO campaignDTO) {
         final Campaign campaign = campaignRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
@@ -68,6 +89,7 @@ public class CampaignService {
         campaignRepository.save(campaign);
     }
 
+    @Transactional
     public void delete(final UUID id) {
         campaignRepository.deleteById(id);
     }

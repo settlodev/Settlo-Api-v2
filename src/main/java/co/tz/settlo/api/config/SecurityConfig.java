@@ -49,6 +49,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/users/user-check").permitAll()
 
+                        .requestMatchers(HttpMethod.GET, "/api/countries").permitAll()
+
                         .requestMatchers(HttpMethod.POST, "/api/auth/logout").permitAll()
                         .requestMatchers(HttpMethod.GET, "/settlo-docs/**").permitAll()
                         .anyRequest().authenticated())
