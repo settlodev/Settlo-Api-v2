@@ -1,7 +1,6 @@
 package co.tz.settlo.api.auth;
 
 import co.tz.settlo.api.JwtHelper;
-import co.tz.settlo.api.common.models.SubscriptionStatus;
 import co.tz.settlo.api.user.UserService;
 import io.github.wimdeblauwe.errorhandlingspringbootstarter.ApiErrorResponse;
 import io.sentry.Sentry;
@@ -9,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +44,7 @@ public class AuthResource {
     @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     @PostMapping("/register")
+    @Tag(name="User Registration", description = "Registers a user on the system")
     public ResponseEntity<RegistrationResponseDTO> signup(@Valid @RequestBody UserRegistrationDTO userRegistrationDTO) {
         UUID newUserId = userService.create(userRegistrationDTO);
 
@@ -63,6 +64,7 @@ public class AuthResource {
     @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     @PostMapping("/login")
+    @Tag(name="User Login", description = "Authenticate user and return authentication tokens")
     public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.email(), request.password()));
@@ -81,18 +83,21 @@ public class AuthResource {
     @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     @PostMapping("/refresh")
+    @Tag(name="Refresh Access Token", description = "Use refresh token to generate new access token")
     public ResponseEntity<LoginResponseDTO> refreshToken(@Valid @RequestBody RefreshTokenRequestDTO request) {
         return ResponseEntity.ok(authService.refreshToken(request.refreshToken()));
     }
 
     @Operation(summary = "Generate verification token")
     @PutMapping("/generate-verification-token/{email}")
+    @Tag(name="Generate verification token", description = "Generate verification token to be used to verify email address")
     public ResponseEntity<UUID> generateVerificationToken(@PathVariable String email) {
         return ResponseEntity.ok(userService.generateVerificationToken(email));
     }
 
     @Operation(summary = "Verify token")
     @GetMapping("/verify-token/{token}")
+    @Tag(name="Verify token", description = "Verify generated tokens")
     public ResponseEntity<UUID> verifyToken(@PathVariable UUID token) {
         return ResponseEntity.ok(userService.verifyToken(token));
     }
@@ -102,6 +107,7 @@ public class AuthResource {
     @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     @GetMapping("/attempts")
+    @Tag(name="Get recent login attempts", description = "Get recent login attempts by specific user")
     public ResponseEntity<List<LoginAttemptResponse>> loginAttempts(@RequestHeader("Authorization") String token) {
         String fullToken = JwtHelper.getInstance().getTokenFromAuthorizationHeader(token);
         String email = JwtHelper.getInstance().extractUsername(fullToken);
@@ -112,6 +118,7 @@ public class AuthResource {
 
     @Operation(summary = "Generate password reset token")
     @PostMapping("/reset-password")
+    @Tag(name="Generate password reset token", description = "Returns password reset token")
     public ResponseEntity<UUID> resetPassword(@Valid @RequestBody ResetPasswordDTO resetPasswordDTO) {
         userService.get(resetPasswordDTO.email());
         return ResponseEntity.ok(authService.generatePasswordResetToken(resetPasswordDTO.email()));
@@ -119,12 +126,14 @@ public class AuthResource {
 
     @Operation(summary = "Update user password")
     @PostMapping("/update-password")
+    @Tag(name="Update user password", description = "Update user password")
     public ResponseEntity<UUID> updatePassword(@Valid @RequestBody UpdatePasswordDTO updatePasswordDTO) {
         return ResponseEntity.ok(userService.updatePassword(updatePasswordDTO));
     }
 
     @Operation(summary = "Logout user")
     @PostMapping("/logout")
+    @Tag(name="Log out", description = "Log user out of all sessions")
     public ResponseEntity<Void> logout(@RequestHeader("Authorization") String token) {
         String fullToken = JwtHelper.getInstance().getTokenFromAuthorizationHeader(token);
         String email = JwtHelper.getInstance().extractUsername(fullToken);
