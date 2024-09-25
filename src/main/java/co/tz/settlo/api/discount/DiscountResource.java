@@ -1,9 +1,16 @@
 package co.tz.settlo.api.discount;
 
+import co.tz.settlo.api.expense.ExpenseDTO;
+import co.tz.settlo.api.util.RestApiFilter.FieldType;
+import co.tz.settlo.api.util.RestApiFilter.FilterRequest;
+import co.tz.settlo.api.util.RestApiFilter.Operator;
+import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
+
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping(value = "/api/discounts", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/discounts/{locationId}", produces = MediaType.APPLICATION_JSON_VALUE)
 public class DiscountResource {
 
     private final DiscountService discountService;
@@ -32,28 +39,46 @@ public class DiscountResource {
         return ResponseEntity.ok(discountService.findAll());
     }
 
+    @PostMapping
+    public Page<DiscountDTO> searchExpenses(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
+        // Enforce Location filter
+        FilterRequest locationFilter = new FilterRequest();
+        locationFilter.setKey("location");
+        locationFilter.setOperator(Operator.EQUAL);
+        locationFilter.setFieldType(FieldType.STRING);
+        locationFilter.setValue(locationId);
+
+        request.getFilters().add(locationFilter);
+
+        return discountService.searchAll(request);
+    }
+
     @GetMapping("/{id}")
-    public ResponseEntity<DiscountDTO> getDiscount(@PathVariable(name = "id") final UUID id) {
+    public ResponseEntity<DiscountDTO> getDiscount(@PathVariable final UUID locationId, @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(discountService.get(id));
     }
 
-    @PostMapping
+    @PostMapping("/create")
     @ApiResponse(responseCode = "201")
-    public ResponseEntity<UUID> createDiscount(@RequestBody @Valid final DiscountDTO discountDTO) {
+    public ResponseEntity<UUID> createDiscount(@PathVariable final UUID locationId, @RequestBody @Valid final DiscountDTO discountDTO) {
+        discountDTO.setLocation(locationId);
+
         final UUID createdId = discountService.create(discountDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UUID> updateDiscount(@PathVariable(name = "id") final UUID id,
+    public ResponseEntity<UUID> updateDiscount(@PathVariable final UUID locationId, @PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final DiscountDTO discountDTO) {
+        discountDTO.setLocation(locationId);
+
         discountService.update(id, discountDTO);
         return ResponseEntity.ok(id);
     }
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
-    public ResponseEntity<Void> deleteDiscount(@PathVariable(name = "id") final UUID id) {
+    public ResponseEntity<Void> deleteDiscount(@PathVariable final UUID locationId, @PathVariable(name = "id") final UUID id) {
         discountService.delete(id);
         return ResponseEntity.noContent().build();
     }

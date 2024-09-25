@@ -6,13 +6,21 @@ import co.tz.settlo.api.customer.Customer;
 import co.tz.settlo.api.customer.CustomerRepository;
 import co.tz.settlo.api.department.Department;
 import co.tz.settlo.api.department.DepartmentRepository;
+import co.tz.settlo.api.expense.Expense;
+import co.tz.settlo.api.expense.ExpenseDTO;
 import co.tz.settlo.api.location.Location;
 import co.tz.settlo.api.location.LocationRepository;
 import co.tz.settlo.api.util.NotFoundException;
 import java.util.List;
 import java.util.UUID;
+
+import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import co.tz.settlo.api.util.RestApiFilter.SearchSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -36,6 +44,16 @@ public class DiscountService {
         this.categoryRepository = categoryRepository;
     }
 
+    @Transactional(readOnly = true)
+    public Page<DiscountDTO> searchAll(SearchRequest request) {
+        SearchSpecification<Discount> specification = new SearchSpecification<>(request);
+        Pageable pageable = SearchSpecification.getPageable(request.getPage(), request.getSize());
+        Page<Discount> expensesPage = discountRepository.findAll(specification, pageable);
+
+        return expensesPage.map(discount -> mapToDTO(discount, new DiscountDTO()));
+    }
+
+    @Transactional(readOnly = true)
     public List<DiscountDTO> findAll() {
         final List<Discount> discounts = discountRepository.findAll(Sort.by("id"));
         return discounts.stream()
@@ -43,18 +61,21 @@ public class DiscountService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public DiscountDTO get(final UUID id) {
         return discountRepository.findById(id)
                 .map(discount -> mapToDTO(discount, new DiscountDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
+    @Transactional
     public UUID create(final DiscountDTO discountDTO) {
         final Discount discount = new Discount();
         mapToEntity(discountDTO, discount);
         return discountRepository.save(discount).getId();
     }
 
+    @Transactional
     public void update(final UUID id, final DiscountDTO discountDTO) {
         final Discount discount = discountRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
@@ -62,6 +83,7 @@ public class DiscountService {
         discountRepository.save(discount);
     }
 
+    @Transactional
     public void delete(final UUID id) {
         discountRepository.deleteById(id);
     }

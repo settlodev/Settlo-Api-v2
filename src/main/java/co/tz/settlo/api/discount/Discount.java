@@ -99,5 +99,4 @@ public class Discount {
     @LastModifiedDate
     @Column(nullable = false)
     private OffsetDateTime lastUpdated;
-
 }
