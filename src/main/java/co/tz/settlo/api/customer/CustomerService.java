@@ -8,8 +8,14 @@ import co.tz.settlo.api.util.NotFoundException;
 import co.tz.settlo.api.util.ReferencedWarning;
 import java.util.List;
 import java.util.UUID;
+
+import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import co.tz.settlo.api.util.RestApiFilter.SearchSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -27,6 +33,7 @@ public class CustomerService {
         this.reservationRepository = reservationRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<CustomerDTO> findAll() {
         final List<Customer> customers = customerRepository.findAll(Sort.by("id"));
         return customers.stream()
@@ -34,18 +41,30 @@ public class CustomerService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public CustomerDTO get(final UUID id) {
         return customerRepository.findById(id)
                 .map(customer -> mapToDTO(customer, new CustomerDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
+    @Transactional(readOnly = true)
+    public Page<CustomerDTO> searchAll(SearchRequest request) {
+        SearchSpecification<Customer> specification = new SearchSpecification<>(request);
+        Pageable pageable = SearchSpecification.getPageable(request.getPage(), request.getSize());
+        Page<Customer> customersPage = customerRepository.findAll(specification, pageable);
+
+        return customersPage.map(customer -> mapToDTO(customer, new CustomerDTO()));
+    }
+
+    @Transactional
     public UUID create(final CustomerDTO customerDTO) {
         final Customer customer = new Customer();
         mapToEntity(customerDTO, customer);
         return customerRepository.save(customer).getId();
     }
 
+    @Transactional
     public void update(final UUID id, final CustomerDTO customerDTO) {
         final Customer customer = customerRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
@@ -53,6 +72,7 @@ public class CustomerService {
         customerRepository.save(customer);
     }
 
+    @Transactional
     public void delete(final UUID id) {
         customerRepository.deleteById(id);
     }

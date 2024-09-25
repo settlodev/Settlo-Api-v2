@@ -1,6 +1,7 @@
 package co.tz.settlo.api.customer;
 
 import co.tz.settlo.api.common.models.Gender;
+import co.tz.settlo.api.location.Location;
 import jakarta.persistence.*;
 
 import java.time.OffsetDateTime;
@@ -53,6 +54,10 @@ public class Customer {
 
     @Column(nullable = false)
     private Boolean canDelete;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "location_id", nullable = false)
+    private Location location;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
