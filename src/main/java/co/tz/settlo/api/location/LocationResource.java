@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping(value = "/api/locations", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/locations/{locationId}", produces = MediaType.APPLICATION_JSON_VALUE)
 public class LocationResource {
 
     private final LocationService locationService;
@@ -35,19 +35,19 @@ public class LocationResource {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<LocationDTO> getLocation(@PathVariable(name = "id") final UUID id) {
+    public ResponseEntity<LocationDTO> getLocation(@PathVariable final UUID locationId, @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(locationService.get(id));
     }
 
-    @PostMapping
+    @PostMapping("/create")
     @ApiResponse(responseCode = "201")
-    public ResponseEntity<UUID> createLocation(@RequestBody @Valid final LocationDTO locationDTO) {
+    public ResponseEntity<UUID> createLocation(@PathVariable final UUID locationId, @RequestBody @Valid final LocationDTO locationDTO) {
         final UUID createdId = locationService.create(locationDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UUID> updateLocation(@PathVariable(name = "id") final UUID id,
+    public ResponseEntity<UUID> updateLocation(@PathVariable final UUID locationId, @PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final LocationDTO locationDTO) {
         locationService.update(id, locationDTO);
         return ResponseEntity.ok(id);
@@ -55,7 +55,7 @@ public class LocationResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
-    public ResponseEntity<Void> deleteLocation(@PathVariable(name = "id") final UUID id) {
+    public ResponseEntity<Void> deleteLocation(@PathVariable final UUID locationId, @PathVariable(name = "id") final UUID id) {
         final ReferencedWarning referencedWarning = locationService.getReferencedWarning(id);
         if (referencedWarning != null) {
             throw new ReferencedException(referencedWarning);

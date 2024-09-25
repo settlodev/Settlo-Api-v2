@@ -2,9 +2,16 @@ package co.tz.settlo.api.addon;
 
 import co.tz.settlo.api.order_item.OrderItem;
 import co.tz.settlo.api.order_item.OrderItemRepository;
+import co.tz.settlo.api.tag.Tag;
+import co.tz.settlo.api.tag.TagDTO;
 import co.tz.settlo.api.util.NotFoundException;
 import java.util.List;
 import java.util.UUID;
+
+import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import co.tz.settlo.api.util.RestApiFilter.SearchSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -78,4 +85,12 @@ public class AddonService {
         return addonRepository.existsByTitleIgnoreCase(title);
     }
 
+//    public Page<AddonDTO> searchAll(SearchRequest request) {
+//        SearchSpecification<Addon> specification = new SearchSpecification<>(request);
+//
+//        Pageable pageable = SearchSpecification.getPageable(request.getPage(), request.getSize());
+//        Page<Addon> addonsPage = addonRepository.findAll(pageable);
+//
+//        return addonsPage.map(addon -> mapToDTO(addon, new AddonDTO()));
+//    }
 }

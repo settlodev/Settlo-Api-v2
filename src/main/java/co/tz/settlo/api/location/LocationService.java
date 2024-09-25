@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -70,6 +71,7 @@ public class LocationService {
         this.stockUsageRepository = stockUsageRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<LocationDTO> findAll() {
         final List<Location> locations = locationRepository.findAll(Sort.by("id"));
         return locations.stream()
@@ -77,18 +79,21 @@ public class LocationService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public LocationDTO get(final UUID id) {
         return locationRepository.findById(id)
                 .map(location -> mapToDTO(location, new LocationDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
+    @Transactional
     public UUID create(final LocationDTO locationDTO) {
         final Location location = new Location();
         mapToEntity(locationDTO, location);
         return locationRepository.save(location).getId();
     }
 
+    @Transactional
     public void update(final UUID id, final LocationDTO locationDTO) {
         final Location location = locationRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
@@ -96,6 +101,7 @@ public class LocationService {
         locationRepository.save(location);
     }
 
+    @Transactional
     public void delete(final UUID id) {
         locationRepository.deleteById(id);
     }

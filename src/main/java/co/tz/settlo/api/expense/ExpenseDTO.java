@@ -43,4 +43,6 @@ public class ExpenseDTO {
     @NotNull
     private UUID business;
 
+    private UUID location;
+
 }

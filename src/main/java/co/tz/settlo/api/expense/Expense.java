@@ -2,6 +2,7 @@ package co.tz.settlo.api.expense;
 
 import co.tz.settlo.api.business.Business;
 import co.tz.settlo.api.expense_category.ExpenseCategory;
+import co.tz.settlo.api.location.Location;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -66,4 +67,7 @@ public class Expense {
     @Column(nullable = false)
     private OffsetDateTime lastUpdated;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "location_id")
+    private Location location;
 }
