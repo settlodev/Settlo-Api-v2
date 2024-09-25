@@ -50,7 +50,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/users/user-check").permitAll()
 
                         .requestMatchers(HttpMethod.POST, "/api/auth/logout").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/ring-docs/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/settlo-docs/**").permitAll()
                         .anyRequest().authenticated())
                 .authenticationManager(authenticationManager)
 
