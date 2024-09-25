@@ -1,9 +1,16 @@
 package co.tz.settlo.api.expense;
 
+import co.tz.settlo.api.reservation.ReservationDTO;
+import co.tz.settlo.api.util.RestApiFilter.FieldType;
+import co.tz.settlo.api.util.RestApiFilter.FilterRequest;
+import co.tz.settlo.api.util.RestApiFilter.Operator;
+import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
+
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping(value = "/api/expenses", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/expenses/{locationId}", produces = MediaType.APPLICATION_JSON_VALUE)
 public class ExpenseResource {
 
     private final ExpenseService expenseService;
@@ -27,33 +34,49 @@ public class ExpenseResource {
         this.expenseService = expenseService;
     }
 
+    @PostMapping
+    public Page<ExpenseDTO> searchExpenses(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
+        // Enforce Location filter
+        FilterRequest locationFilter = new FilterRequest();
+        locationFilter.setKey("location");
+        locationFilter.setOperator(Operator.EQUAL);
+        locationFilter.setFieldType(FieldType.STRING);
+        locationFilter.setValue(locationId);
+
+        request.getFilters().add(locationFilter);
+
+        return expenseService.searchAll(request);
+    }
+
     @GetMapping
-    public ResponseEntity<List<ExpenseDTO>> getAllExpenses() {
-        return ResponseEntity.ok(expenseService.findAll());
+    public ResponseEntity<List<ExpenseDTO>> getAllExpenses(@PathVariable UUID locationId) {
+        return ResponseEntity.ok(expenseService.findAll(locationId));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ExpenseDTO> getExpense(@PathVariable(name = "id") final UUID id) {
+    public ResponseEntity<ExpenseDTO> getExpense(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(expenseService.get(id));
     }
 
-    @PostMapping
+    @PostMapping("/create")
     @ApiResponse(responseCode = "201")
-    public ResponseEntity<UUID> createExpense(@RequestBody @Valid final ExpenseDTO expenseDTO) {
+    public ResponseEntity<UUID> createExpense(@PathVariable UUID locationId,@RequestBody @Valid final ExpenseDTO expenseDTO) {
+        expenseDTO.setLocation(locationId);
         final UUID createdId = expenseService.create(expenseDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UUID> updateExpense(@PathVariable(name = "id") final UUID id,
+    public ResponseEntity<UUID> updateExpense(@PathVariable UUID locationId,@PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final ExpenseDTO expenseDTO) {
+        expenseDTO.setLocation(locationId);
         expenseService.update(id, expenseDTO);
         return ResponseEntity.ok(id);
     }
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
-    public ResponseEntity<Void> deleteExpense(@PathVariable(name = "id") final UUID id) {
+    public ResponseEntity<Void> deleteExpense(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         expenseService.delete(id);
         return ResponseEntity.noContent().build();
     }
