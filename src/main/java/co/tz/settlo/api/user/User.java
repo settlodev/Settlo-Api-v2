@@ -1,6 +1,7 @@
 package co.tz.settlo.api.user;
 
 import co.tz.settlo.api.country.Country;
+import co.tz.settlo.api.role.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -10,6 +11,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 import lombok.Getter;
@@ -34,7 +37,7 @@ public class User {
     private UUID id;
 
     @Column(nullable = false, unique = true)
-    private Integer prefix;
+    private String accountNumber;
 
     @Column(nullable = false, length = 100)
     private String firstName;
@@ -49,16 +52,19 @@ public class User {
     private String email;
 
     @Column
-    private String companyName;
-
-    @Column
     private String slug;
 
-    @Column(nullable = false)
-    private String phone;
+    @Column(nullable = false, length = 20)
+    private String phoneNumber;
 
-    @Column(nullable = false)
-    private Boolean verificationStatus;
+    @Column
+    private LocalDateTime emailVerified;
+
+    @Column
+    private LocalDateTime phoneNumberVerified;
+
+    @Column
+    private String password;
 
     @Column
     private String region;
@@ -80,6 +86,16 @@ public class User {
 
     @Column(nullable = false)
     private Boolean status;
+
+    @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean consent;
+
+    @Column
+    private String theme;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role")
+    private Role role;
 
     @Column(nullable = false)
     private Boolean isArchived;

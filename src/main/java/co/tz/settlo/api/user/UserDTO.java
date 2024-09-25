@@ -1,8 +1,9 @@
 package co.tz.settlo.api.user;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,9 +15,8 @@ public class UserDTO {
 
     private UUID id;
 
-    @NotNull
-    @UserPrefixUnique
-    private Integer prefix;
+    @UserAccountNumberUnique
+    private String accountNumber;
 
     @NotNull
     @Size(max = 100)
@@ -34,18 +34,12 @@ public class UserDTO {
     @UserEmailUnique
     private String email;
 
-    @Size(max = 255)
-    private String companyName;
-
-    @Size(max = 255)
+    @Size(max = 100)
     private String slug;
 
     @NotNull
-    @Size(max = 255)
-    private String phone;
-
-    @NotNull
-    private Boolean verificationStatus;
+    @Size(max = 20)
+    private String phoneNumber;
 
     @Size(max = 255)
     private String region;
@@ -65,15 +59,27 @@ public class UserDTO {
     @Size(max = 255)
     private String municipal;
 
+    private LocalDateTime emailVerified;
+
+    private Boolean consent;
+
+    private String theme;
+
+    @NotNull
+    @Size(max = 255)
+    private String password;
+
+    private UUID role;
+
+    private LocalDateTime phoneNumberVerified;
+
     @NotNull
     private Boolean status;
 
     @NotNull
-    @JsonProperty("isArchived")
     private Boolean isArchived;
 
     @NotNull
-    @JsonProperty("isOwner")
     private Boolean isOwner;
 
     @NotNull

@@ -25,29 +25,29 @@ import org.springframework.web.servlet.HandlerMapping;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Constraint(
-        validatedBy = UserPrefixUnique.UserPrefixUniqueValidator.class
+        validatedBy = UserAccountNumberUnique.UserAccountNumberUniqueValidator.class
 )
-public @interface UserPrefixUnique {
+public @interface UserAccountNumberUnique {
 
-    String message() default "{Exists.user.prefix}";
+    String message() default "{Exists.user.accountNumber}";
 
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
 
-    class UserPrefixUniqueValidator implements ConstraintValidator<UserPrefixUnique, Integer> {
+    class UserAccountNumberUniqueValidator implements ConstraintValidator<UserAccountNumberUnique, String> {
 
         private final UserService userService;
         private final HttpServletRequest request;
 
-        public UserPrefixUniqueValidator(final UserService userService,
+        public UserAccountNumberUniqueValidator(final UserService userService,
                 final HttpServletRequest request) {
             this.userService = userService;
             this.request = request;
         }
 
         @Override
-        public boolean isValid(final Integer value, final ConstraintValidatorContext cvContext) {
+        public boolean isValid(final String value, final ConstraintValidatorContext cvContext) {
             if (value == null) {
                 // no value present
                 return true;
@@ -55,11 +55,11 @@ public @interface UserPrefixUnique {
             @SuppressWarnings("unchecked") final Map<String, String> pathVariables =
                     ((Map<String, String>)request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE));
             final String currentId = pathVariables.get("id");
-            if (currentId != null && value.equals(userService.get(UUID.fromString(currentId)).getPrefix())) {
+            if (currentId != null && value.equals(userService.get(UUID.fromString(currentId)).getAccountNumber())) {
                 // value hasn't changed
                 return true;
             }
-            return !userService.prefixExists(value);
+            return !userService.accountNumberExists(value);
         }
 
     }
