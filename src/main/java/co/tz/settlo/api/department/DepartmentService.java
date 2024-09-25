@@ -4,6 +4,8 @@ import co.tz.settlo.api.business.Business;
 import co.tz.settlo.api.business.BusinessRepository;
 import co.tz.settlo.api.discount.Discount;
 import co.tz.settlo.api.discount.DiscountRepository;
+import co.tz.settlo.api.expense.Expense;
+import co.tz.settlo.api.expense.ExpenseDTO;
 import co.tz.settlo.api.location.Location;
 import co.tz.settlo.api.location.LocationRepository;
 import co.tz.settlo.api.product.Product;
@@ -16,8 +18,14 @@ import co.tz.settlo.api.util.NotFoundException;
 import co.tz.settlo.api.util.ReferencedWarning;
 import java.util.List;
 import java.util.UUID;
+
+import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import co.tz.settlo.api.util.RestApiFilter.SearchSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -45,6 +53,16 @@ public class DepartmentService {
         this.shiftRepository = shiftRepository;
     }
 
+    @Transactional(readOnly = true)
+    public Page<DepartmentDTO> searchAll(SearchRequest request) {
+        SearchSpecification<Department> specification = new SearchSpecification<>(request);
+        Pageable pageable = SearchSpecification.getPageable(request.getPage(), request.getSize());
+        Page<Department> departmentsPage = departmentRepository.findAll(specification, pageable);
+
+        return departmentsPage.map(department -> mapToDTO(department, new DepartmentDTO()));
+    }
+
+    @Transactional(readOnly = true)
     public List<DepartmentDTO> findAll() {
         final List<Department> departments = departmentRepository.findAll(Sort.by("id"));
         return departments.stream()
@@ -52,18 +70,21 @@ public class DepartmentService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public DepartmentDTO get(final UUID id) {
         return departmentRepository.findById(id)
                 .map(department -> mapToDTO(department, new DepartmentDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
+    @Transactional
     public UUID create(final DepartmentDTO departmentDTO) {
         final Department department = new Department();
         mapToEntity(departmentDTO, department);
         return departmentRepository.save(department).getId();
     }
 
+    @Transactional
     public void update(final UUID id, final DepartmentDTO departmentDTO) {
         final Department department = departmentRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
@@ -71,6 +92,7 @@ public class DepartmentService {
         departmentRepository.save(department);
     }
 
+    @Transactional
     public void delete(final UUID id) {
         departmentRepository.deleteById(id);
     }
