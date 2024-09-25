@@ -34,8 +34,8 @@ public class CustomerService {
     }
 
     @Transactional(readOnly = true)
-    public List<CustomerDTO> findAll() {
-        final List<Customer> customers = customerRepository.findAll(Sort.by("id"));
+    public List<CustomerDTO> findAll(UUID locationId) {
+        final List<Customer> customers = customerRepository.findAllByLocationId(locationId);
         return customers.stream()
                 .map(customer -> mapToDTO(customer, new CustomerDTO()))
                 .toList();
