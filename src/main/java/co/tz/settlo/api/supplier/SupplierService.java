@@ -2,6 +2,8 @@ package co.tz.settlo.api.supplier;
 
 import co.tz.settlo.api.business.Business;
 import co.tz.settlo.api.business.BusinessRepository;
+import co.tz.settlo.api.expense.Expense;
+import co.tz.settlo.api.expense.ExpenseDTO;
 import co.tz.settlo.api.location.Location;
 import co.tz.settlo.api.location.LocationRepository;
 import co.tz.settlo.api.stock_intake.StockIntake;
@@ -10,8 +12,14 @@ import co.tz.settlo.api.util.NotFoundException;
 import co.tz.settlo.api.util.ReferencedWarning;
 import java.util.List;
 import java.util.UUID;
+
+import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import co.tz.settlo.api.util.RestApiFilter.SearchSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -32,6 +40,16 @@ public class SupplierService {
         this.stockIntakeRepository = stockIntakeRepository;
     }
 
+    @Transactional(readOnly = true)
+    public Page<SupplierDTO> searchAll(SearchRequest request) {
+        SearchSpecification<Supplier> specification = new SearchSpecification<>(request);
+        Pageable pageable = SearchSpecification.getPageable(request.getPage(), request.getSize());
+        Page<Supplier> suppliersPage = supplierRepository.findAll(specification, pageable);
+
+        return suppliersPage.map(supplier -> mapToDTO(supplier, new SupplierDTO()));
+    }
+
+    @Transactional(readOnly = true)
     public List<SupplierDTO> findAll() {
         final List<Supplier> suppliers = supplierRepository.findAll(Sort.by("id"));
         return suppliers.stream()
@@ -39,18 +57,21 @@ public class SupplierService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public SupplierDTO get(final UUID id) {
         return supplierRepository.findById(id)
                 .map(supplier -> mapToDTO(supplier, new SupplierDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
+    @Transactional
     public UUID create(final SupplierDTO supplierDTO) {
         final Supplier supplier = new Supplier();
         mapToEntity(supplierDTO, supplier);
         return supplierRepository.save(supplier).getId();
     }
 
+    @Transactional
     public void update(final UUID id, final SupplierDTO supplierDTO) {
         final Supplier supplier = supplierRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
@@ -58,6 +79,7 @@ public class SupplierService {
         supplierRepository.save(supplier);
     }
 
+    @Transactional
     public void delete(final UUID id) {
         supplierRepository.deleteById(id);
     }
