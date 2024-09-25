@@ -13,7 +13,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 
 
-public interface  ExpenseRepository  extends JpaRepository<Expense, UUID>, JpaSpecificationExecutor<Expense> {
+public interface  ExpenseRepository extends JpaRepository<Expense, UUID>, JpaSpecificationExecutor<Expense> {
 
     List<Expense> findAllByLocationId(UUID locationId);
 

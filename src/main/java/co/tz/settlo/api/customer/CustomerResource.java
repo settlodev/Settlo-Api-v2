@@ -2,10 +2,16 @@ package co.tz.settlo.api.customer;
 
 import co.tz.settlo.api.util.ReferencedException;
 import co.tz.settlo.api.util.ReferencedWarning;
+import co.tz.settlo.api.util.RestApiFilter.FieldType;
+import co.tz.settlo.api.util.RestApiFilter.FilterRequest;
+import co.tz.settlo.api.util.RestApiFilter.Operator;
+import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
+
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping(value = "/api/customers", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/customers/{locationId}", produces = MediaType.APPLICATION_JSON_VALUE)
 public class CustomerResource {
 
     private final CustomerService customerService;
@@ -30,32 +36,50 @@ public class CustomerResource {
     }
 
     @GetMapping
-    public ResponseEntity<List<CustomerDTO>> getAllCustomers() {
-        return ResponseEntity.ok(customerService.findAll());
+    public ResponseEntity<List<CustomerDTO>> getAllCustomers(@PathVariable UUID locationId) {
+        return ResponseEntity.ok(customerService.findAll(locationId));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CustomerDTO> getCustomer(@PathVariable(name = "id") final UUID id) {
+    public ResponseEntity<CustomerDTO> getCustomer(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(customerService.get(id));
     }
 
     @PostMapping
+    public Page<CustomerDTO> searchCustomers(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
+        // Enforce Location filter
+        FilterRequest locationFilter = new FilterRequest();
+        locationFilter.setKey("location");
+        locationFilter.setOperator(Operator.EQUAL);
+        locationFilter.setFieldType(FieldType.STRING);
+        locationFilter.setValue(locationId);
+
+        request.getFilters().add(locationFilter);
+
+        return customerService.searchAll(request);
+    }
+
+    @PostMapping("/create")
     @ApiResponse(responseCode = "201")
-    public ResponseEntity<UUID> createCustomer(@RequestBody @Valid final CustomerDTO customerDTO) {
+    public ResponseEntity<UUID> createCustomer(@PathVariable UUID locationId, @RequestBody @Valid final CustomerDTO customerDTO) {
+        customerDTO.setLocation(locationId);
+
         final UUID createdId = customerService.create(customerDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UUID> updateCustomer(@PathVariable(name = "id") final UUID id,
+    public ResponseEntity<UUID> updateCustomer(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final CustomerDTO customerDTO) {
+        customerDTO.setLocation(locationId);
+
         customerService.update(id, customerDTO);
         return ResponseEntity.ok(id);
     }
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
-    public ResponseEntity<Void> deleteCustomer(@PathVariable(name = "id") final UUID id) {
+    public ResponseEntity<Void> deleteCustomer(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         final ReferencedWarning referencedWarning = customerService.getReferencedWarning(id);
         if (referencedWarning != null) {
             throw new ReferencedException(referencedWarning);

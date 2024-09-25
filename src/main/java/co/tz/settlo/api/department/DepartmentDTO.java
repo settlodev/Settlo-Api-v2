@@ -37,7 +37,6 @@ public class DepartmentDTO {
     @Size(max = 255)
     private String notificationToken;
 
-    @NotNull
     private UUID location;
 
     @NotNull
