@@ -33,25 +33,24 @@ public class AddonResource {
     public AddonResource(final AddonService addonService) {
         this.addonService = addonService;
     }
-
     
-//    @PostMapping
-//    public Page<AddonDTO> searchAddons(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
-//        // Enforce Location filter
-//        FilterRequest locationFilter = new FilterRequest();
-//        locationFilter.setKey("location");
-//        locationFilter.setOperator(Operator.EQUAL);
-//        locationFilter.setFieldType(FieldType.STRING);
-//        locationFilter.setValue(locationId);
-//
-//        request.getFilters().add(locationFilter);
-//
-//        return addonService.searchAll(request);
-//    }
+    @PostMapping
+    public Page<AddonDTO> searchAddons(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
+        // Enforce Location filter
+        FilterRequest locationFilter = new FilterRequest();
+        locationFilter.setKey("location");
+        locationFilter.setOperator(Operator.EQUAL);
+        locationFilter.setFieldType(FieldType.STRING);
+        locationFilter.setValue(locationId);
+
+        request.getFilters().add(locationFilter);
+
+        return addonService.searchAll(request);
+    }
 
     @GetMapping
     public ResponseEntity<List<AddonDTO>> getAllAddons(@PathVariable UUID locationId) {
-        return ResponseEntity.ok(addonService.findAll());
+        return ResponseEntity.ok(addonService.findAll(locationId));
     }
 
     @GetMapping("/{id}")
@@ -59,9 +58,10 @@ public class AddonResource {
         return ResponseEntity.ok(addonService.get(id));
     }
 
-    @PostMapping
+    @PostMapping("/create")
     @ApiResponse(responseCode = "201")
     public ResponseEntity<UUID> createAddon(@PathVariable UUID locationId, @RequestBody @Valid final AddonDTO addonDTO) {
+        addonDTO.setLocation(locationId);
         final UUID createdId = addonService.create(addonDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
@@ -69,6 +69,7 @@ public class AddonResource {
     @PutMapping("/{id}")
     public ResponseEntity<UUID> updateAddon(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final AddonDTO addonDTO) {
+        addonDTO.setLocation(locationId);
         addonService.update(id, addonDTO);
         return ResponseEntity.ok(id);
     }
