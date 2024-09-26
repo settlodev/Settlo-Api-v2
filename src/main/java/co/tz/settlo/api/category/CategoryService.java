@@ -60,7 +60,10 @@ public class CategoryService {
         final Category category = new Category();
         final Category newCategory = mapToEntity(categoryDTO, category);
         final Category createdCategory =  categoryRepository.save(newCategory);
-        return mapToDTO(newCategory, categoryDTO);
+
+        category.setId(createdCategory.getId());
+
+        return categoryDTO;
     }
 
     @Transactional
