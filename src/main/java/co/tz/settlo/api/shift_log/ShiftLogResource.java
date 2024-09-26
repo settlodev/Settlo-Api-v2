@@ -1,6 +1,8 @@
 package co.tz.settlo.api.shift_log;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/shiftLogs", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Shift Log Endpoints")
 public class ShiftLogResource {
 
     private final ShiftLogService shiftLogService;
@@ -28,23 +31,27 @@ public class ShiftLogResource {
     }
 
     @GetMapping
+    @Operation(summary = "Get all Shift logs")
     public ResponseEntity<List<ShiftLogDTO>> getAllShiftLogs() {
         return ResponseEntity.ok(shiftLogService.findAll());
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get a Shift log")
     public ResponseEntity<ShiftLogDTO> getShiftLog(@PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(shiftLogService.get(id));
     }
 
     @PostMapping
     @ApiResponse(responseCode = "201")
+    @Operation(summary = "Create a Shift log")
     public ResponseEntity<UUID> createShiftLog(@RequestBody @Valid final ShiftLogDTO shiftLogDTO) {
         final UUID createdId = shiftLogService.create(shiftLogDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Update a Shift log")
     public ResponseEntity<UUID> updateShiftLog(@PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final ShiftLogDTO shiftLogDTO) {
         shiftLogService.update(id, shiftLogDTO);
@@ -53,6 +60,7 @@ public class ShiftLogResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
+    @Operation(summary = "Delete a Shift log")
     public ResponseEntity<Void> deleteShiftLog(@PathVariable(name = "id") final UUID id) {
         shiftLogService.delete(id);
         return ResponseEntity.noContent().build();
