@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/settlements/{locationId}", produces = MediaType.APPLICATION_JSON_VALUE)
-@Tag(name = "Settlement Endpoints")
+@Tag(name = "Settlements Endpoints")
 public class SettlementResource {
 
     private final SettlementService settlementService;
