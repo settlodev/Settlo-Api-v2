@@ -7,6 +7,7 @@ import co.tz.settlo.api.util.RestApiFilter.FilterRequest;
 import co.tz.settlo.api.util.RestApiFilter.Operator;
 import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import java.util.List;
