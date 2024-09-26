@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping(value = "/api/senderIds", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/sender-id/{locationId}", produces = MediaType.APPLICATION_JSON_VALUE)
 public class SenderIdResource {
 
     private final SenderIdService senderIdService;
@@ -39,7 +39,7 @@ public class SenderIdResource {
         return ResponseEntity.ok(senderIdService.get(id));
     }
 
-    @PostMapping
+    @PostMapping("/create")
     @ApiResponse(responseCode = "201")
     public ResponseEntity<UUID> createSenderId(@RequestBody @Valid final SenderIdDTO senderIdDTO) {
         final UUID createdId = senderIdService.create(senderIdDTO);

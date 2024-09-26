@@ -7,8 +7,13 @@ import co.tz.settlo.api.settlement_account.SettlementAccountRepository;
 import co.tz.settlo.api.util.NotFoundException;
 import java.util.List;
 import java.util.UUID;
-import org.springframework.data.domain.Sort;
+
+import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import co.tz.settlo.api.util.RestApiFilter.SearchSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -26,25 +31,38 @@ public class SettlementService {
         this.businessRepository = businessRepository;
     }
 
-    public List<SettlementDTO> findAll() {
-        final List<Settlement> settlements = settlementRepository.findAll(Sort.by("id"));
+    @Transactional(readOnly = true)
+    public List<SettlementDTO> findAll(final UUID locationId) {
+        final List<Settlement> settlements = settlementRepository.findAllByLocationId(locationId);
         return settlements.stream()
                 .map(settlement -> mapToDTO(settlement, new SettlementDTO()))
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public SettlementDTO get(final UUID id) {
         return settlementRepository.findById(id)
                 .map(settlement -> mapToDTO(settlement, new SettlementDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
+    @Transactional(readOnly = true)
+    public Page<SettlementDTO> searchAll(SearchRequest request) {
+        SearchSpecification<Settlement> specification = new SearchSpecification<>(request);
+        Pageable pageable = SearchSpecification.getPageable(request.getPage(), request.getSize());
+        Page<Settlement> settlementsPage = settlementRepository.findAll(specification, pageable);
+
+        return settlementsPage.map(settlement -> mapToDTO(settlement, new SettlementDTO()));
+    }
+
+    @Transactional
     public UUID create(final SettlementDTO settlementDTO) {
         final Settlement settlement = new Settlement();
         mapToEntity(settlementDTO, settlement);
         return settlementRepository.save(settlement).getId();
     }
 
+    @Transactional
     public void update(final UUID id, final SettlementDTO settlementDTO) {
         final Settlement settlement = settlementRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
@@ -52,6 +70,7 @@ public class SettlementService {
         settlementRepository.save(settlement);
     }
 
+    @Transactional
     public void delete(final UUID id) {
         settlementRepository.deleteById(id);
     }
