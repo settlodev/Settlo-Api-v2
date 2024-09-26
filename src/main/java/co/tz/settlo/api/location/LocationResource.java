@@ -6,7 +6,9 @@ import co.tz.settlo.api.util.RestApiFilter.FieldType;
 import co.tz.settlo.api.util.RestApiFilter.FilterRequest;
 import co.tz.settlo.api.util.RestApiFilter.Operator;
 import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/locations/{businessId}", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Location Endpoints")
 public class LocationResource {
 
     private final LocationService locationService;
@@ -36,6 +39,7 @@ public class LocationResource {
     }
 
     @PostMapping
+    @Operation(summary = "Search Locations")
     public Page<LocationDTO> searchLocations(@PathVariable UUID businessId, @RequestBody SearchRequest request) {
         // Enforce Location filter
         FilterRequest businessFilter = new FilterRequest();
@@ -50,17 +54,20 @@ public class LocationResource {
     }
 
     @GetMapping
+    @Operation(summary = "Get all Locations")
     public ResponseEntity<List<LocationDTO>> getAllLocations(@PathVariable final UUID businessId) {
         return ResponseEntity.ok(locationService.findAll(businessId));
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get a Location")
     public ResponseEntity<LocationDTO> getLocation(@PathVariable final UUID businessId, @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(locationService.get(id));
     }
 
     @PostMapping("/create")
     @ApiResponse(responseCode = "201")
+    @Operation(summary = "create a Location")
     public ResponseEntity<UUID> createLocation(@PathVariable final UUID businessId, @RequestBody @Valid final LocationDTO locationDTO) {
         locationDTO.setBusiness(businessId);
 
@@ -69,6 +76,7 @@ public class LocationResource {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Update a Location")
     public ResponseEntity<UUID> updateLocation(@PathVariable final UUID businessId, @PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final LocationDTO locationDTO) {
         locationDTO.setBusiness(businessId);
@@ -79,6 +87,7 @@ public class LocationResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
+    @Operation(summary = "Delete a Location")
     public ResponseEntity<Void> deleteLocation(@PathVariable final UUID businessId, @PathVariable(name = "id") final UUID id) {
         final ReferencedWarning referencedWarning = locationService.getReferencedWarning(id);
         if (referencedWarning != null) {
