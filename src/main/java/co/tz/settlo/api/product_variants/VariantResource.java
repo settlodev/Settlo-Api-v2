@@ -5,7 +5,9 @@ import co.tz.settlo.api.util.RestApiFilter.FieldType;
 import co.tz.settlo.api.util.RestApiFilter.FilterRequest;
 import co.tz.settlo.api.util.RestApiFilter.Operator;
 import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/variants/{productId}", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Variant Endpoints")
 public class VariantResource {
 
     private final VariantService variantService;
@@ -35,16 +38,19 @@ public class VariantResource {
     }
 
     @GetMapping
+    @Operation(summary = "Get all variants")
     public ResponseEntity<List<VariantDTO>> getAllVariants(@PathVariable UUID productId) {
         return ResponseEntity.ok(variantService.findAll(productId));
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get a variant")
     public ResponseEntity<VariantDTO> getVariant(@PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(variantService.get(id));
     }
 
     @PostMapping
+    @Operation(summary = "Search variants")
     public Page<VariantDTO> searchProductVariants(@PathVariable UUID productId, @RequestBody SearchRequest request) {
         // Enforce Location filter
         FilterRequest locationFilter = new FilterRequest();
@@ -60,12 +66,14 @@ public class VariantResource {
 
     @PostMapping("/create")
     @ApiResponse(responseCode = "201")
+    @Operation(summary = "Create a variant")
     public ResponseEntity<UUID> createVariant(@RequestBody @Valid final VariantDTO variantDTO) {
         final UUID createdId = variantService.create(variantDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Update a variant")
     public ResponseEntity<UUID> updateVariant(@PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final VariantDTO variantDTO) {
         variantService.update(id, variantDTO);
@@ -74,6 +82,7 @@ public class VariantResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
+    @Operation(summary = "Delete a variant")
     public ResponseEntity<Void> deleteVariant(@PathVariable(name = "id") final UUID id) {
         variantService.delete(id);
         return ResponseEntity.noContent().build();
