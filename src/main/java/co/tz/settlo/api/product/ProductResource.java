@@ -6,7 +6,9 @@ import co.tz.settlo.api.util.RestApiFilter.FieldType;
 import co.tz.settlo.api.util.RestApiFilter.FilterRequest;
 import co.tz.settlo.api.util.RestApiFilter.Operator;
 import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/products/{locationId}", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Products Endpoints")
 public class ProductResource {
 
     private final ProductService productService;
@@ -36,16 +39,19 @@ public class ProductResource {
     }
 
     @GetMapping
+    @Operation(summary = "Get all products")
     public ResponseEntity<List<ProductDTO>> getAllProducts(@PathVariable UUID locationId) {
         return ResponseEntity.ok(productService.findAll(locationId));
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get a product")
     public ResponseEntity<ProductDTO> getProduct(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(productService.get(id));
     }
 
     @PostMapping
+    @Operation(summary = "Search a product")
     public Page<ProductDTO> searchProducts(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
         // Enforce Location filter
         FilterRequest locationFilter = new FilterRequest();
@@ -61,6 +67,7 @@ public class ProductResource {
 
     @PostMapping("/create")
     @ApiResponse(responseCode = "201")
+    @Operation(summary = "Create a product")
     public ResponseEntity<UUID> createProduct(@PathVariable UUID locationId, @RequestBody @Valid final ProductDTO productDTO) {
 
         productDTO.setLocation(locationId);
@@ -70,6 +77,7 @@ public class ProductResource {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Update a product")
     public ResponseEntity<UUID> updateProduct(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final ProductDTO productDTO) {
 
@@ -81,6 +89,7 @@ public class ProductResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
+    @Operation(summary = "Delete a product")
     public ResponseEntity<Void> deleteProduct(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         final ReferencedWarning referencedWarning = productService.getReferencedWarning(id);
         if (referencedWarning != null) {
