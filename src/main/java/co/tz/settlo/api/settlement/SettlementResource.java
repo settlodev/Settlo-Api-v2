@@ -5,7 +5,9 @@ import co.tz.settlo.api.util.RestApiFilter.FieldType;
 import co.tz.settlo.api.util.RestApiFilter.FilterRequest;
 import co.tz.settlo.api.util.RestApiFilter.Operator;
 import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/settlements/{locationId}", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Settlement Endpoints")
 public class SettlementResource {
 
     private final SettlementService settlementService;
@@ -35,16 +38,19 @@ public class SettlementResource {
     }
 
     @GetMapping
+    @Operation(summary = "Get all Settlements")
     public ResponseEntity<List<SettlementDTO>> getAllSettlements(@PathVariable UUID locationId) {
         return ResponseEntity.ok(settlementService.findAll(locationId));
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get a Settlement")
     public ResponseEntity<SettlementDTO> getSettlement(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(settlementService.get(id));
     }
 
     @PostMapping
+    @Operation(summary = "Search Settlements")
     public Page<SettlementDTO> searchSettlements(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
         // Enforce Location filter
         FilterRequest locationFilter = new FilterRequest();
@@ -60,6 +66,7 @@ public class SettlementResource {
     
     @PostMapping("/create")
     @ApiResponse(responseCode = "201")
+    @Operation(summary = "Create a Settlement")
     public ResponseEntity<UUID> createSettlement( @PathVariable UUID locationId,
             @RequestBody @Valid final SettlementDTO settlementDTO) {
 
@@ -70,6 +77,7 @@ public class SettlementResource {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Update a Settlement")
     public ResponseEntity<UUID> updateSettlement(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final SettlementDTO settlementDTO) {
 
@@ -81,6 +89,7 @@ public class SettlementResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
+    @Operation(summary = "Delete a Settlement")
     public ResponseEntity<Void> deleteSettlement(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         settlementService.delete(id);
         return ResponseEntity.noContent().build();
