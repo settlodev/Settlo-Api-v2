@@ -1,4 +1,4 @@
-package co.tz.settlo.api.variant;
+package co.tz.settlo.api.product_variants;
 
 import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.FIELD;

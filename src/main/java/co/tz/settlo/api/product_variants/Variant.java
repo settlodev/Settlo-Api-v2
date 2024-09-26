@@ -1,4 +1,4 @@
-package co.tz.settlo.api.variant;
+package co.tz.settlo.api.product_variants;
 
 import co.tz.settlo.api.product.Product;
 import co.tz.settlo.api.tag.Tag;
@@ -25,7 +25,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 
 @Entity
-@Table(name = "Variants")
+@Table(name = "ProductVariants")
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter

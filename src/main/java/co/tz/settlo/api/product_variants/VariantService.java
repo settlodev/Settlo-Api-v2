@@ -1,4 +1,4 @@
-package co.tz.settlo.api.variant;
+package co.tz.settlo.api.product_variants;
 
 import co.tz.settlo.api.product.Product;
 import co.tz.settlo.api.product.ProductRepository;

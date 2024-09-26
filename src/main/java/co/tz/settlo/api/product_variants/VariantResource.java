@@ -1,4 +1,4 @@
-package co.tz.settlo.api.variant;
+package co.tz.settlo.api.product_variants;
 
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
