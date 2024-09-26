@@ -58,8 +58,8 @@ public class CategoryService {
     @Transactional
     public UUID create(final CategoryDTO categoryDTO) {
         final Category category = new Category();
-        mapToEntity(categoryDTO, category);
-        return categoryRepository.save(category).getId();
+        final var newCategory = mapToEntity(categoryDTO, category);
+        return categoryRepository.save(newCategory).getId();
     }
 
     @Transactional
