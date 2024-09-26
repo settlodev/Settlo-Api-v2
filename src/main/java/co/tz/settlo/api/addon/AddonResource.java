@@ -81,7 +81,7 @@ public class AddonResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
-    @Tag(name = "Delete Addon", description = "Delete an Addon by providing it's ID")
+    @Tag(name = "Delete Addon", description = "Delete an Addon by providing it's ID:")
     public ResponseEntity<Void> deleteAddon(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         addonService.delete(id);
         return ResponseEntity.noContent().build();
