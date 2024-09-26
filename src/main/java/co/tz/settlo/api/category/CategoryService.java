@@ -95,8 +95,12 @@ public class CategoryService {
         category.setStatus(categoryDTO.getStatus());
         category.setIsArchived(categoryDTO.getIsArchived());
         category.setCanDelete(categoryDTO.getCanDelete());
-        final Location location = category.getLocation() == null ? null : locationRepository.findById(categoryDTO.getLocation())
+//        final Location location = category.getLocation() == null ? null : locationRepository.findById(categoryDTO.getLocation())
+//                .orElseThrow(() -> new NotFoundException("Location not found"));
+
+        final Location location = locationRepository.findById(categoryDTO.getLocation())
                 .orElseThrow(() -> new NotFoundException("Location not found"));
+
         category.setLocation(location);
 
         return category;
