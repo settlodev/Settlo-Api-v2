@@ -3,7 +3,9 @@ package co.tz.settlo.api.user;
 import co.tz.settlo.api.auth.UserCheckDTO;
 import co.tz.settlo.api.util.ReferencedException;
 import co.tz.settlo.api.util.ReferencedWarning;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 import java.time.LocalDateTime;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/users", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "User Endpoints")
 public class UserResource {
 
     private final UserService userService;
@@ -33,21 +36,25 @@ public class UserResource {
     }
 
     @GetMapping
+    @Operation(summary = "Get all Users")
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         return ResponseEntity.ok(userService.findAll());
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get a User")
     public ResponseEntity<UserDTO> getUser(@PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(userService.get(id));
     }
 
     @GetMapping("/user-check/{username}")
+    @Operation(summary = "Get a User by Email")
     public ResponseEntity<UserCheckDTO> getUserByEmail(@PathVariable(name = "username") final String username) {
         return ResponseEntity.ok(userService.userCheck(username));
     }
 
     @PutMapping("/verify-email/{id}")
+    @Operation(summary = "Verify email")
     public ResponseEntity<Void> verifyEmail(@PathVariable(name = "id") final UUID id) {
         UserDTO user = userService.get(id);
 
@@ -58,6 +65,7 @@ public class UserResource {
     }
 
     @PutMapping("/verify-phone/{id}")
+    @Operation(summary = "Verify phone number")
     public ResponseEntity<Void> verifyPhoneNumber(@PathVariable(name = "id") final UUID id) {
         UserDTO user = userService.get(id);
 
@@ -68,6 +76,7 @@ public class UserResource {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Update user")
     public ResponseEntity<UUID> updateUser(@PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final UserDTO userDTO) {
         userService.update(id, userDTO);
@@ -76,6 +85,7 @@ public class UserResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
+    @Operation(summary = "Delete user")
     public ResponseEntity<Void> deleteUser(@PathVariable(name = "id") final UUID id) {
         final ReferencedWarning referencedWarning = userService.getReferencedWarning(id);
         if (referencedWarning != null) {
