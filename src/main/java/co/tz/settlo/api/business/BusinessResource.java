@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/businesses", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Business Endpoints")
 public class BusinessResource {
 
     private final BusinessService businessService;
