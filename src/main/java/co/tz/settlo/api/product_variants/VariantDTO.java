@@ -1,4 +1,4 @@
-package co.tz.settlo.api.variant;
+package co.tz.settlo.api.product_variants;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;

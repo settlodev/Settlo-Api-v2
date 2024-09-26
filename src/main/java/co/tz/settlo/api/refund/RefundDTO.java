@@ -42,4 +42,6 @@ public class RefundDTO {
     @NotNull
     private UUID stockVariant;
 
+    private UUID locationId;
+
 }

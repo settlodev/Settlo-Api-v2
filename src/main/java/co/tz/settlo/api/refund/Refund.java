@@ -1,5 +1,6 @@
 package co.tz.settlo.api.refund;
 
+import co.tz.settlo.api.location.Location;
 import co.tz.settlo.api.order_item.OrderItem;
 import co.tz.settlo.api.staff.Staff;
 import co.tz.settlo.api.stock_variant.StockVariant;
@@ -65,6 +66,10 @@ public class Refund {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "stock_variant_id", nullable = false)
     private StockVariant stockVariant;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "location_id", nullable = false)
+    private Location location;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)

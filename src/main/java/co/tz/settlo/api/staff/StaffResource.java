@@ -1,11 +1,20 @@
 package co.tz.settlo.api.staff;
 
+import co.tz.settlo.api.supplier.SupplierDTO;
 import co.tz.settlo.api.util.ReferencedException;
 import co.tz.settlo.api.util.ReferencedWarning;
+import co.tz.settlo.api.util.RestApiFilter.FieldType;
+import co.tz.settlo.api.util.RestApiFilter.FilterRequest;
+import co.tz.settlo.api.util.RestApiFilter.Operator;
+import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
+
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +29,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping(value = "/api/staffs", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/staff/{locationId}", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Staffs Endpoints")
 public class StaffResource {
 
     private final StaffService staffService;
@@ -30,32 +40,58 @@ public class StaffResource {
     }
 
     @GetMapping
-    public ResponseEntity<List<StaffDTO>> getAllStaffs() {
-        return ResponseEntity.ok(staffService.findAll());
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<StaffDTO> getStaff(@PathVariable(name = "id") final UUID id) {
-        return ResponseEntity.ok(staffService.get(id));
+    @Operation(summary = "Get all Staffs")
+    public ResponseEntity<List<StaffDTO>> getAllStaff(@PathVariable UUID locationId) {
+        return ResponseEntity.ok(staffService.findAll(locationId));
     }
 
     @PostMapping
+    @Operation(summary = "Search Staffs")
+    public Page<StaffDTO> searchStaff(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
+        // Enforce Location filter
+        FilterRequest locationFilter = new FilterRequest();
+        locationFilter.setKey("location");
+        locationFilter.setOperator(Operator.EQUAL);
+        locationFilter.setFieldType(FieldType.STRING);
+        locationFilter.setValue(locationId);
+
+        request.getFilters().add(locationFilter);
+
+        return staffService.searchAll(request);
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Get a Staff")
+    public ResponseEntity<StaffDTO> getStaff(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
+        return ResponseEntity.ok(staffService.get(id));
+    }
+
+    @PostMapping("/create")
     @ApiResponse(responseCode = "201")
-    public ResponseEntity<UUID> createStaff(@RequestBody @Valid final StaffDTO staffDTO) {
+    @Operation(summary = "Create a Staff")
+    public ResponseEntity<UUID> createStaff(@PathVariable UUID locationId, @RequestBody @Valid final StaffDTO staffDTO) {
+
+        staffDTO.setLocation(locationId);
+
         final UUID createdId = staffService.create(staffDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UUID> updateStaff(@PathVariable(name = "id") final UUID id,
+    @Operation(summary = "Update a Staff")
+    public ResponseEntity<UUID> updateStaff(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final StaffDTO staffDTO) {
+
+        staffDTO.setLocation(locationId);
+
         staffService.update(id, staffDTO);
         return ResponseEntity.ok(id);
     }
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
-    public ResponseEntity<Void> deleteStaff(@PathVariable(name = "id") final UUID id) {
+    @Operation(summary = "Delete a Staff")
+    public ResponseEntity<Void> deleteStaff(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         final ReferencedWarning referencedWarning = staffService.getReferencedWarning(id);
         if (referencedWarning != null) {
             throw new ReferencedException(referencedWarning);

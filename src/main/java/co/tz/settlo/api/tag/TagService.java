@@ -4,8 +4,8 @@ import co.tz.settlo.api.util.NotFoundException;
 import co.tz.settlo.api.util.ReferencedWarning;
 import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
 import co.tz.settlo.api.util.RestApiFilter.SearchSpecification;
-import co.tz.settlo.api.variant.Variant;
-import co.tz.settlo.api.variant.VariantRepository;
+import co.tz.settlo.api.product_variants.Variant;
+import co.tz.settlo.api.product_variants.VariantRepository;
 import java.util.List;
 import java.util.UUID;
 

@@ -1,6 +1,7 @@
 package co.tz.settlo.api.sender_id;
 
 import co.tz.settlo.api.business.Business;
+import co.tz.settlo.api.location.Location;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -48,6 +49,10 @@ public class SenderId {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "business_id")
     private Business business;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "location_id")
+    private Location location;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)

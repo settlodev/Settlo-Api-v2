@@ -25,6 +25,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "/api/auth", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Authorization Endpoints")
 public class AuthResource {
     private static final Logger log = LoggerFactory.getLogger(AuthResource.class);
 
@@ -38,13 +39,13 @@ public class AuthResource {
         this.authService = authService;
     }
 
-    @Operation(summary = "Register user")
+    // @Operation(summary = "Register user")
     @ApiResponse(responseCode = "201")
     @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     @PostMapping("/register")
-    @Tag(name="User Registration", description = "Registers a user on the system")
+    @Operation(summary = "User Registration", description = "Registers a user on the system")
     public ResponseEntity<RegistrationResponseDTO> signup(@Valid @RequestBody UserRegistrationDTO userRegistrationDTO) {
         UUID newUserId = userService.create(userRegistrationDTO);
 
@@ -59,12 +60,12 @@ public class AuthResource {
         return ResponseEntity.status(HttpStatus.CREATED).body(userRegResponse);
     }
 
-    @Operation(summary = "Authenticate user and return tokens")
+    // @Operation(summary = "Authenticate user and return tokens")
     @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = LoginResponseDTO.class)))
     @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     @PostMapping("/login")
-    @Tag(name="User Login", description = "Authenticate user and return authentication tokens")
+    @Operation(summary = "Authenticate user and return tokens", description = "Authenticate user and return authentication tokens")
     public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.email(), request.password()));
@@ -78,36 +79,36 @@ public class AuthResource {
         return ResponseEntity.ok(authService.login(request.email(), request.password()));
     }
 
-    @Operation(summary = "Refresh access token")
+    // @Operation(summary = "Refresh access token")
     @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = LoginResponseDTO.class)))
     @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     @PostMapping("/refresh")
-    @Tag(name="Refresh Access Token", description = "Use refresh token to generate new access token")
+    @Operation(summary = "Refresh Access Token", description = "Use refresh token to generate new access token")
     public ResponseEntity<LoginResponseDTO> refreshToken(@Valid @RequestBody RefreshTokenRequestDTO request) {
         return ResponseEntity.ok(authService.refreshToken(request.refreshToken()));
     }
 
-    @Operation(summary = "Generate verification token")
+    // @Operation(summary = "Generate verification token")
     @PutMapping("/generate-verification-token/{email}")
-    @Tag(name="Generate verification token", description = "Generate verification token to be used to verify email address")
+    @Operation(summary = "Generate verification token", description = "Generate verification token to be used to verify email address")
     public ResponseEntity<UUID> generateVerificationToken(@PathVariable String email) {
         return ResponseEntity.ok(userService.generateVerificationToken(email));
     }
 
-    @Operation(summary = "Verify token")
+    // @Operation(summary = "Verify token")
     @GetMapping("/verify-token/{token}")
-    @Tag(name="Verify token", description = "Verify generated tokens")
+    @Operation(summary = "Verify token", description = "Verify generated tokens")
     public ResponseEntity<UUID> verifyToken(@PathVariable UUID token) {
         return ResponseEntity.ok(userService.verifyToken(token));
     }
 
-    @Operation(summary = "Get recent login attempts")
+    // @Operation(summary = "Get recent login attempts")
     @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = LoginAttemptResponse.class)))
     @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     @GetMapping("/attempts")
-    @Tag(name="Get recent login attempts", description = "Get recent login attempts by specific user")
+    @Operation(summary = "Get recent login attempts", description = "Get recent login attempts by specific user")
     public ResponseEntity<List<LoginAttemptResponse>> loginAttempts(@RequestHeader("Authorization") String token) {
         String fullToken = JwtHelper.getInstance().getTokenFromAuthorizationHeader(token);
         String email = JwtHelper.getInstance().extractUsername(fullToken);
@@ -116,24 +117,24 @@ public class AuthResource {
                 .toList());
     }
 
-    @Operation(summary = "Generate password reset token")
+    // @Operation(summary = "Generate password reset token")
     @PostMapping("/reset-password")
-    @Tag(name="Generate password reset token", description = "Returns password reset token")
+    @Operation(summary = "Generate password reset token", description = "Returns password reset token")
     public ResponseEntity<UUID> resetPassword(@Valid @RequestBody ResetPasswordDTO resetPasswordDTO) {
         userService.get(resetPasswordDTO.email());
         return ResponseEntity.ok(authService.generatePasswordResetToken(resetPasswordDTO.email()));
     }
 
-    @Operation(summary = "Update user password")
+    // @Operation(summary = "Update user password")
     @PostMapping("/update-password")
-    @Tag(name="Update user password", description = "Update user password")
+    @Operation(summary = "Update user password", description = "Update user password")
     public ResponseEntity<UUID> updatePassword(@Valid @RequestBody UpdatePasswordDTO updatePasswordDTO) {
         return ResponseEntity.ok(userService.updatePassword(updatePasswordDTO));
     }
 
-    @Operation(summary = "Logout user")
+    // @Operation(summary = "Logout user")
     @PostMapping("/logout")
-    @Tag(name="Log out", description = "Log user out of all sessions")
+    @Operation(summary = "Logout user", description = "Log user out of all sessions")
     public ResponseEntity<Void> logout(@RequestHeader("Authorization") String token) {
         String fullToken = JwtHelper.getInstance().getTokenFromAuthorizationHeader(token);
         String email = JwtHelper.getInstance().extractUsername(fullToken);

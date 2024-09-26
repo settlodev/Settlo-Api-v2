@@ -1,6 +1,8 @@
 package co.tz.settlo.api.settlement;
 
 import co.tz.settlo.api.business.Business;
+import co.tz.settlo.api.department.Department;
+import co.tz.settlo.api.location.Location;
 import co.tz.settlo.api.settlement_account.SettlementAccount;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -67,6 +69,10 @@ public class Settlement {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "business_id", nullable = false)
     private Business business;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "location_id", nullable = false)
+    private Location location;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)

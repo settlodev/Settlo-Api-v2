@@ -1,5 +1,6 @@
 package co.tz.settlo.api.sender_id;
 
+import co.tz.settlo.api.location.Location;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.OffsetDateTime;
@@ -29,5 +30,7 @@ public class SenderIdDTO {
     private OffsetDateTime canDelete;
 
     private UUID business;
+
+    private Location location;
 
 }

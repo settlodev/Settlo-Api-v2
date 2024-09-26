@@ -7,6 +7,7 @@ import co.tz.settlo.api.util.RestApiFilter.FieldType;
 import co.tz.settlo.api.util.RestApiFilter.FilterRequest;
 import co.tz.settlo.api.util.RestApiFilter.Operator;
 import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/departments/{locationId}", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Departments Endpoints")
 public class DepartmentResource {
 
     private final DepartmentService departmentService;
@@ -38,13 +40,13 @@ public class DepartmentResource {
     }
 
     @GetMapping
-    @Tag(name = "Get all Departments", description = "Get all the department under certain business Location")
+    @Operation(summary = "Get all Departments", description = "Get all the department under certain business Location")
     public ResponseEntity<List<DepartmentDTO>> getAllDepartments(@PathVariable final UUID locationId) {
         return ResponseEntity.ok(departmentService.findAll());
     }
 
     @PostMapping
-    @Tag(name = "Search Departments", description = "Search for a department")
+    @Operation(summary = "Search Departments", description = "Search for a department")
     public Page<DepartmentDTO> searchDepartments(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
         // Enforce Location filter
         FilterRequest locationFilter = new FilterRequest();
@@ -59,14 +61,14 @@ public class DepartmentResource {
     }
 
     @GetMapping("/{id}")
-    @Tag(name = "Get Department", description = "Get a department using it's ID")
+    @Operation(summary = "Get Department", description = "Get a department using it's ID")
     public ResponseEntity<DepartmentDTO> getDepartment(@PathVariable final UUID locationId, @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(departmentService.get(id));
     }
 
     @PostMapping("/create")
     @ApiResponse(responseCode = "201")
-    @Tag(name = "Create Department", description = "Create a Department by supplying it as a json body")
+    @Operation(summary = "Create Department", description = "Create a Department by supplying it as a json body")
     public ResponseEntity<UUID> createDepartment(@PathVariable final UUID locationId,
             @RequestBody @Valid final DepartmentDTO departmentDTO) {
         departmentDTO.setLocation(locationId);
@@ -76,7 +78,7 @@ public class DepartmentResource {
     }
 
     @PutMapping("/{id}")
-    @Tag(name = "Update Department", description = "Update a specific department by supplying the new one as json body")
+    @Operation(summary = "Update Department", description = "Update a specific department by supplying the new one as json body")
     public ResponseEntity<UUID> updateDepartment(@PathVariable final UUID locationId, @PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final DepartmentDTO departmentDTO) {
         departmentDTO.setLocation(locationId);
@@ -87,7 +89,7 @@ public class DepartmentResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
-    @Tag(name = "Delete a Department", description = "Delete a department by supplying it's ID")
+    @Operation(summary = "Delete a Department", description = "Delete a department by supplying it's ID")
     public ResponseEntity<Void> deleteDepartment(@PathVariable final UUID locationId, @PathVariable(name = "id") final UUID id) {
         final ReferencedWarning referencedWarning = departmentService.getReferencedWarning(id);
         if (referencedWarning != null) {

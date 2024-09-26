@@ -51,4 +51,6 @@ public class PayslipDTO {
 
     private UUID salary;
 
+    private UUID location;
+
 }

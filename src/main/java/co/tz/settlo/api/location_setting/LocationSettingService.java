@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -22,25 +23,28 @@ public class LocationSettingService {
         this.locationRepository = locationRepository;
     }
 
-    public List<LocationSettingDTO> findAll() {
-        final List<LocationSetting> locationSettings = locationSettingRepository.findAll(Sort.by("id"));
-        return locationSettings.stream()
+    @Transactional(readOnly = true)
+    public LocationSettingDTO findByLocationId(UUID locationId) {
+        return locationSettingRepository.findByLocationId(locationId)
                 .map(locationSetting -> mapToDTO(locationSetting, new LocationSettingDTO()))
-                .toList();
+                .orElseThrow(NotFoundException::new);
     }
 
+    @Transactional(readOnly = true)
     public LocationSettingDTO get(final UUID id) {
         return locationSettingRepository.findById(id)
                 .map(locationSetting -> mapToDTO(locationSetting, new LocationSettingDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
+    @Transactional
     public UUID create(final LocationSettingDTO locationSettingDTO) {
         final LocationSetting locationSetting = new LocationSetting();
         mapToEntity(locationSettingDTO, locationSetting);
         return locationSettingRepository.save(locationSetting).getId();
     }
 
+    @Transactional
     public void update(final UUID id, final LocationSettingDTO locationSettingDTO) {
         final LocationSetting locationSetting = locationSettingRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
@@ -48,6 +52,7 @@ public class LocationSettingService {
         locationSettingRepository.save(locationSetting);
     }
 
+    @Transactional
     public void delete(final UUID id) {
         locationSettingRepository.deleteById(id);
     }

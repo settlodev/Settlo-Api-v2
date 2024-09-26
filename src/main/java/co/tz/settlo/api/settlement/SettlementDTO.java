@@ -52,4 +52,6 @@ public class SettlementDTO {
     @NotNull
     private UUID business;
 
+    private UUID location;
+
 }

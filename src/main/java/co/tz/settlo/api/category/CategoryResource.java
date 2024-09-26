@@ -6,7 +6,9 @@ import co.tz.settlo.api.util.RestApiFilter.FieldType;
 import co.tz.settlo.api.util.RestApiFilter.FilterRequest;
 import co.tz.settlo.api.util.RestApiFilter.Operator;
 import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/categories/{locationId}", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Category Endpoints")
 public class CategoryResource {
 
     private final CategoryService categoryService;
@@ -36,16 +39,19 @@ public class CategoryResource {
     }
 
     @GetMapping
+    @Operation(summary = "Get all Categories", description = "Get all categories under a location id")
     public ResponseEntity<List<CategoryDTO>> getAllCategories(@PathVariable UUID locationId) {
         return ResponseEntity.ok(categoryService.findAll(locationId));
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get category", description = "Get a category by specifying it's ID")
     public ResponseEntity<CategoryDTO> getCategory(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(categoryService.get(id));
     }
 
     @PostMapping
+    @Operation(summary = "Search category")
     public Page<CategoryDTO> searchCategory(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
         // Enforce Location filter
         FilterRequest locationFilter = new FilterRequest();
@@ -61,6 +67,7 @@ public class CategoryResource {
 
     @PostMapping("/create")
     @ApiResponse(responseCode = "201")
+    @Operation(summary = "Create category")
     public ResponseEntity<UUID> createCategory(@PathVariable UUID locationId, @RequestBody @Valid final CategoryDTO categoryDTO) {
 
         categoryDTO.setLocation(locationId);
@@ -70,6 +77,7 @@ public class CategoryResource {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Update category")
     public ResponseEntity<UUID> updateCategory(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final CategoryDTO categoryDTO) {
 
@@ -81,6 +89,7 @@ public class CategoryResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
+    @Operation(summary = "Delete category")
     public ResponseEntity<Void> deleteCategory(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         final ReferencedWarning referencedWarning = categoryService.getReferencedWarning(id);
         if (referencedWarning != null) {

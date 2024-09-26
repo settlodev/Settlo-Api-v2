@@ -1,6 +1,8 @@
 package co.tz.settlo.api.item_return;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/returns/{locationId}", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Item Returns Endpoints")
 public class ItemReturnResource {
 
     private final ItemReturnService itemReturnService;
@@ -28,17 +31,20 @@ public class ItemReturnResource {
     }
 
     @GetMapping
+    @Operation(summary = "Get all Item returns")
     public ResponseEntity<List<ItemReturnDTO>> getAllItemReturns(@PathVariable UUID locationId) {
         return ResponseEntity.ok(itemReturnService.findAll(locationId));
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get an Item return")
     public ResponseEntity<ItemReturnDTO> getItemReturn(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(itemReturnService.get(id));
     }
 
     @PostMapping
     @ApiResponse(responseCode = "201")
+    @Operation(summary = "Create an Item return")
     public ResponseEntity<UUID> createItemReturn( @PathVariable UUID locationId,
             @RequestBody @Valid final ItemReturnDTO itemReturnDTO) {
 
@@ -49,6 +55,7 @@ public class ItemReturnResource {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Update an Item return")
     public ResponseEntity<UUID> updateItemReturn(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final ItemReturnDTO itemReturnDTO) {
         itemReturnDTO.setLocation(locationId);
@@ -59,6 +66,7 @@ public class ItemReturnResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
+    @Operation(summary = "Delete an Item return")
     public ResponseEntity<Void> deleteItemReturn(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         itemReturnService.delete(id);
         return ResponseEntity.noContent().build();

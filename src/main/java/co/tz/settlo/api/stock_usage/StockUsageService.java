@@ -9,8 +9,13 @@ import co.tz.settlo.api.unit.UnitRepository;
 import co.tz.settlo.api.util.NotFoundException;
 import java.util.List;
 import java.util.UUID;
-import org.springframework.data.domain.Sort;
+
+import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import co.tz.settlo.api.util.RestApiFilter.SearchSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -30,25 +35,38 @@ public class StockUsageService {
         this.locationRepository = locationRepository;
     }
 
-    public List<StockUsageDTO> findAll() {
-        final List<StockUsage> stockUsages = stockUsageRepository.findAll(Sort.by("id"));
+    @Transactional(readOnly = true)
+    public List<StockUsageDTO> findAll(final UUID locationId) {
+        final List<StockUsage> stockUsages = stockUsageRepository.findAllByLocationId(locationId);
         return stockUsages.stream()
                 .map(stockUsage -> mapToDTO(stockUsage, new StockUsageDTO()))
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public StockUsageDTO get(final UUID id) {
         return stockUsageRepository.findById(id)
                 .map(stockUsage -> mapToDTO(stockUsage, new StockUsageDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
+    @Transactional(readOnly = true)
+    public Page<StockUsageDTO> searchAll(SearchRequest request) {
+        SearchSpecification<StockUsage> specification = new SearchSpecification<>(request);
+        Pageable pageable = SearchSpecification.getPageable(request.getPage(), request.getSize());
+        Page<StockUsage> stockUsagePage = stockUsageRepository.findAll(pageable);
+
+        return stockUsagePage.map(stockUsage -> mapToDTO(stockUsage, new StockUsageDTO()));
+    }
+
+    @Transactional
     public UUID create(final StockUsageDTO stockUsageDTO) {
         final StockUsage stockUsage = new StockUsage();
         mapToEntity(stockUsageDTO, stockUsage);
         return stockUsageRepository.save(stockUsage).getId();
     }
 
+    @Transactional
     public void update(final UUID id, final StockUsageDTO stockUsageDTO) {
         final StockUsage stockUsage = stockUsageRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
@@ -56,6 +74,7 @@ public class StockUsageService {
         stockUsageRepository.save(stockUsage);
     }
 
+    @Transactional
     public void delete(final UUID id) {
         stockUsageRepository.deleteById(id);
     }

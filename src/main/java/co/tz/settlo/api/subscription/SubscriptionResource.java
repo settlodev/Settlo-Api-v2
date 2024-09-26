@@ -1,6 +1,8 @@
 package co.tz.settlo.api.subscription;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -18,7 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping(value = "/api/subscriptions", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/subscriptions/{locationId}", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Subscription Endpoints")
 public class SubscriptionResource {
 
     private final SubscriptionService subscriptionService;
@@ -28,11 +31,13 @@ public class SubscriptionResource {
     }
 
     @GetMapping
+    @Operation(summary = "Get all Subscriptions")
     public ResponseEntity<List<SubscriptionDTO>> getAllSubscriptions() {
         return ResponseEntity.ok(subscriptionService.findAll());
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get a Subscription")
     public ResponseEntity<SubscriptionDTO> getSubscription(
             @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(subscriptionService.get(id));
@@ -40,6 +45,7 @@ public class SubscriptionResource {
 
     @PostMapping
     @ApiResponse(responseCode = "201")
+    @Operation(summary = "Create a Subscription")
     public ResponseEntity<UUID> createSubscription(
             @RequestBody @Valid final SubscriptionDTO subscriptionDTO) {
         final UUID createdId = subscriptionService.create(subscriptionDTO);
@@ -47,6 +53,7 @@ public class SubscriptionResource {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Update a Subscription")
     public ResponseEntity<UUID> updateSubscription(@PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final SubscriptionDTO subscriptionDTO) {
         subscriptionService.update(id, subscriptionDTO);
@@ -55,6 +62,7 @@ public class SubscriptionResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
+    @Operation(summary = "Delete a Subscription")
     public ResponseEntity<Void> deleteSubscription(@PathVariable(name = "id") final UUID id) {
         subscriptionService.delete(id);
         return ResponseEntity.noContent().build();

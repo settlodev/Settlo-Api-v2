@@ -2,7 +2,9 @@ package co.tz.settlo.api.sender_id;
 
 import co.tz.settlo.api.util.ReferencedException;
 import co.tz.settlo.api.util.ReferencedWarning;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -20,7 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping(value = "/api/senderIds", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/sender-id/{locationId}", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Sender ID Endpoints")
 public class SenderIdResource {
 
     private final SenderIdService senderIdService;
@@ -30,16 +33,19 @@ public class SenderIdResource {
     }
 
     @GetMapping
+    @Operation(summary = "Get all Sender IDs")
     public ResponseEntity<List<SenderIdDTO>> getAllSenderIds() {
         return ResponseEntity.ok(senderIdService.findAll());
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get a Sender ID")
     public ResponseEntity<SenderIdDTO> getSenderId(@PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(senderIdService.get(id));
     }
 
-    @PostMapping
+    @PostMapping("/create")
+    @Operation(summary = "Create a Sender ID")
     @ApiResponse(responseCode = "201")
     public ResponseEntity<UUID> createSenderId(@RequestBody @Valid final SenderIdDTO senderIdDTO) {
         final UUID createdId = senderIdService.create(senderIdDTO);
@@ -47,6 +53,7 @@ public class SenderIdResource {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Update a Sender ID")
     public ResponseEntity<UUID> updateSenderId(@PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final SenderIdDTO senderIdDTO) {
         senderIdService.update(id, senderIdDTO);
@@ -55,6 +62,7 @@ public class SenderIdResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
+    @Operation(summary = "Delete a Sender ID")
     public ResponseEntity<Void> deleteSenderId(@PathVariable(name = "id") final UUID id) {
         final ReferencedWarning referencedWarning = senderIdService.getReferencedWarning(id);
         if (referencedWarning != null) {

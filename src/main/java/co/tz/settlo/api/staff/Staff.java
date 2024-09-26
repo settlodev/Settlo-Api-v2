@@ -2,6 +2,7 @@ package co.tz.settlo.api.staff;
 
 import co.tz.settlo.api.business.Business;
 import co.tz.settlo.api.department.Department;
+import co.tz.settlo.api.location.Location;
 import co.tz.settlo.api.role.Role;
 import co.tz.settlo.api.salary.Salary;
 import jakarta.persistence.Column;
@@ -24,7 +25,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 
 @Entity
-@Table(name = "Staffs")
+@Table(name = "Staff")
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
@@ -71,6 +72,10 @@ public class Staff {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "department_id", nullable = false)
     private Department department;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "location_id", nullable = false)
+    private Location location;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "salary_id")

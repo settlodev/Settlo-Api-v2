@@ -5,7 +5,9 @@ import co.tz.settlo.api.util.RestApiFilter.FieldType;
 import co.tz.settlo.api.util.RestApiFilter.FilterRequest;
 import co.tz.settlo.api.util.RestApiFilter.Operator;
 import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/deliveries/{locationId}", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Delivery Endpoints")
 public class DeliveryResource {
 
     private final DeliveryService deliveryService;
@@ -35,11 +38,13 @@ public class DeliveryResource {
     }
 
     @GetMapping
+    @Operation(summary = "Get all Deliveries")
     public ResponseEntity<List<DeliveryDTO>> getAllDeliveries(@PathVariable UUID locationId) {
         return ResponseEntity.ok(deliveryService.findAll(locationId));
     }
 
     @PostMapping
+    @Operation(summary = "Search all Deliveries")
     public Page<DeliveryDTO> searchDeliveries(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
         // Enforce Location filter
         FilterRequest locationFilter = new FilterRequest();
@@ -54,12 +59,14 @@ public class DeliveryResource {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get a Deliveries")
     public ResponseEntity<DeliveryDTO> getDelivery(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(deliveryService.get(id));
     }
 
     @PostMapping("/create")
     @ApiResponse(responseCode = "201")
+    @Operation(summary = "Create a Deliveries")
     public ResponseEntity<UUID> createDelivery(@PathVariable UUID locationId, @RequestBody @Valid final DeliveryDTO deliveryDTO) {
 
         deliveryDTO.setLocation(locationId);
@@ -69,6 +76,7 @@ public class DeliveryResource {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Update a Deliveries")
     public ResponseEntity<UUID> updateDelivery(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final DeliveryDTO deliveryDTO) {
 
@@ -80,6 +88,7 @@ public class DeliveryResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
+    @Operation(summary = "Delete a Deliveries")
     public ResponseEntity<Void> deleteDelivery(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         deliveryService.delete(id);
         return ResponseEntity.noContent().build();

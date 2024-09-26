@@ -52,4 +52,6 @@ public class StaffDTO {
 
     private UUID salary;
 
+    private UUID location;
+
 }

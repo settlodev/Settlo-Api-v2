@@ -2,7 +2,9 @@ package co.tz.settlo.api.communication_template;
 
 import co.tz.settlo.api.util.ReferencedException;
 import co.tz.settlo.api.util.ReferencedWarning;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/communication-templates/{locationId}", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Communication Template Endpoints")
 public class CommunicationTemplateResource {
 
     private final CommunicationTemplateService communicationTemplateService;
@@ -31,11 +34,13 @@ public class CommunicationTemplateResource {
     }
 
     @GetMapping
+    @Operation(summary = "Get all communication templates")
     public ResponseEntity<List<CommunicationTemplateDTO>> getAllCommunicationTemplates(@PathVariable UUID locationId) {
         return ResponseEntity.ok(communicationTemplateService.findAll(locationId));
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get a communication template")
     public ResponseEntity<CommunicationTemplateDTO> getCommunicationTemplate( @PathVariable UUID locationId,
             @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(communicationTemplateService.get(id));
@@ -43,6 +48,7 @@ public class CommunicationTemplateResource {
 
     @PostMapping("/create")
     @ApiResponse(responseCode = "201")
+    @Operation(summary = "Create communication template")
     public ResponseEntity<UUID> createCommunicationTemplate( @PathVariable UUID locationId,
             @RequestBody @Valid final CommunicationTemplateDTO communicationTemplateDTO) {
         communicationTemplateDTO.setLocation(locationId);
@@ -52,6 +58,7 @@ public class CommunicationTemplateResource {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Update a communication template")
     public ResponseEntity<UUID> updateCommunicationTemplate( @PathVariable UUID locationId,
             @PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final CommunicationTemplateDTO communicationTemplateDTO) {
@@ -64,6 +71,7 @@ public class CommunicationTemplateResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
+    @Operation(summary = "Delete a communication template")
     public ResponseEntity<Void> deleteCommunicationTemplate( @PathVariable UUID locationId,
             @PathVariable(name = "id") final UUID id) {
         final ReferencedWarning referencedWarning = communicationTemplateService.getReferencedWarning(id);

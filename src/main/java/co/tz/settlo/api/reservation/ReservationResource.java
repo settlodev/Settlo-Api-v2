@@ -5,7 +5,9 @@ import co.tz.settlo.api.util.RestApiFilter.FieldType;
 import co.tz.settlo.api.util.RestApiFilter.FilterRequest;
 import co.tz.settlo.api.util.RestApiFilter.Operator;
 import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/reservations/{locationId}", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Reservations Endpoints")
 public class ReservationResource {
 
     private final ReservationService reservationService;
@@ -35,11 +38,13 @@ public class ReservationResource {
     }
 
     @GetMapping
+    @Operation(summary = "Get all Reservations")
     public ResponseEntity<List<ReservationDTO>> getAllReservations(@PathVariable UUID locationId) {
         return ResponseEntity.ok(reservationService.findAll(locationId));
     }
 
     @PostMapping
+    @Operation(summary = "Search Reservations")
     public Page<ReservationDTO> searchReservations(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
         // Enforce Location filter
         FilterRequest locationFilter = new FilterRequest();
@@ -54,12 +59,14 @@ public class ReservationResource {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get a reservation")
     public ResponseEntity<ReservationDTO> getReservation(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(reservationService.get(id));
     }
 
     @PostMapping("/create")
     @ApiResponse(responseCode = "201")
+    @Operation(summary = "Create a reservation")
     public ResponseEntity<UUID> createReservation(@PathVariable UUID locationId,
                                                   @RequestBody @Valid final ReservationDTO reservationDTO) {
 
@@ -70,6 +77,7 @@ public class ReservationResource {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Update a reservation")
     public ResponseEntity<UUID> updateReservation(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final ReservationDTO reservationDTO) {
 
@@ -81,6 +89,7 @@ public class ReservationResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
+    @Operation(summary = "Delete a reservation")
     public ResponseEntity<Void> deleteReservation(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         reservationService.delete(id);
         return ResponseEntity.noContent().build();

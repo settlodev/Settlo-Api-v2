@@ -7,6 +7,7 @@ import co.tz.settlo.api.util.RestApiFilter.FieldType;
 import co.tz.settlo.api.util.RestApiFilter.FilterRequest;
 import co.tz.settlo.api.util.RestApiFilter.Operator;
 import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/suppliers/{locationId}", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Supplier Endpoints")
 public class SupplierResource {
 
     private final SupplierService supplierService;
@@ -38,6 +40,7 @@ public class SupplierResource {
     }
 
     @PostMapping
+    @Operation(summary = "Search all suppliers")
     public Page<SupplierDTO> searchSuppliers(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
         // Enforce Location filter
         FilterRequest locationFilter = new FilterRequest();
@@ -52,19 +55,20 @@ public class SupplierResource {
     }
 
     @GetMapping
+    @Operation(summary = "Get all suppliers")
     public ResponseEntity<List<SupplierDTO>> getAllSuppliers(@PathVariable final UUID locationId) {
         return ResponseEntity.ok(supplierService.findAll());
     }
 
     @GetMapping("/{id}")
-    @Tag(name = "Get Supplier")
+    @Operation(summary = "Get Supplier")
     public ResponseEntity<SupplierDTO> getSupplier(@PathVariable final UUID locationId, @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(supplierService.get(id));
     }
 
     @PostMapping("/create")
     @ApiResponse(responseCode = "201")
-    @Tag(name = "Create Supplier")
+    @Operation(summary = "Create Supplier")
     public ResponseEntity<UUID> createSupplier(@PathVariable final UUID locationId, @RequestBody @Valid final SupplierDTO supplierDTO) {
         supplierDTO.setLocation(locationId);
 
@@ -73,7 +77,7 @@ public class SupplierResource {
     }
 
     @PutMapping("/{id}")
-    @Tag(name = "Create Supplier")
+    @Operation(summary = "Create Supplier")
     public ResponseEntity<UUID> updateSupplier(@PathVariable final UUID locationId, @PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final SupplierDTO supplierDTO) {
         supplierDTO.setLocation(locationId);
@@ -84,6 +88,7 @@ public class SupplierResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
+    @Operation(summary = "Delete a Supplier")
     public ResponseEntity<Void> deleteSupplier(@PathVariable final UUID locationId, @PathVariable(name = "id") final UUID id) {
         final ReferencedWarning referencedWarning = supplierService.getReferencedWarning(id);
         if (referencedWarning != null) {

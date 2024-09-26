@@ -12,6 +12,8 @@ import co.tz.settlo.api.payslip.Payslip;
 import co.tz.settlo.api.payslip.PayslipRepository;
 import co.tz.settlo.api.refund.Refund;
 import co.tz.settlo.api.refund.RefundRepository;
+import co.tz.settlo.api.reservation.Reservation;
+import co.tz.settlo.api.reservation.ReservationDTO;
 import co.tz.settlo.api.role.Role;
 import co.tz.settlo.api.role.RoleRepository;
 import co.tz.settlo.api.salary.Salary;
@@ -24,8 +26,14 @@ import co.tz.settlo.api.util.NotFoundException;
 import co.tz.settlo.api.util.ReferencedWarning;
 import java.util.List;
 import java.util.UUID;
+
+import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import co.tz.settlo.api.util.RestApiFilter.SearchSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -64,25 +72,38 @@ public class StaffService {
         this.itemReturnRepository = itemReturnRepository;
     }
 
-    public List<StaffDTO> findAll() {
-        final List<Staff> staffs = staffRepository.findAll(Sort.by("id"));
+    @Transactional(readOnly = true)
+    public List<StaffDTO> findAll(final UUID locationId) {
+        final List<Staff> staffs = staffRepository.findAllByLocationId(locationId);
         return staffs.stream()
                 .map(staff -> mapToDTO(staff, new StaffDTO()))
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public StaffDTO get(final UUID id) {
         return staffRepository.findById(id)
                 .map(staff -> mapToDTO(staff, new StaffDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
+    @Transactional(readOnly = true)
+    public Page<StaffDTO> searchAll(SearchRequest request) {
+        SearchSpecification<Staff> specification = new SearchSpecification<>(request);
+        Pageable pageable = SearchSpecification.getPageable(request.getPage(), request.getSize());
+        Page<Staff> staffPage = staffRepository.findAll(specification, pageable);
+
+        return staffPage.map(staff -> mapToDTO(staff, new StaffDTO()));
+    }
+
+    @Transactional
     public UUID create(final StaffDTO staffDTO) {
         final Staff staff = new Staff();
         mapToEntity(staffDTO, staff);
         return staffRepository.save(staff).getId();
     }
 
+    @Transactional
     public void update(final UUID id, final StaffDTO staffDTO) {
         final Staff staff = staffRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
@@ -90,6 +111,7 @@ public class StaffService {
         staffRepository.save(staff);
     }
 
+    @Transactional
     public void delete(final UUID id) {
         staffRepository.deleteById(id);
     }
