@@ -4,6 +4,7 @@ import co.tz.settlo.api.util.ReferencedException;
 import co.tz.settlo.api.util.ReferencedWarning;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -32,27 +33,27 @@ public class BusinessResource {
     }
 
     @GetMapping
-    @Tag(name = "Get All Businesses", description = "Get all businesses")
+    @Operation(summary = "Get All Businesses", description = "Get all businesses")
     public ResponseEntity<List<BusinessDTO>> getAllBusinesses() {
         return ResponseEntity.ok(businessService.findAll());
     }
 
     @GetMapping("/{id}")
-    @Tag(name = "Get a Business", description = "Get a business by supplying it's ID")
+    @Operation(summary = "Get a Business", description = "Get a business by supplying it's ID")
     public ResponseEntity<BusinessDTO> getBusiness(@PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(businessService.get(id));
     }
 
     @PostMapping
     @ApiResponse(responseCode = "201")
-    @Tag(name = "Create a business", description = "Create a business by supplying it's body as JSON")
+    @Operation(summary = "Create a business", description = "Create a business by supplying it's body as JSON")
     public ResponseEntity<UUID> createBusiness(@RequestBody @Valid final BusinessDTO businessDTO) {
         final UUID createdId = businessService.create(businessDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    @Tag(name = "Update a business", description = "Update a business by supplying it's new body as JSON")
+    @Operation(summary = "Update a business", description = "Update a business by supplying it's new body as JSON")
     public ResponseEntity<UUID> updateBusiness(@PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final BusinessDTO businessDTO) {
         businessService.update(id, businessDTO);
@@ -61,7 +62,7 @@ public class BusinessResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
-    @Tag(name = "Delete a Business", description = "Delete a business by supplying it's ID")
+    @Operation(summary = "Delete a Business", description = "Delete a business by supplying it's ID")
     public ResponseEntity<Void> deleteBusiness(@PathVariable(name = "id") final UUID id) {
         final ReferencedWarning referencedWarning = businessService.getReferencedWarning(id);
         if (referencedWarning != null) {
