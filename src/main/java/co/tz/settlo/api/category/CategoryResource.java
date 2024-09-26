@@ -40,19 +40,19 @@ public class CategoryResource {
 
     @GetMapping
     @Operation(summary = "Get all Categories", description = "Get all categories under a location id")
-    public ResponseEntity<List<CategoryDTO>> getAllCategories(@PathVariable UUID locationId) {
+    public ResponseEntity<List<CategoryResponseDTO>> getAllCategories(@PathVariable UUID locationId) {
         return ResponseEntity.ok(categoryService.findAll(locationId));
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Get category", description = "Get a category by specifying it's ID")
-    public ResponseEntity<CategoryDTO> getCategory(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
+    public ResponseEntity<CategoryResponseDTO> getCategory(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(categoryService.get(id));
     }
 
     @PostMapping
     @Operation(summary = "Search category")
-    public Page<CategoryDTO> searchCategory(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
+    public Page<CategoryResponseDTO> searchCategory(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
         // Enforce Location filter
         FilterRequest locationFilter = new FilterRequest();
         locationFilter.setKey("location");

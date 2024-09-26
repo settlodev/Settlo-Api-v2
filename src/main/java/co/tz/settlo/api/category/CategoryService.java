@@ -32,26 +32,26 @@ public class CategoryService {
     }
 
     @Transactional(readOnly = true)
-    public List<CategoryDTO> findAll(final UUID locationId) {
+    public List<CategoryResponseDTO> findAll(final UUID locationId) {
         final List<Category> categories = categoryRepository.findAllByLocationId(locationId);
         return categories.stream()
-                .map(category -> mapToDTO(category, new CategoryDTO()))
+                .map(category -> mapToDTO(category, new CategoryResponseDTO()))
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    public Page<CategoryDTO> searchAll(SearchRequest request) {
+    public Page<CategoryResponseDTO> searchAll(SearchRequest request) {
         SearchSpecification<Category> specification = new SearchSpecification<>(request);
         Pageable pageable = SearchSpecification.getPageable(request.getPage(), request.getSize());
         Page<Category> categoryPage = categoryRepository.findAll(specification, pageable);
 
-        return categoryPage.map(category -> mapToDTO(category, new CategoryDTO()));
+        return categoryPage.map(category -> mapToDTO(category, new CategoryResponseDTO()));
     }
 
     @Transactional(readOnly = true)
-    public CategoryDTO get(final UUID id) {
+    public CategoryResponseDTO get(final UUID id) {
         return categoryRepository.findById(id)
-                .map(category -> mapToDTO(category, new CategoryDTO()))
+                .map(category -> mapToDTO(category, new CategoryResponseDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
@@ -75,7 +75,7 @@ public class CategoryService {
         categoryRepository.deleteById(id);
     }
 
-    private CategoryDTO mapToDTO(final Category category, final CategoryDTO categoryDTO) {
+    private CategoryResponseDTO mapToDTO(final Category category, final CategoryResponseDTO categoryDTO) {
         categoryDTO.setId(category.getId());
         categoryDTO.setName(category.getName());
         categoryDTO.setImage(category.getImage());
@@ -83,6 +83,7 @@ public class CategoryService {
         categoryDTO.setStatus(category.getStatus());
         categoryDTO.setIsArchived(category.getIsArchived());
         categoryDTO.setCanDelete(category.getCanDelete());
+        categoryDTO.setLocationName(category.getLocation() == null ? null : category.getLocation().getName());
         categoryDTO.setLocation(category.getLocation() == null ? null : category.getLocation().getId());
 
         return categoryDTO;
