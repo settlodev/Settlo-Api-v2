@@ -3,6 +3,7 @@ package co.tz.settlo.api.settlement_account;
 import co.tz.settlo.api.util.ReferencedException;
 import co.tz.settlo.api.util.ReferencedWarning;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/settlementAccounts", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Settlement Accounts Endpoints")
 public class SettlementAccountResource {
 
     private final SettlementAccountService settlementAccountService;
@@ -30,11 +32,13 @@ public class SettlementAccountResource {
     }
 
     @GetMapping
+    @Tag(name = "Get all settlement accounts")
     public ResponseEntity<List<SettlementAccountDTO>> getAllSettlementAccounts() {
         return ResponseEntity.ok(settlementAccountService.findAll());
     }
 
     @GetMapping("/{id}")
+    @Tag(name = "Get a settlement account")
     public ResponseEntity<SettlementAccountDTO> getSettlementAccount(
             @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(settlementAccountService.get(id));
@@ -42,6 +46,7 @@ public class SettlementAccountResource {
 
     @PostMapping
     @ApiResponse(responseCode = "201")
+    @Tag(name = "Create a settlement account")
     public ResponseEntity<UUID> createSettlementAccount(
             @RequestBody @Valid final SettlementAccountDTO settlementAccountDTO) {
         final UUID createdId = settlementAccountService.create(settlementAccountDTO);
@@ -49,6 +54,7 @@ public class SettlementAccountResource {
     }
 
     @PutMapping("/{id}")
+    @Tag(name = "Update a settlement account")
     public ResponseEntity<UUID> updateSettlementAccount(@PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final SettlementAccountDTO settlementAccountDTO) {
         settlementAccountService.update(id, settlementAccountDTO);
@@ -57,6 +63,7 @@ public class SettlementAccountResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
+    @Tag(name = "Delete a settlement account")
     public ResponseEntity<Void> deleteSettlementAccount(@PathVariable(name = "id") final UUID id) {
         final ReferencedWarning referencedWarning = settlementAccountService.getReferencedWarning(id);
         if (referencedWarning != null) {
