@@ -2,7 +2,9 @@ package co.tz.settlo.api.country;
 
 import co.tz.settlo.api.util.ReferencedException;
 import co.tz.settlo.api.util.ReferencedWarning;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/countries", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Country Resource Endpoints")
 public class CountryResource {
 
     private final CountryService countryService;
@@ -30,23 +33,27 @@ public class CountryResource {
     }
 
     @GetMapping
+    @Operation(summary = "Get all Countries")
     public ResponseEntity<List<CountryDTO>> getAllCountries() {
         return ResponseEntity.ok(countryService.findAll());
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get a country")
     public ResponseEntity<CountryDTO> getCountry(@PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(countryService.get(id));
     }
 
     @PostMapping
     @ApiResponse(responseCode = "201")
+    @Operation(summary = "Create a country")
     public ResponseEntity<UUID> createCountry(@RequestBody @Valid final CountryDTO countryDTO) {
         final UUID createdId = countryService.create(countryDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Update a country")
     public ResponseEntity<UUID> updateCountry(@PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final CountryDTO countryDTO) {
         countryService.update(id, countryDTO);
@@ -55,6 +62,7 @@ public class CountryResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
+    @Operation(summary = "Delete a country")
     public ResponseEntity<Void> deleteCountry(@PathVariable(name = "id") final UUID id) {
         final ReferencedWarning referencedWarning = countryService.getReferencedWarning(id);
         if (referencedWarning != null) {
