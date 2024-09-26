@@ -56,10 +56,11 @@ public class CategoryService {
     }
 
     @Transactional
-    public UUID create(final CategoryDTO categoryDTO) {
+    public CategoryDTO create(final CategoryDTO categoryDTO) {
         final Category category = new Category();
-        final var newCategory = mapToEntity(categoryDTO, category);
-        return categoryRepository.save(newCategory).getId();
+        final Category newCategory = mapToEntity(categoryDTO, category);
+        final Category createdCategory =  categoryRepository.save(newCategory);
+        return mapToDTO(newCategory, categoryDTO);
     }
 
     @Transactional
