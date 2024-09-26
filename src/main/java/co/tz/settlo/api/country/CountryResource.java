@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/countries", produces = MediaType.APPLICATION_JSON_VALUE)
-@Tag(name = "Country Resource Endpoints")
+@Tag(name = "Country Endpoints")
 public class CountryResource {
 
     private final CountryService countryService;
