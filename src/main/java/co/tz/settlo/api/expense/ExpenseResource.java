@@ -5,7 +5,9 @@ import co.tz.settlo.api.util.RestApiFilter.FieldType;
 import co.tz.settlo.api.util.RestApiFilter.FilterRequest;
 import co.tz.settlo.api.util.RestApiFilter.Operator;
 import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/expenses/{locationId}", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Expenses Endpoints")
 public class ExpenseResource {
 
     private final ExpenseService expenseService;
@@ -35,6 +38,7 @@ public class ExpenseResource {
     }
 
     @PostMapping
+    @Operation(summary = "Search Expenses")
     public Page<ExpenseDTO> searchExpenses(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
         // Enforce Location filter
         FilterRequest locationFilter = new FilterRequest();
@@ -49,17 +53,20 @@ public class ExpenseResource {
     }
 
     @GetMapping
+    @Operation(summary = "Get all expenses")
     public ResponseEntity<List<ExpenseDTO>> getAllExpenses(@PathVariable UUID locationId) {
         return ResponseEntity.ok(expenseService.findAll(locationId));
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get an expenses")
     public ResponseEntity<ExpenseDTO> getExpense(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(expenseService.get(id));
     }
 
     @PostMapping("/create")
     @ApiResponse(responseCode = "201")
+    @Operation(summary = "Create an expense")
     public ResponseEntity<UUID> createExpense(@PathVariable UUID locationId,@RequestBody @Valid final ExpenseDTO expenseDTO) {
         expenseDTO.setLocation(locationId);
         final UUID createdId = expenseService.create(expenseDTO);
@@ -67,6 +74,7 @@ public class ExpenseResource {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Update an expense")
     public ResponseEntity<UUID> updateExpense(@PathVariable UUID locationId,@PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final ExpenseDTO expenseDTO) {
         expenseDTO.setLocation(locationId);
@@ -76,6 +84,7 @@ public class ExpenseResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
+    @Operation(summary = "Delete an expense")
     public ResponseEntity<Void> deleteExpense(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         expenseService.delete(id);
         return ResponseEntity.noContent().build();
