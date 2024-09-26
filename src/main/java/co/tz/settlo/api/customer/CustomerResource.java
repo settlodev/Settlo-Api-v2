@@ -6,7 +6,9 @@ import co.tz.settlo.api.util.RestApiFilter.FieldType;
 import co.tz.settlo.api.util.RestApiFilter.FilterRequest;
 import co.tz.settlo.api.util.RestApiFilter.Operator;
 import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/customers/{locationId}", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Customer Endpoints")
 public class CustomerResource {
 
     private final CustomerService customerService;
@@ -36,16 +39,19 @@ public class CustomerResource {
     }
 
     @GetMapping
+    @Operation(summary = "Get all Customers")
     public ResponseEntity<List<CustomerDTO>> getAllCustomers(@PathVariable UUID locationId) {
         return ResponseEntity.ok(customerService.findAll(locationId));
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get a customer")
     public ResponseEntity<CustomerDTO> getCustomer(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(customerService.get(id));
     }
 
     @PostMapping
+    @Operation(summary = "Search a customer")
     public Page<CustomerDTO> searchCustomers(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
         // Enforce Location filter
         FilterRequest locationFilter = new FilterRequest();
@@ -61,6 +67,7 @@ public class CustomerResource {
 
     @PostMapping("/create")
     @ApiResponse(responseCode = "201")
+    @Operation(summary = "Create a customer")
     public ResponseEntity<UUID> createCustomer(@PathVariable UUID locationId, @RequestBody @Valid final CustomerDTO customerDTO) {
         customerDTO.setLocation(locationId);
 
@@ -69,6 +76,7 @@ public class CustomerResource {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Update a customer")
     public ResponseEntity<UUID> updateCustomer(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final CustomerDTO customerDTO) {
         customerDTO.setLocation(locationId);
@@ -79,6 +87,7 @@ public class CustomerResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
+    @Operation(summary = "Delete a customer")
     public ResponseEntity<Void> deleteCustomer(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         final ReferencedWarning referencedWarning = customerService.getReferencedWarning(id);
         if (referencedWarning != null) {
