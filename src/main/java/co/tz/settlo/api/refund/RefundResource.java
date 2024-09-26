@@ -1,9 +1,16 @@
 package co.tz.settlo.api.refund;
 
+import co.tz.settlo.api.product.ProductDTO;
+import co.tz.settlo.api.util.RestApiFilter.FieldType;
+import co.tz.settlo.api.util.RestApiFilter.FilterRequest;
+import co.tz.settlo.api.util.RestApiFilter.Operator;
+import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
+
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping(value = "/api/refunds", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/refunds/{locationId}", produces = MediaType.APPLICATION_JSON_VALUE)
 public class RefundResource {
 
     private final RefundService refundService;
@@ -28,32 +35,52 @@ public class RefundResource {
     }
 
     @GetMapping
-    public ResponseEntity<List<RefundDTO>> getAllRefunds() {
-        return ResponseEntity.ok(refundService.findAll());
+    public ResponseEntity<List<RefundDTO>> getAllRefunds(@PathVariable UUID locationId) {
+        return ResponseEntity.ok(refundService.findAll(locationId));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<RefundDTO> getRefund(@PathVariable(name = "id") final UUID id) {
+    public ResponseEntity<RefundDTO> getRefund(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(refundService.get(id));
     }
 
     @PostMapping
+    public Page<RefundDTO> searchRefunds(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
+        // Enforce Location filter
+        FilterRequest locationFilter = new FilterRequest();
+        locationFilter.setKey("location");
+        locationFilter.setOperator(Operator.EQUAL);
+        locationFilter.setFieldType(FieldType.STRING);
+        locationFilter.setValue(locationId);
+
+        request.getFilters().add(locationFilter);
+
+        return refundService.searchAll(request);
+    }
+
+    @PostMapping("/create")
     @ApiResponse(responseCode = "201")
-    public ResponseEntity<UUID> createRefund(@RequestBody @Valid final RefundDTO refundDTO) {
+    public ResponseEntity<UUID> createRefund(@PathVariable UUID locationId, @RequestBody @Valid final RefundDTO refundDTO) {
+
+        refundDTO.setLocationId(locationId);
+
         final UUID createdId = refundService.create(refundDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UUID> updateRefund(@PathVariable(name = "id") final UUID id,
+    public ResponseEntity<UUID> updateRefund(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final RefundDTO refundDTO) {
+
+        refundDTO.setLocationId(locationId);
+
         refundService.update(id, refundDTO);
         return ResponseEntity.ok(id);
     }
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
-    public ResponseEntity<Void> deleteRefund(@PathVariable(name = "id") final UUID id) {
+    public ResponseEntity<Void> deleteRefund(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         refundService.delete(id);
         return ResponseEntity.noContent().build();
     }

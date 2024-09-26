@@ -64,6 +64,9 @@ public class LocationSettingDTO {
     private Boolean useKds;
 
     @NotNull
+    private UUID locationId;
+    
+    @NotNull
     @JsonProperty("isActive")
     private Boolean isActive;
 

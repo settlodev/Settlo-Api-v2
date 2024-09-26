@@ -7,8 +7,13 @@ import co.tz.settlo.api.staff.StaffRepository;
 import co.tz.settlo.api.util.NotFoundException;
 import java.util.List;
 import java.util.UUID;
-import org.springframework.data.domain.Sort;
+
+import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import co.tz.settlo.api.util.RestApiFilter.SearchSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -25,25 +30,38 @@ public class PayslipService {
         this.salaryRepository = salaryRepository;
     }
 
-    public List<PayslipDTO> findAll() {
-        final List<Payslip> payslips = payslipRepository.findAll(Sort.by("id"));
+    @Transactional(readOnly = true)
+    public List<PayslipDTO> findAll(final UUID locationId) {
+        final List<Payslip> payslips = payslipRepository.findAllByLocationId(locationId);
         return payslips.stream()
                 .map(payslip -> mapToDTO(payslip, new PayslipDTO()))
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public Page<PayslipDTO> searchAll(SearchRequest request) {
+        SearchSpecification<Payslip> specification = new SearchSpecification<>(request);
+        Pageable pageable = SearchSpecification.getPageable(request.getPage(), request.getSize());
+        Page<Payslip> payslipsPage = payslipRepository.findAll(specification, pageable);
+
+        return payslipsPage.map(payslip -> mapToDTO(payslip, new PayslipDTO()));
+    }
+
+    @Transactional(readOnly = true)
     public PayslipDTO get(final UUID id) {
         return payslipRepository.findById(id)
                 .map(payslip -> mapToDTO(payslip, new PayslipDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
+    @Transactional
     public UUID create(final PayslipDTO payslipDTO) {
         final Payslip payslip = new Payslip();
         mapToEntity(payslipDTO, payslip);
         return payslipRepository.save(payslip).getId();
     }
 
+    @Transactional
     public void update(final UUID id, final PayslipDTO payslipDTO) {
         final Payslip payslip = payslipRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
@@ -51,6 +69,7 @@ public class PayslipService {
         payslipRepository.save(payslip);
     }
 
+    @Transactional
     public void delete(final UUID id) {
         payslipRepository.deleteById(id);
     }

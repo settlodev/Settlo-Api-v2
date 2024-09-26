@@ -11,6 +11,7 @@ import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.responses.ApiResponse;
+import io.swagger.v3.oas.models.servers.Server;
 import org.springdoc.core.customizers.OperationCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +27,9 @@ public class SwaggerConfig {
                         .title("Settlo API")
                         .version("1.0.0")
                         .description("This documentation is for the Settlo API."))
+                .addServersItem(new Server()
+                        .url("https://ec2-35-159-78-184.eu-central-1.compute.amazonaws.com:8443")
+                        .description("Settlo API Server"))
                 .components(new Components()
                         .addSchemas("ApiErrorResponse", new ObjectSchema()
                                 .addProperty("status", new IntegerSchema())

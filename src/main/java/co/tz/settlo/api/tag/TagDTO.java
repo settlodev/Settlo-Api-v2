@@ -28,4 +28,6 @@ public class TagDTO {
 
     @NotNull
     private Boolean canDelete;
+
+    private UUID locationId;
 }

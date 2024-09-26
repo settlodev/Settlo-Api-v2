@@ -50,6 +50,8 @@ public class StockVariantDTO {
     @NotNull
     private Boolean canDelete;
 
-    private Long stock;
+    private UUID stock;
+
+    private UUID location;
 
 }

@@ -9,8 +9,13 @@ import co.tz.settlo.api.stock_variant.StockVariantRepository;
 import co.tz.settlo.api.util.NotFoundException;
 import java.util.List;
 import java.util.UUID;
-import org.springframework.data.domain.Sort;
+
+import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import co.tz.settlo.api.util.RestApiFilter.SearchSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -30,25 +35,38 @@ public class RefundService {
         this.stockVariantRepository = stockVariantRepository;
     }
 
-    public List<RefundDTO> findAll() {
-        final List<Refund> refunds = refundRepository.findAll(Sort.by("id"));
+    @Transactional(readOnly = true)
+    public List<RefundDTO> findAll(final UUID locationId) {
+        final List<Refund> refunds = refundRepository.findAllByLocationId(locationId);
         return refunds.stream()
                 .map(refund -> mapToDTO(refund, new RefundDTO()))
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public RefundDTO get(final UUID id) {
         return refundRepository.findById(id)
                 .map(refund -> mapToDTO(refund, new RefundDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
+    @Transactional(readOnly = true)
+    public Page<RefundDTO> searchAll(SearchRequest request) {
+        SearchSpecification<Refund> specification = new SearchSpecification<>(request);
+        Pageable pageable = SearchSpecification.getPageable(request.getPage(), request.getSize());
+        Page<Refund> refundsPage = refundRepository.findAll(specification, pageable);
+
+        return refundsPage.map(refund -> mapToDTO(refund, new RefundDTO()));
+    }
+
+    @Transactional
     public UUID create(final RefundDTO refundDTO) {
         final Refund refund = new Refund();
         mapToEntity(refundDTO, refund);
         return refundRepository.save(refund).getId();
     }
 
+    @Transactional
     public void update(final UUID id, final RefundDTO refundDTO) {
         final Refund refund = refundRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
@@ -56,6 +74,7 @@ public class RefundService {
         refundRepository.save(refund);
     }
 
+    @Transactional
     public void delete(final UUID id) {
         refundRepository.deleteById(id);
     }

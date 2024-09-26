@@ -59,7 +59,7 @@ public class OrderItem {
     private Boolean isArchived;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "staff_id_id", nullable = false)
+    @JoinColumn(name = "staff_id", nullable = false)
     private Staff staffId;
 
     @CreatedDate

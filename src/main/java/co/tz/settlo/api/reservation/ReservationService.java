@@ -60,7 +60,6 @@ public class ReservationService {
         return reservationsPage.map(reservation -> mapToDTO(reservation, new ReservationDTO()));
     }
 
-
     @Transactional(readOnly = true)
     public ReservationDTO get(final UUID id) {
         return reservationRepository.findById(id)

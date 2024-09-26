@@ -1,5 +1,6 @@
 package co.tz.settlo.api.payslip;
 
+import co.tz.settlo.api.location.Location;
 import co.tz.settlo.api.salary.Salary;
 import co.tz.settlo.api.staff.Staff;
 import jakarta.persistence.Column;
@@ -63,6 +64,10 @@ public class Payslip {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "salary_id")
     private Salary salary;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "location_id", nullable = false)
+    private Location location;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)

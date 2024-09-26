@@ -1,5 +1,6 @@
 package co.tz.settlo.api.stock_variant;
 
+import co.tz.settlo.api.location.Location;
 import co.tz.settlo.api.stock.Stock;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -72,6 +73,10 @@ public class StockVariant {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "stock_id")
     private Stock stock;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "location_id")
+    private Location location;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)

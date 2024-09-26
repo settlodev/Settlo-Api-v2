@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping(value = "/api/subscriptions", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/subscriptions/{locationId}", produces = MediaType.APPLICATION_JSON_VALUE)
 public class SubscriptionResource {
 
     private final SubscriptionService subscriptionService;

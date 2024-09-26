@@ -12,8 +12,14 @@ import co.tz.settlo.api.util.NotFoundException;
 import co.tz.settlo.api.util.ReferencedWarning;
 import java.util.List;
 import java.util.UUID;
+
+import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import co.tz.settlo.api.util.RestApiFilter.SearchSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -37,6 +43,7 @@ public class StockVariantService {
         this.itemReturnRepository = itemReturnRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<StockVariantDTO> findAll() {
         final List<StockVariant> stockVariants = stockVariantRepository.findAll(Sort.by("id"));
         return stockVariants.stream()
@@ -44,18 +51,30 @@ public class StockVariantService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public StockVariantDTO get(final UUID id) {
         return stockVariantRepository.findById(id)
                 .map(stockVariant -> mapToDTO(stockVariant, new StockVariantDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
+    @Transactional(readOnly = true)
+    public Page<StockVariantDTO> searchAll(SearchRequest request) {
+        SearchSpecification<StockVariant> specification = new SearchSpecification<>(request);
+        Pageable pageable = SearchSpecification.getPageable(request.getPage(), request.getSize());
+        Page<StockVariant> stockVariantsPage = stockVariantRepository.findAll(specification, pageable);
+
+        return stockVariantsPage.map(stockVariant -> mapToDTO(stockVariant, new StockVariantDTO()));
+    }
+
+    @Transactional
     public UUID create(final StockVariantDTO stockVariantDTO) {
         final StockVariant stockVariant = new StockVariant();
         mapToEntity(stockVariantDTO, stockVariant);
         return stockVariantRepository.save(stockVariant).getId();
     }
 
+    @Transactional
     public void update(final UUID id, final StockVariantDTO stockVariantDTO) {
         final StockVariant stockVariant = stockVariantRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
@@ -63,6 +82,7 @@ public class StockVariantService {
         stockVariantRepository.save(stockVariant);
     }
 
+    @Transactional
     public void delete(final UUID id) {
         stockVariantRepository.deleteById(id);
     }

@@ -37,7 +37,7 @@ public class TagResource {
 
     
     @PostMapping
-    public Page<TagDTO> searchProducts(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
+    public Page<TagDTO> searchTags(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
         // Enforce Location filter
         FilterRequest locationFilter = new FilterRequest();
         locationFilter.setKey("location");
@@ -54,7 +54,6 @@ public class TagResource {
     public ResponseEntity<List<TagDTO>> getAllTags(@PathVariable UUID locationId) {
         return ResponseEntity.ok(tagService.findAll());
     }
-    
 
     @GetMapping("/{id}")
     public ResponseEntity<TagDTO> getTag(@PathVariable(name = "id") final UUID id) {
@@ -64,6 +63,8 @@ public class TagResource {
     @PostMapping("/create")
     @ApiResponse(responseCode = "201")
     public ResponseEntity<UUID> createTag(@PathVariable(name = "locationId") final UUID locationId, @RequestBody @Valid final TagDTO tagDTO) {
+        tagDTO.setLocationId(locationId);
+
         final UUID createdId = tagService.create(tagDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
@@ -71,6 +72,9 @@ public class TagResource {
     @PutMapping("/{id}")
     public ResponseEntity<UUID> updateTag(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final TagDTO tagDTO) {
+
+        tagDTO.setLocationId(locationId);
+
         tagService.update(id, tagDTO);
         return ResponseEntity.ok(id);
     }
