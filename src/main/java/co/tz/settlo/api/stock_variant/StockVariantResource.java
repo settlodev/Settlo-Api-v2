@@ -2,7 +2,9 @@ package co.tz.settlo.api.stock_variant;
 
 import co.tz.settlo.api.util.ReferencedException;
 import co.tz.settlo.api.util.ReferencedWarning;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/stockVariants", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Stock Variant Endpoints")
 public class StockVariantResource {
 
     private final StockVariantService stockVariantService;
@@ -30,11 +33,13 @@ public class StockVariantResource {
     }
 
     @GetMapping
+    @Operation(summary = "Get all stock variants")
     public ResponseEntity<List<StockVariantDTO>> getAllStockVariants() {
         return ResponseEntity.ok(stockVariantService.findAll());
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get a stock variant")
     public ResponseEntity<StockVariantDTO> getStockVariant(
             @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(stockVariantService.get(id));
@@ -42,6 +47,7 @@ public class StockVariantResource {
 
     @PostMapping
     @ApiResponse(responseCode = "201")
+    @Operation(summary = "Create a stock variant")
     public ResponseEntity<UUID> createStockVariant(
             @RequestBody @Valid final StockVariantDTO stockVariantDTO) {
         final UUID createdId = stockVariantService.create(stockVariantDTO);
@@ -49,6 +55,7 @@ public class StockVariantResource {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Update a stock variant")
     public ResponseEntity<UUID> updateStockVariant(@PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final StockVariantDTO stockVariantDTO) {
         stockVariantService.update(id, stockVariantDTO);
@@ -57,6 +64,7 @@ public class StockVariantResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
+    @Operation(summary = "Delete a stock variant")
     public ResponseEntity<Void> deleteStockVariant(@PathVariable(name = "id") final UUID id) {
         final ReferencedWarning referencedWarning = stockVariantService.getReferencedWarning(id);
         if (referencedWarning != null) {
