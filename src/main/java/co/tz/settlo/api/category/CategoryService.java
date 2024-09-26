@@ -2,6 +2,8 @@ package co.tz.settlo.api.category;
 
 import co.tz.settlo.api.discount.Discount;
 import co.tz.settlo.api.discount.DiscountRepository;
+import co.tz.settlo.api.location.Location;
+import co.tz.settlo.api.location.LocationRepository;
 import co.tz.settlo.api.util.NotFoundException;
 import co.tz.settlo.api.util.ReferencedWarning;
 import java.util.List;
@@ -19,12 +21,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final LocationRepository locationRepository;
     private final DiscountRepository discountRepository;
 
     public CategoryService(final CategoryRepository categoryRepository,
-            final DiscountRepository discountRepository) {
+            final DiscountRepository discountRepository, final LocationRepository locationRepository) {
         this.categoryRepository = categoryRepository;
         this.discountRepository = discountRepository;
+        this.locationRepository = locationRepository;
     }
 
     @Transactional(readOnly = true)
@@ -79,6 +83,8 @@ public class CategoryService {
         categoryDTO.setStatus(category.getStatus());
         categoryDTO.setIsArchived(category.getIsArchived());
         categoryDTO.setCanDelete(category.getCanDelete());
+        categoryDTO.setLocation(category.getLocation() == null ? null : category.getLocation().getId());
+
         return categoryDTO;
     }
 
@@ -89,6 +95,10 @@ public class CategoryService {
         category.setStatus(categoryDTO.getStatus());
         category.setIsArchived(categoryDTO.getIsArchived());
         category.setCanDelete(categoryDTO.getCanDelete());
+        final Location location = category.getLocation() == null ? null : locationRepository.findById(categoryDTO.getLocation())
+                .orElseThrow(() -> new NotFoundException("Location not found"));
+        category.setLocation(location);
+
         return category;
     }
 
