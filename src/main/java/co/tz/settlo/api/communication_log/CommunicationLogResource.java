@@ -5,7 +5,9 @@ import co.tz.settlo.api.util.RestApiFilter.FieldType;
 import co.tz.settlo.api.util.RestApiFilter.FilterRequest;
 import co.tz.settlo.api.util.RestApiFilter.Operator;
 import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/communication-logs/{locationId}", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Communication log Endpoints")
 public class CommunicationLogResource {
 
     private final CommunicationLogService communicationLogService;
@@ -35,17 +38,20 @@ public class CommunicationLogResource {
     }
 
     @GetMapping
+    @Operation(summary = "Get all communication log")
     public ResponseEntity<List<CommunicationLogDTO>> getAllCommunicationLogs(@PathVariable UUID locationId) {
         return ResponseEntity.ok(communicationLogService.findAll(locationId));
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get a communication log", description = "Get a communication log by specifying it's ID")
     public ResponseEntity<CommunicationLogDTO> getCommunicationLog( @PathVariable UUID locationId,
             @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(communicationLogService.get(id));
     }
 
     @PostMapping
+    @Operation(summary = "Search communication logs")
     public Page<CommunicationLogDTO> searchCommunicationLogs(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
         // Enforce Location filter
         FilterRequest locationFilter = new FilterRequest();
@@ -61,6 +67,7 @@ public class CommunicationLogResource {
 
     @PostMapping("/create")
     @ApiResponse(responseCode = "201")
+    @Operation(summary = "Create communication log")
     public ResponseEntity<UUID> createCommunicationLog( @PathVariable UUID locationId,
             @RequestBody @Valid final CommunicationLogDTO communicationLogDTO) {
 
@@ -71,6 +78,7 @@ public class CommunicationLogResource {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Update communication log")
     public ResponseEntity<UUID> updateCommunicationLog(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final CommunicationLogDTO communicationLogDTO) {
 
@@ -82,6 +90,7 @@ public class CommunicationLogResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
+    @Operation(summary = "Delete a communication log")
     public ResponseEntity<Void> deleteCommunicationLog(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         communicationLogService.delete(id);
         return ResponseEntity.noContent().build();
