@@ -1,9 +1,16 @@
 package co.tz.settlo.api.product_variants;
 
+import co.tz.settlo.api.product.ProductDTO;
+import co.tz.settlo.api.util.RestApiFilter.FieldType;
+import co.tz.settlo.api.util.RestApiFilter.FilterRequest;
+import co.tz.settlo.api.util.RestApiFilter.Operator;
+import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
+
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping(value = "/api/variants", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/variants/{productId}", produces = MediaType.APPLICATION_JSON_VALUE)
 public class VariantResource {
 
     private final VariantService variantService;
@@ -28,8 +35,8 @@ public class VariantResource {
     }
 
     @GetMapping
-    public ResponseEntity<List<VariantDTO>> getAllVariants() {
-        return ResponseEntity.ok(variantService.findAll());
+    public ResponseEntity<List<VariantDTO>> getAllVariants(@PathVariable UUID productId) {
+        return ResponseEntity.ok(variantService.findAll(productId));
     }
 
     @GetMapping("/{id}")
@@ -38,6 +45,20 @@ public class VariantResource {
     }
 
     @PostMapping
+    public Page<VariantDTO> searchProductVariants(@PathVariable UUID productId, @RequestBody SearchRequest request) {
+        // Enforce Location filter
+        FilterRequest locationFilter = new FilterRequest();
+        locationFilter.setKey("product");
+        locationFilter.setOperator(Operator.EQUAL);
+        locationFilter.setFieldType(FieldType.STRING);
+        locationFilter.setValue(productId);
+
+        request.getFilters().add(locationFilter);
+
+        return variantService.searchAll(request);
+    }
+
+    @PostMapping("/create")
     @ApiResponse(responseCode = "201")
     public ResponseEntity<UUID> createVariant(@RequestBody @Valid final VariantDTO variantDTO) {
         final UUID createdId = variantService.create(variantDTO);

@@ -1,5 +1,7 @@
 package co.tz.settlo.api.product_variants;
 
+import co.tz.settlo.api.expense.Expense;
+import co.tz.settlo.api.expense.ExpenseDTO;
 import co.tz.settlo.api.product.Product;
 import co.tz.settlo.api.product.ProductRepository;
 import co.tz.settlo.api.tag.Tag;
@@ -7,8 +9,14 @@ import co.tz.settlo.api.tag.TagRepository;
 import co.tz.settlo.api.util.NotFoundException;
 import java.util.List;
 import java.util.UUID;
+
+import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import co.tz.settlo.api.util.RestApiFilter.SearchSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -25,17 +33,31 @@ public class VariantService {
         this.tagRepository = tagRepository;
     }
 
-    public List<VariantDTO> findAll() {
-        final List<Variant> variants = variantRepository.findAll(Sort.by("id"));
+    @Transactional(readOnly = true)
+    public List<VariantDTO> findAll(final UUID productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(NotFoundException::new);
+
+        final List<Variant> variants = variantRepository.findAllByProduct(product);
         return variants.stream()
                 .map(variant -> mapToDTO(variant, new VariantDTO()))
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public VariantDTO get(final UUID id) {
         return variantRepository.findById(id)
                 .map(variant -> mapToDTO(variant, new VariantDTO()))
                 .orElseThrow(NotFoundException::new);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<VariantDTO> searchAll(SearchRequest request) {
+        SearchSpecification<Variant> specification = new SearchSpecification<>(request);
+        Pageable pageable = SearchSpecification.getPageable(request.getPage(), request.getSize());
+        Page<Variant> variantsPage = variantRepository.findAll(specification, pageable);
+
+        return variantsPage.map(variant -> mapToDTO(variant, new VariantDTO()));
     }
 
     public UUID create(final VariantDTO variantDTO) {
@@ -44,6 +66,7 @@ public class VariantService {
         return variantRepository.save(variant).getId();
     }
 
+    @Transactional
     public void update(final UUID id, final VariantDTO variantDTO) {
         final Variant variant = variantRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
@@ -51,6 +74,7 @@ public class VariantService {
         variantRepository.save(variant);
     }
 
+    @Transactional
     public void delete(final UUID id) {
         variantRepository.deleteById(id);
     }
