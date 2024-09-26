@@ -61,7 +61,7 @@ public class CategoryService {
         final Category newCategory = mapToEntity(categoryDTO, category);
         final Category createdCategory =  categoryRepository.save(newCategory);
 
-        category.setId(createdCategory.getId());
+        categoryDTO.setId(createdCategory.getId());
 
         return categoryDTO;
     }
