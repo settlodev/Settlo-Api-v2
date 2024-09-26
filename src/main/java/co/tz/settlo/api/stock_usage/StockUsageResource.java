@@ -4,7 +4,9 @@ import co.tz.settlo.api.util.RestApiFilter.FieldType;
 import co.tz.settlo.api.util.RestApiFilter.FilterRequest;
 import co.tz.settlo.api.util.RestApiFilter.Operator;
 import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/stock-usage/{locationId}", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Stock Usage Endpoints")
 public class StockUsageResource {
 
     private final StockUsageService stockUsageService;
@@ -34,16 +37,19 @@ public class StockUsageResource {
     }
 
     @GetMapping
+    @Operation(summary = "Get all Stock usages")
     public ResponseEntity<List<StockUsageDTO>> getAllStockUsages(@PathVariable UUID locationId) {
         return ResponseEntity.ok(stockUsageService.findAll(locationId));
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get a Stock usage")
     public ResponseEntity<StockUsageDTO> getStockUsage(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(stockUsageService.get(id));
     }
 
     @PostMapping
+    @Operation(summary = "Search Stock usages")
     public Page<StockUsageDTO> searchStockUsage(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
         // Enforce Location filter
         FilterRequest locationFilter = new FilterRequest();
@@ -59,6 +65,7 @@ public class StockUsageResource {
 
     @PostMapping("/create")
     @ApiResponse(responseCode = "201")
+    @Operation(summary = "Create a Stock usage")
     public ResponseEntity<UUID> createStockUsage( @PathVariable UUID locationId,
             @RequestBody @Valid final StockUsageDTO stockUsageDTO) {
 
@@ -69,6 +76,7 @@ public class StockUsageResource {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Update a Stock usage")
     public ResponseEntity<UUID> updateStockUsage(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final StockUsageDTO stockUsageDTO) {
 
@@ -80,6 +88,7 @@ public class StockUsageResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
+    @Operation(summary = "Delete a Stock usage")
     public ResponseEntity<Void> deleteStockUsage(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         stockUsageService.delete(id);
         return ResponseEntity.noContent().build();
