@@ -68,12 +68,13 @@ public class CategoryResource {
     @PostMapping("/create")
     @ApiResponse(responseCode = "201")
     @Operation(summary = "Create category")
-    public ResponseEntity<UUID> createCategory(@PathVariable UUID locationId, @RequestBody @Valid final CategoryDTO categoryDTO) {
+    public ResponseEntity<CategoryDTO> createCategory(@PathVariable UUID locationId, @RequestBody @Valid final CategoryDTO categoryDTO) {
 
         categoryDTO.setLocation(locationId);
 
-        final UUID createdId = categoryService.create(categoryDTO);
-        return new ResponseEntity<>(createdId, HttpStatus.CREATED);
+        final CategoryDTO createdCategoryDTO = categoryService.create(categoryDTO);
+
+        return new ResponseEntity<>(createdCategoryDTO, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
