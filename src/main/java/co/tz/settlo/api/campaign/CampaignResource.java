@@ -6,6 +6,7 @@ import co.tz.settlo.api.util.RestApiFilter.FieldType;
 import co.tz.settlo.api.util.RestApiFilter.FilterRequest;
 import co.tz.settlo.api.util.RestApiFilter.Operator;
 import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/campaigns/{locationId}", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Campaign Endpoints")
 public class CampaignResource {
 
     private final CampaignService campaignService;
@@ -36,11 +38,13 @@ public class CampaignResource {
     }
 
     @GetMapping
+    @Operation(summary = "Get all Campaigns")
     public ResponseEntity<List<CampaignDTO>> getAllCampaigns(@PathVariable final UUID locationId) {
         return ResponseEntity.ok(campaignService.findAll(locationId));
     }
 
     @PostMapping
+    @Operation(summary = "Search Campaign")
     public Page<CampaignDTO> searchCampaign(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
         // Enforce Location filter
         FilterRequest locationFilter = new FilterRequest();
@@ -55,14 +59,14 @@ public class CampaignResource {
     }
 
     @GetMapping("/{id}")
-    @Tag(name= "Get Campaign", description = "Get a Campaign")
+    @Operation(summary = "Get Campaign", description = "Get a Campaign")
     public ResponseEntity<CampaignDTO> getCampaign(@PathVariable final UUID locationId, @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(campaignService.get(id));
     }
 
     @PostMapping("/create")
     @ApiResponse(responseCode = "201")
-    @Tag(name = "Create a Campaign", description = "Create a campaign by submitting it's body")
+    @Operation(summary = "Create a Campaign", description = "Create a campaign by submitting it's body")
     public ResponseEntity<UUID> createCampaign(@PathVariable final UUID locationId, @RequestBody @Valid final CampaignDTO campaignDTO) {
         campaignDTO.setLocation(locationId);
 
@@ -71,7 +75,7 @@ public class CampaignResource {
     }
 
     @PutMapping("/{id}")
-    @Tag(name = "Update a Campaign", description = "Update a campaign")
+    @Operation(summary = "Update a Campaign", description = "Update a campaign")
     public ResponseEntity<UUID> updateCampaign(@PathVariable final UUID locationId, @PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final CampaignDTO campaignDTO) {
         campaignDTO.setLocation(locationId);
@@ -82,7 +86,7 @@ public class CampaignResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
-    @Tag(name = "Delete a Campaign")
+    @Operation(summary = "Delete a Campaign")
     public ResponseEntity<Void> deleteCampaign(@PathVariable final UUID locationId, @PathVariable(name = "id") final UUID id) {
         final ReferencedWarning referencedWarning = campaignService.getReferencedWarning(id);
         if (referencedWarning != null) {
