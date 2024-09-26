@@ -7,6 +7,7 @@ import co.tz.settlo.api.util.RestApiFilter.FieldType;
 import co.tz.settlo.api.util.RestApiFilter.FilterRequest;
 import co.tz.settlo.api.util.RestApiFilter.Operator;
 import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/brands/{locationId}", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Brand Endpoints")
 public class BrandResource {
 
     private final BrandService brandService;
@@ -38,18 +40,19 @@ public class BrandResource {
     }
 
     @GetMapping
+    @Operation(summary = "Get all Brands", description = "Get all brands under a location id")
     public ResponseEntity<List<BrandDTO>> getAllBrands(@PathVariable UUID locationId) {
         return ResponseEntity.ok(brandService.findAll(locationId));
     }
 
     @GetMapping("/{id}")
-    @Tag(name = "Get Brand", description = "Get a specific Brand by providing it's ID")
+    @Operation(summary = "Get Brand", description = "Get a specific Brand by providing it's ID")
     public ResponseEntity<BrandDTO> getBrand(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(brandService.get(id));
     }
 
     @PostMapping
-    @Tag(name = "Search Brands", description = "Search a brand")
+    @Operation(summary = "Search Brands", description = "Search a brand")
     public Page<BrandDTO> searchBrands(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
         // Enforce Location filter
         FilterRequest locationFilter = new FilterRequest();
@@ -64,7 +67,7 @@ public class BrandResource {
     }
 
     @PostMapping("/create")
-    @Tag(name = "Create a Brand", description = "Create a Brand by supplying it's JSON as HTTP body")
+    @Operation(summary = "Create a Brand", description = "Create a Brand by supplying it's JSON as HTTP body")
     @ApiResponse(responseCode = "201")
     public ResponseEntity<UUID> createBrand(@PathVariable UUID locationId, @RequestBody @Valid final BrandDTO brandDTO) {
         brandDTO.setLocation(locationId);
@@ -74,7 +77,7 @@ public class BrandResource {
     }
 
     @PutMapping("/{id}")
-    @Tag(name = "Update a Brand", description = "Update a Brand by suppying it's new JSON as HTTP body")
+    @Operation(summary = "Update a Brand", description = "Update a Brand by suppying it's new JSON as HTTP body")
     public ResponseEntity<UUID> updateBrand(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final BrandDTO brandDTO) {
         brandDTO.setLocation(locationId);
@@ -85,7 +88,7 @@ public class BrandResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
-    @Tag(name = "Delete Brand", description = "Delete a brand by specifying it's ID")
+    @Operation(summary = "Delete Brand", description = "Delete a brand by specifying it's ID")
     public ResponseEntity<Void> deleteBrand(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         final ReferencedWarning referencedWarning = brandService.getReferencedWarning(id);
         if (referencedWarning != null) {
