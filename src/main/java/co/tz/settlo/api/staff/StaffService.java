@@ -130,6 +130,7 @@ public class StaffService {
         staffDTO.setBusiness(staff.getBusiness() == null ? null : staff.getBusiness().getId());
         staffDTO.setDepartment(staff.getDepartment() == null ? null : staff.getDepartment().getId());
         staffDTO.setSalary(staff.getSalary() == null ? null : staff.getSalary().getId());
+        staffDTO.setLocation(staff.getLocation() == null ? null : staff.getLocation().getId());
         return staffDTO;
     }
 
