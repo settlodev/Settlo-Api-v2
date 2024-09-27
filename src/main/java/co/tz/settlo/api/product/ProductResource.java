@@ -55,9 +55,9 @@ public class ProductResource {
     public Page<ProductResponseDTO> searchProducts(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
         // Enforce Location filter
         FilterRequest locationFilter = new FilterRequest();
-        locationFilter.setKey("locationId");
+        locationFilter.setKey("location.id");
         locationFilter.setOperator(Operator.EQUAL);
-        locationFilter.setFieldType(FieldType.STRING);
+        locationFilter.setFieldType(FieldType.UUID_STRING);
         locationFilter.setValue(locationId);
 
         request.getFilters().add(locationFilter);

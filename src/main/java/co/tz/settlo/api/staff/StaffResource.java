@@ -49,7 +49,7 @@ public class StaffResource {
     public Page<StaffDTO> searchStaff(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
         // Enforce Location filter
         FilterRequest locationFilter = new FilterRequest();
-        locationFilter.setKey("locationId");
+        locationFilter.setKey("location.id");
         locationFilter.setOperator(Operator.EQUAL);
         locationFilter.setFieldType(FieldType.UUID_STRING);
         locationFilter.setValue(locationId);

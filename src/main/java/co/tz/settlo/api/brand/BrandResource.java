@@ -56,9 +56,9 @@ public class BrandResource {
     public Page<BrandDTO> searchBrands(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
         // Enforce Location filter
         FilterRequest locationFilter = new FilterRequest();
-        locationFilter.setKey("location");
+        locationFilter.setKey("location.id");
         locationFilter.setOperator(Operator.EQUAL);
-        locationFilter.setFieldType(FieldType.STRING);
+        locationFilter.setFieldType(FieldType.UUID_STRING);
         locationFilter.setValue(locationId);
 
         request.getFilters().add(locationFilter);

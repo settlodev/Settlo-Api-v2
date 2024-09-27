@@ -58,13 +58,9 @@ public enum FieldType {
             return value;
         }
     },
-
-//    ACTIVESTATUS {
-//        public Object parse(String value) { return ActiveStatus.valueOf(value); }
-//    },
-
     UUID_STRING {
-        public Object parse(String value) { return UUID.fromString(value); }
+        public Object parse(String value) {
+            return UUID.fromString(value); }
     };
 
     public abstract Object parse(String value);
