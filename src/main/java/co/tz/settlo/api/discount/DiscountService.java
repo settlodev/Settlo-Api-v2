@@ -45,26 +45,26 @@ public class DiscountService {
     }
 
     @Transactional(readOnly = true)
-    public Page<DiscountDTO> searchAll(SearchRequest request) {
+    public Page<DiscountResponseDTO> searchAll(SearchRequest request) {
         SearchSpecification<Discount> specification = new SearchSpecification<>(request);
         Pageable pageable = SearchSpecification.getPageable(request.getPage(), request.getSize());
         Page<Discount> expensesPage = discountRepository.findAll(specification, pageable);
 
-        return expensesPage.map(discount -> mapToDTO(discount, new DiscountDTO()));
+        return expensesPage.map(discount -> mapToDTO(discount, new DiscountResponseDTO()));
     }
 
     @Transactional(readOnly = true)
-    public List<DiscountDTO> findAll() {
+    public List<DiscountResponseDTO> findAll() {
         final List<Discount> discounts = discountRepository.findAll(Sort.by("id"));
         return discounts.stream()
-                .map(discount -> mapToDTO(discount, new DiscountDTO()))
+                .map(discount -> mapToDTO(discount, new DiscountResponseDTO()))
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    public DiscountDTO get(final UUID id) {
+    public DiscountResponseDTO get(final UUID id) {
         return discountRepository.findById(id)
-                .map(discount -> mapToDTO(discount, new DiscountDTO()))
+                .map(discount -> mapToDTO(discount, new DiscountResponseDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
@@ -88,7 +88,7 @@ public class DiscountService {
         discountRepository.deleteById(id);
     }
 
-    private DiscountDTO mapToDTO(final Discount discount, final DiscountDTO discountDTO) {
+    private DiscountResponseDTO mapToDTO(final Discount discount, final DiscountResponseDTO discountDTO) {
         discountDTO.setId(discount.getId());
         discountDTO.setName(discount.getName());
         discountDTO.setDiscountValue(discount.getDiscountValue());
