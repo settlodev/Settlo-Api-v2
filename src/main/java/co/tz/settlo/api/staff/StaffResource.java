@@ -1,6 +1,5 @@
 package co.tz.settlo.api.staff;
 
-import co.tz.settlo.api.supplier.SupplierDTO;
 import co.tz.settlo.api.util.ReferencedException;
 import co.tz.settlo.api.util.ReferencedWarning;
 import co.tz.settlo.api.util.RestApiFilter.FieldType;
@@ -30,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/staff/{locationId}", produces = MediaType.APPLICATION_JSON_VALUE)
-@Tag(name = "Staffs Endpoints")
+@Tag(name = "Staff Endpoints")
 public class StaffResource {
 
     private final StaffService staffService;
@@ -40,17 +39,17 @@ public class StaffResource {
     }
 
     @GetMapping
-    @Operation(summary = "Get all Staffs")
+    @Operation(summary = "Get all Staff")
     public ResponseEntity<List<StaffDTO>> getAllStaff(@PathVariable UUID locationId) {
         return ResponseEntity.ok(staffService.findAll(locationId));
     }
 
     @PostMapping
-    @Operation(summary = "Search Staffs")
+    @Operation(summary = "Search Staff")
     public Page<StaffDTO> searchStaff(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
         // Enforce Location filter
         FilterRequest locationFilter = new FilterRequest();
-        locationFilter.setKey("locationId");
+        locationFilter.setKey("location");
         locationFilter.setOperator(Operator.EQUAL);
         locationFilter.setFieldType(FieldType.STRING);
         locationFilter.setValue(locationId);
@@ -61,14 +60,14 @@ public class StaffResource {
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Get a Staff")
+    @Operation(summary = "Get Staff")
     public ResponseEntity<StaffDTO> getStaff(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(staffService.get(id));
     }
 
     @PostMapping("/create")
     @ApiResponse(responseCode = "201")
-    @Operation(summary = "Create a Staff")
+    @Operation(summary = "Create Staff")
     public ResponseEntity<UUID> createStaff(@PathVariable UUID locationId, @RequestBody @Valid final StaffDTO staffDTO) {
 
         staffDTO.setLocation(locationId);
@@ -78,7 +77,7 @@ public class StaffResource {
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Update a Staff")
+    @Operation(summary = "Update Staff")
     public ResponseEntity<UUID> updateStaff(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final StaffDTO staffDTO) {
 
@@ -90,7 +89,7 @@ public class StaffResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
-    @Operation(summary = "Delete a Staff")
+    @Operation(summary = "Delete Staff")
     public ResponseEntity<Void> deleteStaff(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         final ReferencedWarning referencedWarning = staffService.getReferencedWarning(id);
         if (referencedWarning != null) {
