@@ -23,7 +23,7 @@ public class CustomerDTO {
     private String lastName;
 
     @NotNull
-    @Size(max = 255)
+    // @Size(max = 255)
     private Gender gender;
 
     @NotNull
