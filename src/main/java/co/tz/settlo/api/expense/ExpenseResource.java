@@ -39,7 +39,7 @@ public class ExpenseResource {
 
     @PostMapping
     @Operation(summary = "Search Expenses")
-    public Page<ExpenseDTO> searchExpenses(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
+    public Page<ExpenseResponseDTO> searchExpenses(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
         // Enforce Location filter
         FilterRequest locationFilter = new FilterRequest();
         locationFilter.setKey("location.id");
@@ -54,13 +54,13 @@ public class ExpenseResource {
 
     @GetMapping
     @Operation(summary = "Get all expenses")
-    public ResponseEntity<List<ExpenseDTO>> getAllExpenses(@PathVariable UUID locationId) {
+    public ResponseEntity<List<ExpenseResponseDTO>> getAllExpenses(@PathVariable UUID locationId) {
         return ResponseEntity.ok(expenseService.findAll(locationId));
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Get an expenses")
-    public ResponseEntity<ExpenseDTO> getExpense(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
+    public ResponseEntity<ExpenseResponseDTO> getExpense(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(expenseService.get(id));
     }
 

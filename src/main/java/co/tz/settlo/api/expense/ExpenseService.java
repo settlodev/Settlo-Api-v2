@@ -35,27 +35,27 @@ public class ExpenseService {
     }
 
     @Transactional(readOnly = true)
-    public List<ExpenseDTO> findAll(final UUID locationId) {
+    public List<ExpenseResponseDTO> findAll(final UUID locationId) {
         final List<Expense> expenses = expenseRepository.findAllByLocationId(locationId);
         return expenses.stream()
-                .map(expense -> mapToDTO(expense, new ExpenseDTO()))
+                .map(expense -> mapToDTO(expense, new ExpenseResponseDTO()))
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    public ExpenseDTO get(final UUID id) {
+    public ExpenseResponseDTO get(final UUID id) {
         return expenseRepository.findById(id)
-                .map(expense -> mapToDTO(expense, new ExpenseDTO()))
+                .map(expense -> mapToDTO(expense, new ExpenseResponseDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
     @Transactional(readOnly = true)
-    public Page<ExpenseDTO> searchAll(SearchRequest request) {
+    public Page<ExpenseResponseDTO> searchAll(SearchRequest request) {
         SearchSpecification<Expense> specification = new SearchSpecification<>(request);
         Pageable pageable = SearchSpecification.getPageable(request.getPage(), request.getSize());
         Page<Expense> expensesPage = expenseRepository.findAll(specification, pageable);
 
-        return expensesPage.map(expense -> mapToDTO(expense, new ExpenseDTO()));
+        return expensesPage.map(expense -> mapToDTO(expense, new ExpenseResponseDTO()));
     }
 
     @Transactional
@@ -78,7 +78,7 @@ public class ExpenseService {
         expenseRepository.deleteById(id);
     }
 
-    private ExpenseDTO mapToDTO(final Expense expense, final ExpenseDTO expenseDTO) {
+    private ExpenseResponseDTO mapToDTO(final Expense expense, final ExpenseResponseDTO expenseDTO) {
         expenseDTO.setId(expense.getId());
         expenseDTO.setName(expense.getName());
         expenseDTO.setAmount(expense.getAmount());
