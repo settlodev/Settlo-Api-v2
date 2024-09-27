@@ -2,6 +2,8 @@ package co.tz.settlo.api.customer;
 
 import co.tz.settlo.api.discount.Discount;
 import co.tz.settlo.api.discount.DiscountRepository;
+import co.tz.settlo.api.location.Location;
+import co.tz.settlo.api.location.LocationRepository;
 import co.tz.settlo.api.reservation.Reservation;
 import co.tz.settlo.api.reservation.ReservationRepository;
 import co.tz.settlo.api.util.NotFoundException;
@@ -24,13 +26,18 @@ public class CustomerService {
     private final CustomerRepository customerRepository;
     private final DiscountRepository discountRepository;
     private final ReservationRepository reservationRepository;
+    private final LocationRepository locationRepository;
+
 
     public CustomerService(final CustomerRepository customerRepository,
             final DiscountRepository discountRepository,
-            final ReservationRepository reservationRepository) {
+            final ReservationRepository reservationRepository,
+            final LocationRepository locationRepository
+    ) {
         this.customerRepository = customerRepository;
         this.discountRepository = discountRepository;
         this.reservationRepository = reservationRepository;
+        this.locationRepository = locationRepository;
     }
 
     @Transactional(readOnly = true)
@@ -101,6 +108,12 @@ public class CustomerService {
         customer.setStatus(customerDTO.getStatus());
         customer.setIsArchived(customerDTO.getIsArchived());
         customer.setCanDelete(customerDTO.getCanDelete());
+
+        final Location location = customerDTO.getLocation() == null ? null : locationRepository.findById(customerDTO.getLocation())
+                .orElseThrow(() -> new NotFoundException("Location not found"));
+
+        customer.setLocation(location);
+
         return customer;
     }
 
