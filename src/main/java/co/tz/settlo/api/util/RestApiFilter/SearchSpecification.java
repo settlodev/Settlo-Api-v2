@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -15,6 +16,7 @@ import java.util.Objects;
 @AllArgsConstructor
 public class SearchSpecification<T> implements Specification<T> {
 
+    @Serial
     private static final long serialVersionUID = -9153865343320750644L;
 
     private final transient SearchRequest request;
@@ -41,4 +43,16 @@ public class SearchSpecification<T> implements Specification<T> {
         return PageRequest.of(Objects.requireNonNullElse(page, 0), Objects.requireNonNullElse(size, 100));
     }
 
+    private Object parseValue(FilterRequest filter) {
+        if (filter.getValue() == null) {
+            return null;
+        }
+
+        FieldType fieldType = filter.getFieldType();
+        if (fieldType == null) {
+            fieldType = FieldType.STRING;
+        }
+
+        return fieldType.parse(filter.getValue().toString());
+    }
 }
