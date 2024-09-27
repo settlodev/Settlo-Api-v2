@@ -77,6 +77,9 @@ public class Staff {
     @JoinColumn(name = "location_id", nullable = false)
     private Location location;
 
+    @Column(name = "location")
+    private UUID locationId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "salary_id")
     private Salary salary;
