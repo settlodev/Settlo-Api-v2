@@ -40,22 +40,22 @@ public class ProductResource {
 
     @GetMapping
     @Operation(summary = "Get all products")
-    public ResponseEntity<List<ProductDTO>> getAllProducts(@PathVariable UUID locationId) {
+    public ResponseEntity<List<ProductResponseDTO>> getAllProducts(@PathVariable UUID locationId) {
         return ResponseEntity.ok(productService.findAll(locationId));
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Get a product")
-    public ResponseEntity<ProductDTO> getProduct(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
+    public ResponseEntity<ProductResponseDTO> getProduct(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(productService.get(id));
     }
 
     @PostMapping
     @Operation(summary = "Search a product")
-    public Page<ProductDTO> searchProducts(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
+    public Page<ProductResponseDTO> searchProducts(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
         // Enforce Location filter
         FilterRequest locationFilter = new FilterRequest();
-        locationFilter.setKey("location");
+        locationFilter.setKey("locationId");
         locationFilter.setOperator(Operator.EQUAL);
         locationFilter.setFieldType(FieldType.STRING);
         locationFilter.setValue(locationId);

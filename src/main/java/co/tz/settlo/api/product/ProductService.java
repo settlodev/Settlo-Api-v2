@@ -52,27 +52,27 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public List<ProductDTO> findAll(UUID locationId) {
+    public List<ProductResponseDTO> findAll(UUID locationId) {
         final List<Product> products = productRepository.findAllByLocationId(locationId);
         return products.stream()
-                .map(product -> mapToDTO(product, new ProductDTO()))
+                .map(product -> mapToDTO(product, new ProductResponseDTO()))
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    public ProductDTO get(final UUID id) {
+    public ProductResponseDTO get(final UUID id) {
         return productRepository.findById(id)
-                .map(product -> mapToDTO(product, new ProductDTO()))
+                .map(product -> mapToDTO(product, new ProductResponseDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
     @Transactional(readOnly = true)
-    public Page<ProductDTO> searchAll(SearchRequest request) {
+    public Page<ProductResponseDTO> searchAll(SearchRequest request) {
         SearchSpecification<Product> specification = new SearchSpecification<>(request);
         Pageable pageable = SearchSpecification.getPageable(request.getPage(), request.getSize());
         Page<Product> productsPage = productRepository.findAll(specification, pageable);
 
-        return productsPage.map(product -> mapToDTO(product, new ProductDTO()));
+        return productsPage.map(product -> mapToDTO(product, new ProductResponseDTO()));
     }
 
     @Transactional
@@ -95,7 +95,7 @@ public class ProductService {
         productRepository.deleteById(id);
     }
 
-    private ProductDTO mapToDTO(final Product product, final ProductDTO productDTO) {
+    private ProductResponseDTO mapToDTO(final Product product, final ProductResponseDTO productDTO) {
         productDTO.setId(product.getId());
         productDTO.setName(product.getName());
         productDTO.setSlug(product.getSlug());
@@ -110,7 +110,9 @@ public class ProductService {
         productDTO.setBusiness(product.getBusiness() == null ? null : product.getBusiness().getId());
         productDTO.setLocation(product.getLocation() == null ? null : product.getLocation().getId());
         productDTO.setDepartment(product.getDepartment() == null ? null : product.getDepartment().getId());
+        productDTO.setDepartmentName(product.getDepartment() == null ? null : product.getDepartment().getName());
         productDTO.setBrand(product.getBrand() == null ? null : product.getBrand().getId());
+        productDTO.setBrandName(product.getBrand() == null ? null : product.getBrand().getName());
         return productDTO;
     }
 
