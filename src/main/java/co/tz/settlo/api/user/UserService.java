@@ -101,6 +101,9 @@ public class UserService {
         userDTO.setIsOwner(true);
 
         User user = mapToEntity(userDTO, new User());
+
+        user.setIsBusinessRegistrationComplete(false);
+
         return userRepository.save(user).getId();
     }
 
