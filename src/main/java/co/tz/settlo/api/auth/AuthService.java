@@ -1,6 +1,8 @@
 package co.tz.settlo.api.auth;
 
 import co.tz.settlo.api.JwtHelper;
+import co.tz.settlo.api.business.Business;
+import co.tz.settlo.api.business.BusinessRepository;
 import co.tz.settlo.api.user.User;
 import co.tz.settlo.api.user.UserRepository;
 import co.tz.settlo.api.util.NotFoundException;
@@ -28,6 +30,7 @@ public class AuthService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final JwtHelper jwtHelper;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final BusinessRepository businessRepository;
 
     @Override
     @Cacheable(value = "userDetails", key = "#username")
@@ -117,6 +120,7 @@ public class AuthService implements UserDetailsService {
                 .emailVerified(user.getEmailVerified())
                 .phoneNumberVerified(user.getPhoneNumberVerified())
                 .theme("light")
+                .isBusinessComplete(user.getIsBusinessRegistrationComplete())
                 .build();
     }
 
