@@ -39,13 +39,13 @@ public class DiscountResource {
 
     @GetMapping
     @Operation(summary = "Get all Discounts")
-    public ResponseEntity<List<DiscountDTO>> getAllDiscounts() {
+    public ResponseEntity<List<DiscountResponseDTO>> getAllDiscounts() {
         return ResponseEntity.ok(discountService.findAll());
     }
 
     @PostMapping
     @Operation(summary = "Search Discounts")
-    public Page<DiscountDTO> searchDiscounts(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
+    public Page<DiscountResponseDTO> searchDiscounts(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
         // Enforce Location filter
         FilterRequest locationFilter = new FilterRequest();
         locationFilter.setKey("location.id");
@@ -60,7 +60,7 @@ public class DiscountResource {
 
     @GetMapping("/{id}")
     @Operation(summary = "Get a Discounts")
-    public ResponseEntity<DiscountDTO> getDiscount(@PathVariable final UUID locationId, @PathVariable(name = "id") final UUID id) {
+    public ResponseEntity<DiscountResponseDTO> getDiscount(@PathVariable final UUID locationId, @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(discountService.get(id));
     }
 

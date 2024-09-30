@@ -41,7 +41,7 @@ public class SupplierResource {
 
     @PostMapping
     @Operation(summary = "Search all suppliers")
-    public Page<SupplierDTO> searchSuppliers(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
+    public Page<SupplierResponseDTO> searchSuppliers(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
         // Enforce Location filter
         FilterRequest locationFilter = new FilterRequest();
         locationFilter.setKey("location.id");
@@ -56,13 +56,13 @@ public class SupplierResource {
 
     @GetMapping
     @Operation(summary = "Get all suppliers")
-    public ResponseEntity<List<SupplierDTO>> getAllSuppliers(@PathVariable final UUID locationId) {
+    public ResponseEntity<List<SupplierResponseDTO>> getAllSuppliers(@PathVariable final UUID locationId) {
         return ResponseEntity.ok(supplierService.findAll());
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Get Supplier")
-    public ResponseEntity<SupplierDTO> getSupplier(@PathVariable final UUID locationId, @PathVariable(name = "id") final UUID id) {
+    public ResponseEntity<SupplierResponseDTO> getSupplier(@PathVariable final UUID locationId, @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(supplierService.get(id));
     }
 

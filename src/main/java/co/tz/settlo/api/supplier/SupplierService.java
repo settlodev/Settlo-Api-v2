@@ -41,26 +41,26 @@ public class SupplierService {
     }
 
     @Transactional(readOnly = true)
-    public Page<SupplierDTO> searchAll(SearchRequest request) {
+    public Page<SupplierResponseDTO> searchAll(SearchRequest request) {
         SearchSpecification<Supplier> specification = new SearchSpecification<>(request);
         Pageable pageable = SearchSpecification.getPageable(request.getPage(), request.getSize());
         Page<Supplier> suppliersPage = supplierRepository.findAll(specification, pageable);
 
-        return suppliersPage.map(supplier -> mapToDTO(supplier, new SupplierDTO()));
+        return suppliersPage.map(supplier -> mapToDTO(supplier, new SupplierResponseDTO()));
     }
 
     @Transactional(readOnly = true)
-    public List<SupplierDTO> findAll() {
+    public List<SupplierResponseDTO> findAll() {
         final List<Supplier> suppliers = supplierRepository.findAll(Sort.by("id"));
         return suppliers.stream()
-                .map(supplier -> mapToDTO(supplier, new SupplierDTO()))
+                .map(supplier -> mapToDTO(supplier, new SupplierResponseDTO()))
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    public SupplierDTO get(final UUID id) {
+    public SupplierResponseDTO get(final UUID id) {
         return supplierRepository.findById(id)
-                .map(supplier -> mapToDTO(supplier, new SupplierDTO()))
+                .map(supplier -> mapToDTO(supplier, new SupplierResponseDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
@@ -84,7 +84,7 @@ public class SupplierService {
         supplierRepository.deleteById(id);
     }
 
-    private SupplierDTO mapToDTO(final Supplier supplier, final SupplierDTO supplierDTO) {
+    private SupplierResponseDTO mapToDTO(final Supplier supplier, final SupplierResponseDTO supplierDTO) {
         supplierDTO.setId(supplier.getId());
         supplierDTO.setName(supplier.getName());
         supplierDTO.setPhoneNumber(supplier.getPhoneNumber());

@@ -29,27 +29,27 @@ public class TagService {
     }
 
     @Transactional(readOnly = true)
-    public List<TagDTO> findAll() {
+    public List<TagResponseDTO> findAll() {
         final List<Tag> tags = tagRepository.findAll(Sort.by("id"));
         return tags.stream()
-                .map(tag -> mapToDTO(tag, new TagDTO()))
+                .map(tag -> mapToDTO(tag, new TagResponseDTO()))
                 .toList();
     }
   
     @Transactional(readOnly = true)
-    public Page<TagDTO> searchAll(SearchRequest request) {
+    public Page<TagResponseDTO> searchAll(SearchRequest request) {
         SearchSpecification<Tag> specification = new SearchSpecification<>(request);
         Pageable pageable = SearchSpecification.getPageable(request.getPage(), request.getSize());
         Page<Tag> tagsPage = tagRepository.findAll(pageable);
 
-        return tagsPage.map(product -> mapToDTO(product, new TagDTO()));
+        return tagsPage.map(product -> mapToDTO(product, new TagResponseDTO()));
     }
     
 
     @Transactional(readOnly = true)
-    public TagDTO get(final UUID id) {
+    public TagResponseDTO get(final UUID id) {
         return tagRepository.findById(id)
-                .map(tag -> mapToDTO(tag, new TagDTO()))
+                .map(tag -> mapToDTO(tag, new TagResponseDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
@@ -73,7 +73,7 @@ public class TagService {
         tagRepository.deleteById(id);
     }
 
-    private TagDTO mapToDTO(final Tag tag, final TagDTO tagDTO) {
+    private TagResponseDTO mapToDTO(final Tag tag, final TagResponseDTO tagDTO) {
         tagDTO.setId(tag.getId());
         tagDTO.setName(tag.getName());
         tagDTO.setStatus(tag.getStatus());

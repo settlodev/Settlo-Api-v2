@@ -41,7 +41,7 @@ public class TagResource {
     
     @PostMapping
     @Operation(summary = "Search Tags")
-    public Page<TagDTO> searchTags(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
+    public Page<TagResponseDTO> searchTags(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
         // Enforce Location filter
         FilterRequest locationFilter = new FilterRequest();
         locationFilter.setKey("location.id");
@@ -56,13 +56,13 @@ public class TagResource {
 
     @GetMapping
     @Operation(summary = "Get all Tags")
-    public ResponseEntity<List<TagDTO>> getAllTags(@PathVariable UUID locationId) {
+    public ResponseEntity<List<TagResponseDTO>> getAllTags(@PathVariable UUID locationId) {
         return ResponseEntity.ok(tagService.findAll());
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Get a Tag")
-    public ResponseEntity<TagDTO> getTag(@PathVariable(name = "id") final UUID id) {
+    public ResponseEntity<TagResponseDTO> getTag(@PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(tagService.get(id));
     }
 

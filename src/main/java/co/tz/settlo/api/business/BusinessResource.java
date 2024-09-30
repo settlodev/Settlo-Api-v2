@@ -47,7 +47,7 @@ public class BusinessResource {
     @PostMapping
     @ApiResponse(responseCode = "201")
     @Operation(summary = "Create a business", description = "Create a business by supplying it's body as JSON")
-    public ResponseEntity<UUID> createBusiness(@RequestBody @Valid final BusinessDTO businessDTO) {
+    public ResponseEntity<UUID> createBusiness(@RequestBody @Valid final BusinessCreateDTO businessDTO) {
         final UUID createdId = businessService.create(businessDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }

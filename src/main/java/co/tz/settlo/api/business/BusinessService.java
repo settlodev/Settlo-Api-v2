@@ -115,9 +115,9 @@ public class BusinessService {
                 .orElseThrow(NotFoundException::new);
     }
 
-    public UUID create(final BusinessDTO businessDTO) {
+    public UUID create(final BusinessCreateDTO businessDTO) {
         final Business business = new Business();
-        mapToEntity(businessDTO, business);
+        mapCreateToEntity(businessDTO, business);
         return businessRepository.save(business).getId();
     }
 
@@ -204,6 +204,50 @@ public class BusinessService {
         business.setCanDelete(businessDTO.getCanDelete());
         business.setIsArchived(businessDTO.getIsArchived());
         business.setStatus(businessDTO.getStatus());
+        final User user = businessDTO.getUser() == null ? null : userRepository.findById(businessDTO.getUser())
+                .orElseThrow(() -> new NotFoundException("user not found"));
+        business.setUser(user);
+        final Country country = businessDTO.getCountry() == null ? null : countryRepository.findById(businessDTO.getCountry())
+                .orElseThrow(() -> new NotFoundException("country not found"));
+        business.setCountry(country);
+        return business;
+    }
+
+    /// Maps the BusinessCreateDTO to an Entity
+    private Business mapCreateToEntity(final BusinessCreateDTO businessDTO, final Business business) {
+        business.setPrefix(businessDTO.getPrefix());
+        business.setName(businessDTO.getName());
+        business.setTax(0.0);
+//        business.setIdentificationNumber(businessDTO.getIdentificationNumber());
+//        business.setVrn(businessDTO.getVrn());
+//        business.setSerial(businessDTO.getSerial());
+//        business.setUin(businessDTO.getUin());
+//        business.setReceiptPrefix(businessDTO.getReceiptPrefix());
+//        business.setReceiptSuffix(businessDTO.getReceiptSuffix());
+//        business.setBusinessType(businessDTO.getBusinessType());
+        business.setSlug(businessDTO.getSlug());
+//        business.setStoreName(businessDTO.getStoreName());
+//        business.setImage(businessDTO.getImage());
+//        business.setReceiptImage(businessDTO.getReceiptImage());
+//        business.setLogo(businessDTO.getLogo());
+//        business.setFacebook(businessDTO.getFacebook());
+//        business.setTwitter(businessDTO.getTwitter());
+//        business.setInstagram(businessDTO.getInstagram());
+//        business.setLinkedin(businessDTO.getLinkedin());
+//        business.setYoutube(businessDTO.getYoutube());
+//        business.setCertificateOfIncorporation(businessDTO.getCertificateOfIncorporation());
+//        business.setBusinessIdentificationDocument(businessDTO.getBusinessIdentificationDocument());
+//        business.setBusinessLicense(businessDTO.getBusinessLicense());
+//        business.setMemarts(businessDTO.getMemarts());
+//        business.setNotificationPhone(businessDTO.getNotificationPhone());
+        business.setNotificationEmailAddress(businessDTO.getNotificationEmailAddress());
+        business.setDescription(businessDTO.getDescription());
+        business.setVfdRegistrationState(businessDTO.getVfdRegistrationState());
+//        business.setWebsite(businessDTO.getWebsite());
+        business.setCanDelete(false);
+        business.setIsArchived(false);
+        business.setStatus(false);
+
         final User user = businessDTO.getUser() == null ? null : userRepository.findById(businessDTO.getUser())
                 .orElseThrow(() -> new NotFoundException("user not found"));
         business.setUser(user);
