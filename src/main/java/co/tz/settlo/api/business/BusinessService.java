@@ -110,27 +110,27 @@ public class BusinessService {
         this.stockUsageRepository = stockUsageRepository;
     }
 
-    public List<BusinessDTO> findAll(final UUID userId) {
+    public List<BusinessResponseDTO> findAll(final UUID userId) {
         final List<Business> businesses = businessRepository.findAllByUserId(userId);
 
         return businesses.stream()
-                .map(business -> mapToDTO(business, new BusinessDTO()))
+                .map(business -> mapToDTO(business, new BusinessResponseDTO()))
                 .toList();
     }
 
 
     @Transactional(readOnly = true)
-    public Page<BusinessDTO> searchAll(SearchRequest request) {
+    public Page<BusinessResponseDTO> searchAll(SearchRequest request) {
         SearchSpecification<Business> specification = new SearchSpecification<>(request);
         Pageable pageable = SearchSpecification.getPageable(request.getPage(), request.getSize());
         Page<Business> locationsPage = businessRepository.findAll(specification, pageable);
 
-        return locationsPage.map(location -> mapToDTO(location, new BusinessDTO()));
+        return locationsPage.map(location -> mapToDTO(location, new BusinessResponseDTO()));
     }
 
-    public BusinessDTO get(final UUID id) {
+    public BusinessResponseDTO get(final UUID id) {
         return businessRepository.findById(id)
-                .map(business -> mapToDTO(business, new BusinessDTO()))
+                .map(business -> mapToDTO(business, new BusinessResponseDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
@@ -161,7 +161,7 @@ public class BusinessService {
         businessRepository.deleteById(id);
     }
 
-    private BusinessDTO mapToDTO(final Business business, final BusinessDTO businessDTO) {
+    private BusinessResponseDTO mapToDTO(final Business business, final BusinessResponseDTO businessDTO) {
         businessDTO.setId(business.getId());
         businessDTO.setPrefix(business.getPrefix());
         businessDTO.setName(business.getName());
@@ -197,6 +197,7 @@ public class BusinessService {
         businessDTO.setStatus(business.getStatus());
         businessDTO.setUser(business.getUser() == null ? null : business.getUser().getId());
         businessDTO.setCountry(business.getCountry() == null ? null : business.getCountry().getId());
+        businessDTO.setCountryName(business.getCountry().getName());
         return businessDTO;
     }
 
