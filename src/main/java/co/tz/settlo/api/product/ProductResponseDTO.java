@@ -60,5 +60,4 @@ public class ProductResponseDTO {
     private UUID brand;
 
     private String brandName;
-
 }

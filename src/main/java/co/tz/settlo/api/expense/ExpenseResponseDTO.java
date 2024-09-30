@@ -41,6 +41,8 @@ public class ExpenseResponseDTO {
 
     private UUID expenseCategory;
 
+    private String expenseCategoryName;
+
     @NotNull
     private UUID business;
 
