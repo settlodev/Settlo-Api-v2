@@ -120,7 +120,7 @@ public class AuthService implements UserDetailsService {
                 .emailVerified(user.getEmailVerified())
                 .phoneNumberVerified(user.getPhoneNumberVerified())
                 .theme("light")
-                .isBusinessComplete(user.getIsBusinessRegistrationComplete())
+                .businessComplete(user.getIsBusinessRegistrationComplete())
                 .build();
     }
 
