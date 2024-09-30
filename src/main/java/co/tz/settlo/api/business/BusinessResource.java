@@ -1,13 +1,20 @@
 package co.tz.settlo.api.business;
 
+import co.tz.settlo.api.location.LocationDTO;
 import co.tz.settlo.api.util.ReferencedException;
 import co.tz.settlo.api.util.ReferencedWarning;
+import co.tz.settlo.api.util.RestApiFilter.FieldType;
+import co.tz.settlo.api.util.RestApiFilter.FilterRequest;
+import co.tz.settlo.api.util.RestApiFilter.Operator;
+import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
+
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +44,24 @@ public class BusinessResource {
     public ResponseEntity<List<BusinessDTO>> getAllBusinesses(@PathVariable final UUID userId) {
         return ResponseEntity.ok(businessService.findAll(userId));
     }
+
+
+    @PostMapping
+    @Operation(summary = "Search Businesses")
+    public Page<BusinessDTO> searchBusiness(@PathVariable final UUID userId, @RequestBody SearchRequest request) {
+        // Enforce Location filter
+        FilterRequest businessFilter = new FilterRequest();
+        businessFilter.setKey("user.id");
+        businessFilter.setOperator(Operator.EQUAL);
+        businessFilter.setFieldType(FieldType.UUID_STRING);
+        businessFilter.setValue(userId);
+
+        request.getFilters().add(businessFilter);
+
+        return businessService.searchAll(request);
+    }
+
+
 
     @GetMapping("/{id}")
     @Operation(summary = "Get a Business", description = "Get a business by supplying it's ID")

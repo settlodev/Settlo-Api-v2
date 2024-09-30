@@ -11,6 +11,7 @@ import co.tz.settlo.api.expense.ExpenseRepository;
 import co.tz.settlo.api.expense_category.ExpenseCategory;
 import co.tz.settlo.api.expense_category.ExpenseCategoryRepository;
 import co.tz.settlo.api.location.Location;
+import co.tz.settlo.api.location.LocationDTO;
 import co.tz.settlo.api.location.LocationRepository;
 import co.tz.settlo.api.product.Product;
 import co.tz.settlo.api.product.ProductRepository;
@@ -41,8 +42,14 @@ import co.tz.settlo.api.util.ReferencedWarning;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
+
+import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import co.tz.settlo.api.util.RestApiFilter.SearchSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -109,6 +116,16 @@ public class BusinessService {
         return businesses.stream()
                 .map(business -> mapToDTO(business, new BusinessDTO()))
                 .toList();
+    }
+
+
+    @Transactional(readOnly = true)
+    public Page<BusinessDTO> searchAll(SearchRequest request) {
+        SearchSpecification<Business> specification = new SearchSpecification<>(request);
+        Pageable pageable = SearchSpecification.getPageable(request.getPage(), request.getSize());
+        Page<Business> locationsPage = businessRepository.findAll(specification, pageable);
+
+        return locationsPage.map(location -> mapToDTO(location, new BusinessDTO()));
     }
 
     public BusinessDTO get(final UUID id) {
