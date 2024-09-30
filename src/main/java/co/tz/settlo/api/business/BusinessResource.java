@@ -41,14 +41,14 @@ public class BusinessResource {
 
     @GetMapping
     @Operation(summary = "Get All Businesses", description = "Get all businesses under a certain user")
-    public ResponseEntity<List<BusinessDTO>> getAllBusinesses(@PathVariable final UUID userId) {
+    public ResponseEntity<List<BusinessResponseDTO>> getAllBusinesses(@PathVariable final UUID userId) {
         return ResponseEntity.ok(businessService.findAll(userId));
     }
 
 
     @PostMapping
     @Operation(summary = "Search Businesses")
-    public Page<BusinessDTO> searchBusiness(@PathVariable final UUID userId, @RequestBody SearchRequest request) {
+    public Page<BusinessResponseDTO> searchBusiness(@PathVariable final UUID userId, @RequestBody SearchRequest request) {
         // Enforce Location filter
         FilterRequest businessFilter = new FilterRequest();
         businessFilter.setKey("user.id");
@@ -65,7 +65,7 @@ public class BusinessResource {
 
     @GetMapping("/{id}")
     @Operation(summary = "Get a Business", description = "Get a business by supplying it's ID")
-    public ResponseEntity<BusinessDTO> getBusiness(@PathVariable(name = "id") final UUID id) {
+    public ResponseEntity<BusinessResponseDTO> getBusiness(@PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(businessService.get(id));
     }
 
