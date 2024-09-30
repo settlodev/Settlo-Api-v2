@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping(value = "/api/businesses", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/businesses/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Business Endpoints")
 public class BusinessResource {
 
@@ -33,9 +33,9 @@ public class BusinessResource {
     }
 
     @GetMapping
-    @Operation(summary = "Get All Businesses", description = "Get all businesses")
-    public ResponseEntity<List<BusinessDTO>> getAllBusinesses() {
-        return ResponseEntity.ok(businessService.findAll());
+    @Operation(summary = "Get All Businesses", description = "Get all businesses under a certain user")
+    public ResponseEntity<List<BusinessDTO>> getAllBusinesses(@PathVariable final UUID userId) {
+        return ResponseEntity.ok(businessService.findAll(userId));
     }
 
     @GetMapping("/{id}")

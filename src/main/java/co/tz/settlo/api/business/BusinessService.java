@@ -102,8 +102,9 @@ public class BusinessService {
         this.stockUsageRepository = stockUsageRepository;
     }
 
-    public List<BusinessDTO> findAll() {
-        final List<Business> businesses = businessRepository.findAll(Sort.by("id"));
+    public List<BusinessDTO> findAll(final UUID userId) {
+        final List<Business> businesses = businessRepository.findAllByUserId(userId);
+
         return businesses.stream()
                 .map(business -> mapToDTO(business, new BusinessDTO()))
                 .toList();
