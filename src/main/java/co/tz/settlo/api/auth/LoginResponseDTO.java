@@ -57,7 +57,11 @@ public record LoginResponseDTO(
         SubscriptionStatus subscriptionStatus,
 
         @Schema(description = "Customer's businessId")
-        UUID businessId
+        UUID businessId,
+
+        @NotNull
+        Boolean isBusinessComplete
+
 ) {
     public LoginResponseDTO {
         // Validate non-null fields

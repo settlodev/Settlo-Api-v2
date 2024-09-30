@@ -137,6 +137,16 @@ public class BusinessService {
     public UUID create(final BusinessCreateDTO businessDTO) {
         final Business business = new Business();
         mapCreateToEntity(businessDTO, business);
+
+        // ************ Marking business registration complete when we create a business *************** //
+        final User user = userRepository.findById(businessDTO.getUser())
+                .orElseThrow(NotFoundException::new);
+
+        user.setIsBusinessRegistrationComplete(true);
+
+        userRepository.save(user);
+        // ********************************************************************************************** //
+
         return businessRepository.save(business).getId();
     }
 
