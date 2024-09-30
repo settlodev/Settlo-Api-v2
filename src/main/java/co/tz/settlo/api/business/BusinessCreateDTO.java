@@ -14,25 +14,15 @@ import java.util.UUID;
 public class BusinessCreateDTO {
     private UUID id;
 
-    @Size(max = 50)
-    private String prefix;
-
     @NotNull
     @Size(max = 255)
     private String name;
 
-    @NotNull
-    @Size(max = 100)
-    private String slug;
-
     private String description;
 
-    @NotNull
-    @Size(max = 255)
-    private String notificationEmailAddress;
 
-    @NotNull
-    private Boolean vfdRegistrationState;
+    @Size(max = 100)
+    private String businessType;
 
     @NotNull
     private UUID user;

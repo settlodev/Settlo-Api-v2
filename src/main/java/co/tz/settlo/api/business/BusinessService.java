@@ -39,6 +39,7 @@ import co.tz.settlo.api.user.UserRepository;
 import co.tz.settlo.api.util.NotFoundException;
 import co.tz.settlo.api.util.ReferencedWarning;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -216,7 +217,9 @@ public class BusinessService {
 
     /// Maps the BusinessCreateDTO to an Entity
     private Business mapCreateToEntity(final BusinessCreateDTO businessDTO, final Business business) {
-        business.setPrefix(businessDTO.getPrefix());
+        Random randomGen = new Random();
+
+        business.setPrefix(String.valueOf(randomGen.nextInt() + 1000));
         business.setName(businessDTO.getName());
         business.setTax(0.0);
 //        business.setIdentificationNumber(businessDTO.getIdentificationNumber());
@@ -225,8 +228,8 @@ public class BusinessService {
 //        business.setUin(businessDTO.getUin());
 //        business.setReceiptPrefix(businessDTO.getReceiptPrefix());
 //        business.setReceiptSuffix(businessDTO.getReceiptSuffix());
-//        business.setBusinessType(businessDTO.getBusinessType());
-        business.setSlug(businessDTO.getSlug());
+        business.setBusinessType(businessDTO.getBusinessType());
+        business.setSlug(businessDTO.getName().replace(" ", "-"));
 //        business.setStoreName(businessDTO.getStoreName());
 //        business.setImage(businessDTO.getImage());
 //        business.setReceiptImage(businessDTO.getReceiptImage());
@@ -241,9 +244,9 @@ public class BusinessService {
 //        business.setBusinessLicense(businessDTO.getBusinessLicense());
 //        business.setMemarts(businessDTO.getMemarts());
 //        business.setNotificationPhone(businessDTO.getNotificationPhone());
-        business.setNotificationEmailAddress(businessDTO.getNotificationEmailAddress());
+        business.setNotificationEmailAddress("");
         business.setDescription(businessDTO.getDescription());
-        business.setVfdRegistrationState(businessDTO.getVfdRegistrationState());
+        business.setVfdRegistrationState(false);
 //        business.setWebsite(businessDTO.getWebsite());
         business.setCanDelete(false);
         business.setIsArchived(false);
