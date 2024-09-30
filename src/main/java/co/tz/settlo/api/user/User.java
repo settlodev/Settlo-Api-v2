@@ -106,7 +106,8 @@ public class User {
     @Column(nullable = false)
     private Boolean canDelete;
 
-    @Column(nullable = false)
+    // @Column(nullable = false)
+    @Column
     private Boolean isBusinessRegistrationComplete;
 
     @ManyToOne(fetch = FetchType.LAZY)
