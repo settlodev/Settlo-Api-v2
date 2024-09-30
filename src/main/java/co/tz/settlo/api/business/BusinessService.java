@@ -11,6 +11,7 @@ import co.tz.settlo.api.expense.ExpenseRepository;
 import co.tz.settlo.api.expense_category.ExpenseCategory;
 import co.tz.settlo.api.expense_category.ExpenseCategoryRepository;
 import co.tz.settlo.api.location.Location;
+import co.tz.settlo.api.location.LocationDTO;
 import co.tz.settlo.api.location.LocationRepository;
 import co.tz.settlo.api.product.Product;
 import co.tz.settlo.api.product.ProductRepository;
@@ -39,9 +40,16 @@ import co.tz.settlo.api.user.UserRepository;
 import co.tz.settlo.api.util.NotFoundException;
 import co.tz.settlo.api.util.ReferencedWarning;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
+
+import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import co.tz.settlo.api.util.RestApiFilter.SearchSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -108,6 +116,16 @@ public class BusinessService {
         return businesses.stream()
                 .map(business -> mapToDTO(business, new BusinessDTO()))
                 .toList();
+    }
+
+
+    @Transactional(readOnly = true)
+    public Page<BusinessDTO> searchAll(SearchRequest request) {
+        SearchSpecification<Business> specification = new SearchSpecification<>(request);
+        Pageable pageable = SearchSpecification.getPageable(request.getPage(), request.getSize());
+        Page<Business> locationsPage = businessRepository.findAll(specification, pageable);
+
+        return locationsPage.map(location -> mapToDTO(location, new BusinessDTO()));
     }
 
     public BusinessDTO get(final UUID id) {
@@ -216,7 +234,9 @@ public class BusinessService {
 
     /// Maps the BusinessCreateDTO to an Entity
     private Business mapCreateToEntity(final BusinessCreateDTO businessDTO, final Business business) {
-        business.setPrefix(businessDTO.getPrefix());
+        Random randomGen = new Random();
+
+        business.setPrefix(String.valueOf(randomGen.nextInt() + 1000));
         business.setName(businessDTO.getName());
         business.setTax(0.0);
 //        business.setIdentificationNumber(businessDTO.getIdentificationNumber());
@@ -225,8 +245,8 @@ public class BusinessService {
 //        business.setUin(businessDTO.getUin());
 //        business.setReceiptPrefix(businessDTO.getReceiptPrefix());
 //        business.setReceiptSuffix(businessDTO.getReceiptSuffix());
-//        business.setBusinessType(businessDTO.getBusinessType());
-        business.setSlug(businessDTO.getSlug());
+        business.setBusinessType(businessDTO.getBusinessType());
+        business.setSlug(businessDTO.getName().replace(" ", "-"));
 //        business.setStoreName(businessDTO.getStoreName());
 //        business.setImage(businessDTO.getImage());
 //        business.setReceiptImage(businessDTO.getReceiptImage());
@@ -241,9 +261,9 @@ public class BusinessService {
 //        business.setBusinessLicense(businessDTO.getBusinessLicense());
 //        business.setMemarts(businessDTO.getMemarts());
 //        business.setNotificationPhone(businessDTO.getNotificationPhone());
-        business.setNotificationEmailAddress(businessDTO.getNotificationEmailAddress());
+        business.setNotificationEmailAddress("");
         business.setDescription(businessDTO.getDescription());
-        business.setVfdRegistrationState(businessDTO.getVfdRegistrationState());
+        business.setVfdRegistrationState(false);
 //        business.setWebsite(businessDTO.getWebsite());
         business.setCanDelete(false);
         business.setIsArchived(false);
