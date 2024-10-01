@@ -68,7 +68,7 @@ public class LocationResource {
     @PostMapping("/create")
     @ApiResponse(responseCode = "201")
     @Operation(summary = "create a Location")
-    public ResponseEntity<UUID> createLocation(@PathVariable final UUID businessId, @RequestBody @Valid final LocationDTO locationDTO) {
+    public ResponseEntity<UUID> createLocation(@PathVariable final UUID businessId, @RequestBody @Valid final LocationCreateDTO locationDTO) {
         locationDTO.setBusiness(businessId);
 
         final UUID createdId = locationService.create(locationDTO);

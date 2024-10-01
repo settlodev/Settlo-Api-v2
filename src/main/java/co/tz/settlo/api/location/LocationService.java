@@ -26,6 +26,8 @@ import co.tz.settlo.api.user.User;
 import co.tz.settlo.api.user.UserRepository;
 import co.tz.settlo.api.util.NotFoundException;
 import co.tz.settlo.api.util.ReferencedWarning;
+
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -105,9 +107,35 @@ public class LocationService {
     }
 
     @Transactional
-    public UUID create(final LocationDTO locationDTO) {
+    public UUID create(final LocationCreateDTO locationDTO) {
+
+
+        // Setting up default location settings
+        LocationSetting locationSetting = new LocationSetting();
+
+        locationSetting.setSystemPasscode(locationDTO.getSystemPasscode());
+        locationSetting.setReportsPasscode(locationDTO.getReportsPasscode());
+        locationSetting.setMinimumSettlementAmount(BigDecimal.valueOf(0));
+        locationSetting.setIsDefault(false);
+        locationSetting.setTrackInventory(true);
+        locationSetting.setEcommerceEnabled(false);
+        locationSetting.setEnableNotifications(true);
+        locationSetting.setUseRecipe(false);
+        locationSetting.setUseDepartments(false);
+        locationSetting.setUseCustomPrice(false);
+        locationSetting.setUseWarehouse(false);
+        locationSetting.setUseShifts(false);
+        locationSetting.setUseKds(false);
+        locationSetting.setIsActive(true);
+        locationSetting.setCanDelete(false);
+        locationSetting.setIsArchived(false);
+
+        UUID locationSettingsId = locationSettingRepository.save(locationSetting).getId();
+        locationDTO.setSetting(locationSettingsId);
+
         final Location location = new Location();
-        mapToEntity(locationDTO, location);
+        mapCreateToEntity(locationDTO, location);
+        Location savedLocation =  locationRepository.save(location);
 
         // ************ Marking location registration complete when we create a location *************** //
         final User user = businessRepository.findById(locationDTO.getBusiness())
@@ -119,7 +147,7 @@ public class LocationService {
         // ********************************************************************************************** //
 
 
-        return locationRepository.save(location).getId();
+        return savedLocation.getId();
     }
 
     @Transactional
@@ -153,6 +181,29 @@ public class LocationService {
         locationDTO.setSetting(location.getSetting() == null ? null : location.getSetting().getId());
         locationDTO.setBusiness(location.getBusiness() == null ? null : location.getBusiness().getId());
         return locationDTO;
+    }
+
+    private Location mapCreateToEntity(final LocationCreateDTO locationDTO, final Location location) {
+        location.setName(locationDTO.getName());
+        location.setPhone(locationDTO.getPhone());
+        location.setEmail(locationDTO.getEmail());
+        location.setCity(locationDTO.getCity());
+        location.setRegion(locationDTO.getRegion());
+        location.setStreet(locationDTO.getStreet());
+        location.setAddress(locationDTO.getAddress());
+        location.setDescription(locationDTO.getDescription());
+        location.setOpeningTime(locationDTO.getOpeningTime());
+        location.setClosingTime(locationDTO.getClosingTime());
+        location.setStatus(locationDTO.getStatus());
+        location.setIsArchived(locationDTO.getIsArchived());
+        location.setCanDelete(locationDTO.getCanDelete());
+        final LocationSetting setting = locationDTO.getSetting() == null ? null : locationSettingRepository.findById(locationDTO.getSetting())
+                .orElseThrow(() -> new NotFoundException("setting not found"));
+        location.setSetting(setting);
+        final Business business = locationDTO.getBusiness() == null ? null : businessRepository.findById(locationDTO.getBusiness())
+                .orElseThrow(() -> new NotFoundException("business not found"));
+        location.setBusiness(business);
+        return location;
     }
 
     private Location mapToEntity(final LocationDTO locationDTO, final Location location) {
