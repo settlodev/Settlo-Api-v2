@@ -38,9 +38,9 @@ public class LocationSettingService {
     }
 
     @Transactional
-    public UUID create(final LocationSettingDTO locationSettingDTO) {
+    public UUID create(final LocationSettingCreateDTO locationSettingDTO) {
         final LocationSetting locationSetting = new LocationSetting();
-        mapToEntity(locationSettingDTO, locationSetting);
+        mapCreateToEntity(locationSettingDTO, locationSetting);
         return locationSettingRepository.save(locationSetting).getId();
     }
 
@@ -97,6 +97,27 @@ public class LocationSettingService {
         locationSetting.setIsActive(locationSettingDTO.getIsActive());
         locationSetting.setCanDelete(locationSettingDTO.getCanDelete());
         locationSetting.setIsArchived(locationSettingDTO.getIsArchived());
+        return locationSetting;
+    }
+
+    private LocationSetting mapCreateToEntity(final LocationSettingCreateDTO locationSettingDTO,
+                                        final LocationSetting locationSetting) {
+        locationSetting.setMinimumSettlementAmount(locationSettingDTO.getMinimumSettlementAmount());
+        locationSetting.setSystemPasscode(locationSettingDTO.getSystemPasscode());
+        locationSetting.setReportsPasscode(locationSettingDTO.getReportsPasscode());
+        locationSetting.setIsDefault(false);
+        locationSetting.setTrackInventory(true);
+        locationSetting.setEcommerceEnabled(false);
+        locationSetting.setEnableNotifications(true);
+        locationSetting.setUseRecipe(false);
+        locationSetting.setUseDepartments(false);
+        locationSetting.setUseCustomPrice(false);
+        locationSetting.setUseWarehouse(false);
+        locationSetting.setUseShifts(false);
+        locationSetting.setUseKds(false);
+        locationSetting.setIsActive(true);
+        locationSetting.setCanDelete(false);
+        locationSetting.setIsArchived(false);
         return locationSetting;
     }
 
