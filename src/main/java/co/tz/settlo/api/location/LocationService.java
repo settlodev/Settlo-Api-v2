@@ -113,8 +113,8 @@ public class LocationService {
         // Setting up default location settings
         LocationSetting locationSetting = new LocationSetting();
 
-        locationSetting.setSystemPasscode(locationDTO.getSystemPasscode());
-        locationSetting.setReportsPasscode(locationDTO.getReportsPasscode());
+        locationSetting.setSystemPasscode("0000");
+        locationSetting.setReportsPasscode("0000");
         locationSetting.setMinimumSettlementAmount(BigDecimal.valueOf(0));
         locationSetting.setIsDefault(false);
         locationSetting.setTrackInventory(true);
