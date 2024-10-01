@@ -64,11 +64,4 @@ public class LocationCreateDTO {
 
     @NotNull
     private UUID business;
-
-    @NotNull
-    private String systemPasscode;
-
-    @NotNull
-    private String reportsPasscode;
-
 }
