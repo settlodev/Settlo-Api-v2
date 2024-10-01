@@ -128,6 +128,7 @@ public class BusinessService {
         return locationsPage.map(location -> mapToDTO(location, new BusinessResponseDTO()));
     }
 
+    @Transactional(readOnly = true)
     public BusinessResponseDTO get(final UUID id) {
         return businessRepository.findById(id)
                 .map(business -> mapToDTO(business, new BusinessResponseDTO()))
