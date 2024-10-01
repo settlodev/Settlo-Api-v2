@@ -45,7 +45,6 @@ public class BusinessResource {
         return ResponseEntity.ok(businessService.findAll(userId));
     }
 
-
     @PostMapping
     @Operation(summary = "Search Businesses")
     public Page<BusinessResponseDTO> searchBusiness(@PathVariable final UUID userId, @RequestBody SearchRequest request) {
@@ -60,8 +59,6 @@ public class BusinessResource {
 
         return businessService.searchAll(request);
     }
-
-
 
     @GetMapping("/{id}")
     @Operation(summary = "Get a Business", description = "Get a business by supplying it's ID")

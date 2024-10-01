@@ -134,9 +134,12 @@ public class BusinessService {
                 .orElseThrow(NotFoundException::new);
     }
 
+    @Transactional
     public UUID create(final BusinessCreateDTO businessDTO) {
         final Business business = new Business();
         mapCreateToEntity(businessDTO, business);
+
+        Business savedBusiness = businessRepository.save(business);
 
         // ************ Marking business registration complete when we create a business *************** //
         final User user = userRepository.findById(businessDTO.getUser())
@@ -147,7 +150,7 @@ public class BusinessService {
         userRepository.save(user);
         // ********************************************************************************************** //
 
-        return businessRepository.save(business).getId();
+        return savedBusiness.getId();
     }
 
     public void update(final UUID id, final BusinessDTO businessDTO) {
