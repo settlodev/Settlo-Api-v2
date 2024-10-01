@@ -56,9 +56,6 @@ public record LoginResponseDTO(
         @Schema(description = "Customer's business subscription status")
         SubscriptionStatus subscriptionStatus,
 
-        @Schema(description = "Customer's businessId")
-        UUID businessId,
-
         @NotNull
         Boolean businessComplete,
 
