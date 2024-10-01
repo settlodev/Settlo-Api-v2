@@ -22,6 +22,8 @@ import co.tz.settlo.api.stock_usage.StockUsage;
 import co.tz.settlo.api.stock_usage.StockUsageRepository;
 import co.tz.settlo.api.supplier.Supplier;
 import co.tz.settlo.api.supplier.SupplierRepository;
+import co.tz.settlo.api.user.User;
+import co.tz.settlo.api.user.UserRepository;
 import co.tz.settlo.api.util.NotFoundException;
 import co.tz.settlo.api.util.ReferencedWarning;
 import java.util.List;
@@ -49,6 +51,7 @@ public class LocationService {
     private final ReservationRepository reservationRepository;
     private final CampaignRepository campaignRepository;
     private final StockUsageRepository stockUsageRepository;
+    private final UserRepository userRepository;
 
     public LocationService(final LocationRepository locationRepository,
             final LocationSettingRepository locationSettingRepository,
@@ -59,7 +62,9 @@ public class LocationService {
             final ShiftRepository shiftRepository,
             final ReservationRepository reservationRepository,
             final CampaignRepository campaignRepository,
-            final StockUsageRepository stockUsageRepository) {
+            final StockUsageRepository stockUsageRepository,
+            final UserRepository userRepository
+    ) {
         this.locationRepository = locationRepository;
         this.locationSettingRepository = locationSettingRepository;
         this.businessRepository = businessRepository;
@@ -72,6 +77,7 @@ public class LocationService {
         this.reservationRepository = reservationRepository;
         this.campaignRepository = campaignRepository;
         this.stockUsageRepository = stockUsageRepository;
+        this.userRepository = userRepository;
     }
 
     @Transactional(readOnly = true)
@@ -102,6 +108,17 @@ public class LocationService {
     public UUID create(final LocationDTO locationDTO) {
         final Location location = new Location();
         mapToEntity(locationDTO, location);
+
+        // ************ Marking location registration complete when we create a location *************** //
+        final User user = businessRepository.findById(locationDTO.getBusiness())
+                .orElseThrow(NotFoundException::new).getUser();
+
+        user.setIsLocationRegistrationComplete(true);
+
+        userRepository.save(user);
+        // ********************************************************************************************** //
+
+
         return locationRepository.save(location).getId();
     }
 

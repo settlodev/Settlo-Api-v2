@@ -60,7 +60,10 @@ public record LoginResponseDTO(
         UUID businessId,
 
         @NotNull
-        Boolean businessComplete
+        Boolean businessComplete,
+
+        @NotNull
+        Boolean locationComplete
 
 ) {
     public LoginResponseDTO {

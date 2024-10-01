@@ -106,9 +106,13 @@ public class User {
     @Column(nullable = false)
     private Boolean canDelete;
 
-    // @Column(nullable = false)
+    // Indicates if at least on business has been created for this user
     @Column
     private Boolean isBusinessRegistrationComplete;
+
+    // Indicates if at least one location has been created for this user
+    @Column
+    private Boolean isLocationRegistrationComplete;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "country_id", nullable = false)
