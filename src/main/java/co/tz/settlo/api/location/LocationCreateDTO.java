@@ -49,14 +49,11 @@ public class LocationCreateDTO {
     @Size(max = 10)
     private String closingTime;
 
-    @NotNull
     private Boolean status;
 
-    @NotNull
     @JsonProperty("isArchived")
     private Boolean isArchived;
 
-    @NotNull
     private Boolean canDelete;
 
     @LocationSettingUnique

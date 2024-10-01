@@ -132,6 +132,9 @@ public class LocationService {
 
         UUID locationSettingsId = locationSettingRepository.save(locationSetting).getId();
         locationDTO.setSetting(locationSettingsId);
+        locationDTO.setStatus(true);
+        locationDTO.setIsArchived(false);
+        locationDTO.setCanDelete(false);
 
         final Location location = new Location();
         mapCreateToEntity(locationDTO, location);
