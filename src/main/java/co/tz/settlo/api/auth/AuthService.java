@@ -121,6 +121,7 @@ public class AuthService implements UserDetailsService {
                 .phoneNumberVerified(user.getPhoneNumberVerified())
                 .theme("light")
                 .businessComplete(user.getIsBusinessRegistrationComplete() != null && user.getIsBusinessRegistrationComplete())
+                .locationComplete(user.getIsLocationRegistrationComplete() != null && user.getIsLocationRegistrationComplete())
                 .build();
     }
 
