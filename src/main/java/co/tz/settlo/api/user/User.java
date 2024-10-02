@@ -107,11 +107,11 @@ public class User {
     private Boolean canDelete;
 
     // Indicates if at least on business has been created for this user
-    @Column
+    @Column(nullable = false)
     private Boolean isBusinessRegistrationComplete;
 
     // Indicates if at least one location has been created for this user
-    @Column
+    @Column(nullable = false)
     private Boolean isLocationRegistrationComplete;
 
     @ManyToOne(fetch = FetchType.LAZY)
