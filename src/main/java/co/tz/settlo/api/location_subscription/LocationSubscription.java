@@ -1,11 +1,9 @@
-package co.tz.settlo.api.subscription;
+package co.tz.settlo.api.location_subscription;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import co.tz.settlo.api.common.models.SubscriptionStatus;
+import co.tz.settlo.api.subscription.Subscription;
+import jakarta.persistence.*;
+
 import java.time.OffsetDateTime;
 import java.util.UUID;
 import lombok.Getter;
@@ -17,12 +15,11 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 
 @Entity
-@Table(name = "Subscriptions")
+@Table(name = "LocationSubscriptions")
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
-public class Subscription {
-
+public class LocationSubscription {
     @Id
     @Column(nullable = false, updatable = false)
     @GeneratedValue
@@ -30,25 +27,10 @@ public class Subscription {
     private UUID id;
 
     @Column(nullable = false)
-    private Double amount;
-
-    @Column
-    private Double discount;
-
-//    @Column(nullable = false)
-//    private OffsetDateTime startDate;
-//
-//    @Column(nullable = false)
-//    private OffsetDateTime endDate;
+    private OffsetDateTime startDate;
 
     @Column(nullable = false)
-    private String packageName;
-
-    @Column(nullable = false, unique = true)
-    private String packageCode;
-
-    @Column(nullable = false)
-    private Boolean isTrial;
+    private OffsetDateTime endDate;
 
     @Column(nullable = false)
     private Boolean status;
@@ -67,4 +49,13 @@ public class Subscription {
     @Column(nullable = false)
     private OffsetDateTime lastUpdated;
 
+    @Column(nullable = false)
+    private SubscriptionStatus subscriptionStatus;
+
+    @Column(nullable = false)
+    private Boolean active;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "subscription_id", nullable = false)
+    private Subscription subscription;
 }

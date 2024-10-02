@@ -110,6 +110,7 @@ public class BusinessService {
         this.stockUsageRepository = stockUsageRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<BusinessResponseDTO> findAll(final UUID userId) {
         final List<Business> businesses = businessRepository.findAllByUserId(userId);
 
@@ -202,6 +203,7 @@ public class BusinessService {
         businessDTO.setUser(business.getUser() == null ? null : business.getUser().getId());
         businessDTO.setCountry(business.getCountry() == null ? null : business.getCountry().getId());
         businessDTO.setCountryName(business.getCountry().getName());
+        businessDTO.setTotalLocations(business.getLocations().size());
         return businessDTO;
     }
 

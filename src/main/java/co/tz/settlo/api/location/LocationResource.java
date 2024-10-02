@@ -40,7 +40,7 @@ public class LocationResource {
 
     @PostMapping
     @Operation(summary = "Search Locations")
-    public Page<LocationDTO> searchLocations(@PathVariable UUID businessId, @RequestBody SearchRequest request) {
+    public Page<LocationResponseDTO> searchLocations(@PathVariable UUID businessId, @RequestBody SearchRequest request) {
         // Enforce Location filter
         FilterRequest businessFilter = new FilterRequest();
         businessFilter.setKey("business");
@@ -55,13 +55,13 @@ public class LocationResource {
 
     @GetMapping
     @Operation(summary = "Get all Locations")
-    public ResponseEntity<List<LocationDTO>> getAllLocations(@PathVariable final UUID businessId) {
+    public ResponseEntity<List<LocationResponseDTO>> getAllLocations(@PathVariable final UUID businessId) {
         return ResponseEntity.ok(locationService.findAll(businessId));
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Get a Location")
-    public ResponseEntity<LocationDTO> getLocation(@PathVariable final UUID businessId, @PathVariable(name = "id") final UUID id) {
+    public ResponseEntity<LocationResponseDTO> getLocation(@PathVariable final UUID businessId, @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(locationService.get(id));
     }
 

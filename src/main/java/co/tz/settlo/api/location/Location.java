@@ -2,6 +2,7 @@ package co.tz.settlo.api.location;
 
 import co.tz.settlo.api.business.Business;
 import co.tz.settlo.api.location_setting.LocationSetting;
+import co.tz.settlo.api.location_subscription.LocationSubscription;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -90,4 +91,7 @@ public class Location {
     @Column(nullable = false)
     private OffsetDateTime lastUpdated;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "location_subscription_id", nullable = false)
+    private LocationSubscription locationSubscription;
 }

@@ -1,8 +1,8 @@
-package co.tz.settlo.api.subscription;
+package co.tz.settlo.api.location_subscription;
 
+import co.tz.settlo.api.common.models.SubscriptionStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 import lombok.Getter;
@@ -11,27 +11,19 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class SubscriptionDTO {
+public class LocationSubscriptionDTO {
 
     private UUID id;
 
     @NotNull
-    private Double amount;
-
-    private Double discount;
+    private OffsetDateTime startDate;
 
     @NotNull
-    @Size(max = 255)
-    private String packageName;
+    private OffsetDateTime endDate;
 
-    @NotNull
-    @Size(max = 255)
-    @SubscriptionPackageCodeUnique
-    private String packageCode;
+    private SubscriptionStatus subscriptionStatus;
 
-    @NotNull
-    @JsonProperty("isTrial")
-    private Boolean isTrial;
+    private Boolean active;
 
     @NotNull
     private Boolean status;

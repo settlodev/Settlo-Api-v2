@@ -51,8 +51,6 @@ public class SubscriptionService {
         subscriptionDTO.setId(subscription.getId());
         subscriptionDTO.setAmount(subscription.getAmount());
         subscriptionDTO.setDiscount(subscription.getDiscount());
-        subscriptionDTO.setStartDate(subscription.getStartDate());
-        subscriptionDTO.setEndDate(subscription.getEndDate());
         subscriptionDTO.setPackageName(subscription.getPackageName());
         subscriptionDTO.setPackageCode(subscription.getPackageCode());
         subscriptionDTO.setIsTrial(subscription.getIsTrial());
@@ -66,8 +64,6 @@ public class SubscriptionService {
             final Subscription subscription) {
         subscription.setAmount(subscriptionDTO.getAmount());
         subscription.setDiscount(subscriptionDTO.getDiscount());
-        subscription.setStartDate(subscriptionDTO.getStartDate());
-        subscription.setEndDate(subscriptionDTO.getEndDate());
         subscription.setPackageName(subscriptionDTO.getPackageName());
         subscription.setPackageCode(subscriptionDTO.getPackageCode());
         subscription.setIsTrial(subscriptionDTO.getIsTrial());

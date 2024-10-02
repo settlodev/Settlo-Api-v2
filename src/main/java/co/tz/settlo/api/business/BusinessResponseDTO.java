@@ -123,4 +123,7 @@ public class BusinessResponseDTO {
     @NotNull
     private String countryName;
 
+    @NotNull
+    private int totalLocations;
+
 }
