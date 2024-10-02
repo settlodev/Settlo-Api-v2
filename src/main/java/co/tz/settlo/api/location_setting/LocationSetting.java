@@ -86,9 +86,8 @@ public class LocationSetting {
     @Column(nullable = false)
     private OffsetDateTime lastUpdated;
 
+    /// Creates default Location setting
     public static LocationSetting createDefault() {
-
-
         LocationSetting locationSetting = new LocationSetting();
 
         locationSetting.setSystemPasscode("0000");
