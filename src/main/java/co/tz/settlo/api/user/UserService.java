@@ -103,6 +103,7 @@ public class UserService {
         User user = mapToEntity(userDTO, new User());
 
         user.setIsBusinessRegistrationComplete(false);
+        user.setIsLocationRegistrationComplete(false);
 
         return userRepository.save(user).getId();
     }
