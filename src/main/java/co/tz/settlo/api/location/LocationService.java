@@ -143,29 +143,10 @@ public class LocationService {
 
     @Transactional
     public UUID create(final LocationCreateDTO locationDTO) {
+        // Setting up default location settings when just creating a location
+        LocationSetting defaultLocationSetting = LocationSetting.createDefault();
 
-
-        // Setting up default location settings
-        LocationSetting locationSetting = new LocationSetting();
-
-        locationSetting.setSystemPasscode("0000");
-        locationSetting.setReportsPasscode("0000");
-        locationSetting.setMinimumSettlementAmount(BigDecimal.valueOf(0));
-        locationSetting.setIsDefault(false);
-        locationSetting.setTrackInventory(true);
-        locationSetting.setEcommerceEnabled(false);
-        locationSetting.setEnableNotifications(true);
-        locationSetting.setUseRecipe(false);
-        locationSetting.setUseDepartments(false);
-        locationSetting.setUseCustomPrice(false);
-        locationSetting.setUseWarehouse(false);
-        locationSetting.setUseShifts(false);
-        locationSetting.setUseKds(false);
-        locationSetting.setIsActive(true);
-        locationSetting.setCanDelete(false);
-        locationSetting.setIsArchived(false);
-
-        UUID locationSettingsId = locationSettingRepository.save(locationSetting).getId();
+        UUID locationSettingsId = locationSettingRepository.save(defaultLocationSetting).getId();
         locationDTO.setSetting(locationSettingsId);
         locationDTO.setStatus(true);
         locationDTO.setIsArchived(false);
@@ -174,34 +155,22 @@ public class LocationService {
         final Location location = new Location();
         mapCreateToEntity(locationDTO, location);
 
-        // ** Creating location_subscription for this location
-
+        // Creating trial LocationSubscription when just creating a location
         Subscription trialSubscription = subscriptionRepository.findByPackageCode("trl").orElseThrow(NotFoundException::new);
-        LocationSubscription trialLocationSubscription = new LocationSubscription();
-        trialLocationSubscription.setActive(true);
-        OffsetDateTime now =OffsetDateTime.now() ;
-        trialLocationSubscription.setStartDate(now);
-        trialLocationSubscription.setEndDate(now.plusDays(7));
-        trialLocationSubscription.setActive(true);
-        trialLocationSubscription.setCanDelete(false);
-        trialLocationSubscription.setIsArchived(false);
-        trialLocationSubscription.setStatus(true);
-        trialLocationSubscription.setSubscription(trialSubscription);
-        trialLocationSubscription.setSubscriptionStatus(SubscriptionStatus.TRIAL);
+        LocationSubscription  trialLocationSubscription = LocationSubscription.createTrial(trialSubscription);
         locationSubscriptionRepository.save(trialLocationSubscription);
 
         location.setLocationSubscription(trialLocationSubscription);
 
         Location savedLocation = locationRepository.save(location);
 
-        // ************ Marking location registration complete when we create a location *************** //
+        // Marking location registration complete when we create a location
         final User user = businessRepository.findById(locationDTO.getBusiness())
                 .orElseThrow(NotFoundException::new).getUser();
 
         user.setIsLocationRegistrationComplete(true);
 
         userRepository.save(user);
-        // ********************************************************************************************** //
 
         return savedLocation.getId();
     }

@@ -86,4 +86,29 @@ public class LocationSetting {
     @Column(nullable = false)
     private OffsetDateTime lastUpdated;
 
+    public static LocationSetting createDefault() {
+
+
+        LocationSetting locationSetting = new LocationSetting();
+
+        locationSetting.setSystemPasscode("0000");
+        locationSetting.setReportsPasscode("0000");
+        locationSetting.setMinimumSettlementAmount(BigDecimal.valueOf(0));
+        locationSetting.setIsDefault(false);
+        locationSetting.setTrackInventory(true);
+        locationSetting.setEcommerceEnabled(false);
+        locationSetting.setEnableNotifications(true);
+        locationSetting.setUseRecipe(false);
+        locationSetting.setUseDepartments(false);
+        locationSetting.setUseCustomPrice(false);
+        locationSetting.setUseWarehouse(false);
+        locationSetting.setUseShifts(false);
+        locationSetting.setUseKds(false);
+        locationSetting.setIsActive(true);
+        locationSetting.setCanDelete(true);
+        locationSetting.setIsArchived(false);
+
+        return locationSetting;
+    }
+
 }
