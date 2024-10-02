@@ -110,6 +110,7 @@ public class BusinessService {
         this.stockUsageRepository = stockUsageRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<BusinessResponseDTO> findAll(final UUID userId) {
         final List<Business> businesses = businessRepository.findAllByUserId(userId);
 

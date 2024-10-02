@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping(value = "/api/subscriptions/{locationId}", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/subscriptions/", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Subscription Endpoints")
 public class SubscriptionResource {
 
@@ -43,7 +43,7 @@ public class SubscriptionResource {
         return ResponseEntity.ok(subscriptionService.get(id));
     }
 
-    @PostMapping
+    @PostMapping("/create")
     @ApiResponse(responseCode = "201")
     @Operation(summary = "Create a Subscription")
     public ResponseEntity<UUID> createSubscription(

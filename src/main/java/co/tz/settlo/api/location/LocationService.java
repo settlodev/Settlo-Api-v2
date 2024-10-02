@@ -4,12 +4,15 @@ import co.tz.settlo.api.business.Business;
 import co.tz.settlo.api.business.BusinessRepository;
 import co.tz.settlo.api.campaign.Campaign;
 import co.tz.settlo.api.campaign.CampaignRepository;
+import co.tz.settlo.api.common.models.SubscriptionStatus;
 import co.tz.settlo.api.department.Department;
 import co.tz.settlo.api.department.DepartmentRepository;
 import co.tz.settlo.api.discount.Discount;
 import co.tz.settlo.api.discount.DiscountRepository;
 import co.tz.settlo.api.location_setting.LocationSetting;
 import co.tz.settlo.api.location_setting.LocationSettingRepository;
+import co.tz.settlo.api.location_subscription.LocationSubscription;
+import co.tz.settlo.api.location_subscription.LocationSubscriptionRepository;
 import co.tz.settlo.api.product.Product;
 import co.tz.settlo.api.product.ProductRepository;
 import co.tz.settlo.api.reservation.Reservation;
@@ -20,6 +23,8 @@ import co.tz.settlo.api.stock.Stock;
 import co.tz.settlo.api.stock.StockRepository;
 import co.tz.settlo.api.stock_usage.StockUsage;
 import co.tz.settlo.api.stock_usage.StockUsageRepository;
+import co.tz.settlo.api.subscription.Subscription;
+import co.tz.settlo.api.subscription.SubscriptionRepository;
 import co.tz.settlo.api.supplier.Supplier;
 import co.tz.settlo.api.supplier.SupplierRepository;
 import co.tz.settlo.api.user.User;
@@ -28,6 +33,7 @@ import co.tz.settlo.api.util.NotFoundException;
 import co.tz.settlo.api.util.ReferencedWarning;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -54,18 +60,23 @@ public class LocationService {
     private final CampaignRepository campaignRepository;
     private final StockUsageRepository stockUsageRepository;
     private final UserRepository userRepository;
+    private final LocationSubscriptionRepository locationSubscriptionRepository;
+    private final SubscriptionRepository subscriptionRepository;
 
     public LocationService(final LocationRepository locationRepository,
-            final LocationSettingRepository locationSettingRepository,
-            final BusinessRepository businessRepository,
-            final DepartmentRepository departmentRepository,
-            final DiscountRepository discountRepository, final ProductRepository productRepository,
-            final StockRepository stockRepository, final SupplierRepository supplierRepository,
-            final ShiftRepository shiftRepository,
-            final ReservationRepository reservationRepository,
-            final CampaignRepository campaignRepository,
-            final StockUsageRepository stockUsageRepository,
-            final UserRepository userRepository
+                           final LocationSettingRepository locationSettingRepository,
+                           final BusinessRepository businessRepository,
+                           final DepartmentRepository departmentRepository,
+                           final DiscountRepository discountRepository, final ProductRepository productRepository,
+                           final StockRepository stockRepository, final SupplierRepository supplierRepository,
+                           final ShiftRepository shiftRepository,
+                           final ReservationRepository reservationRepository,
+                           final CampaignRepository campaignRepository,
+                           final StockUsageRepository stockUsageRepository,
+                           final UserRepository userRepository,
+                           final LocationSubscriptionRepository locationSubscriptionRepository,
+                           final SubscriptionRepository subscriptionRepository
+
     ) {
         this.locationRepository = locationRepository;
         this.locationSettingRepository = locationSettingRepository;
@@ -80,29 +91,53 @@ public class LocationService {
         this.campaignRepository = campaignRepository;
         this.stockUsageRepository = stockUsageRepository;
         this.userRepository = userRepository;
+        this.locationSubscriptionRepository = locationSubscriptionRepository;
+        this.subscriptionRepository = subscriptionRepository;
+    }
+
+    /// Since the `LocationResponseDTO` has endDate and subscriptionStatus fields
+    /// which are not part of the original Location, this method is a helper to set those
+    /// fields up
+    @Transactional(readOnly = true)
+    private LocationResponseDTO setSubscriptionInfo(LocationResponseDTO locationResponseDTO, final UUID locationSubscriptionId) {
+        final LocationSubscription locationSubscription = locationSubscriptionRepository.findById(locationSubscriptionId)
+                .orElseThrow(NotFoundException::new);
+
+        locationResponseDTO.setSubscriptionStatus(locationSubscription.getSubscriptionStatus());
+        locationResponseDTO.setEndDate(locationSubscription.getEndDate());
+
+        return locationResponseDTO;
     }
 
     @Transactional(readOnly = true)
-    public Page<LocationDTO> searchAll(SearchRequest request) {
+    public Page<LocationResponseDTO> searchAll(SearchRequest request) {
         SearchSpecification<Location> specification = new SearchSpecification<>(request);
         Pageable pageable = SearchSpecification.getPageable(request.getPage(), request.getSize());
         Page<Location> locationsPage = locationRepository.findAll(specification, pageable);
 
-        return locationsPage.map(location -> mapToDTO(location, new LocationDTO()));
+        return locationsPage
+                .map(location ->
+                        setSubscriptionInfo(mapToDTO(location, new LocationResponseDTO()), location.getLocationSubscription().getId())
+                );
     }
 
     @Transactional(readOnly = true)
-    public List<LocationDTO> findAll(final UUID businessId) {
+    public List<LocationResponseDTO> findAll(final UUID businessId) {
         final List<Location> locations = locationRepository.findAllByBusinessId(businessId);
         return locations.stream()
-                .map(location -> mapToDTO(location, new LocationDTO()))
+                .map(location ->
+                        setSubscriptionInfo(mapToDTO(location, new LocationResponseDTO()), location.getLocationSubscription().getId())
+                )
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    public LocationDTO get(final UUID id) {
+    public LocationResponseDTO get(final UUID id) {
+
         return locationRepository.findById(id)
-                .map(location -> mapToDTO(location, new LocationDTO()))
+                .map(location ->
+                        setSubscriptionInfo(mapToDTO(location, new LocationResponseDTO()), location.getLocationSubscription().getId())
+                )
                 .orElseThrow(NotFoundException::new);
     }
 
@@ -138,7 +173,26 @@ public class LocationService {
 
         final Location location = new Location();
         mapCreateToEntity(locationDTO, location);
-        Location savedLocation =  locationRepository.save(location);
+
+        // ** Creating location_subscription for this location
+
+        Subscription trialSubscription = subscriptionRepository.findByPackageCode("trl").orElseThrow(NotFoundException::new);
+        LocationSubscription trialLocationSubscription = new LocationSubscription();
+        trialLocationSubscription.setActive(true);
+        OffsetDateTime now =OffsetDateTime.now() ;
+        trialLocationSubscription.setStartDate(now);
+        trialLocationSubscription.setEndDate(now.plusDays(7));
+        trialLocationSubscription.setActive(true);
+        trialLocationSubscription.setCanDelete(false);
+        trialLocationSubscription.setIsArchived(false);
+        trialLocationSubscription.setStatus(true);
+        trialLocationSubscription.setSubscription(trialSubscription);
+        trialLocationSubscription.setSubscriptionStatus(SubscriptionStatus.TRIAL);
+        locationSubscriptionRepository.save(trialLocationSubscription);
+
+        location.setLocationSubscription(trialLocationSubscription);
+
+        Location savedLocation = locationRepository.save(location);
 
         // ************ Marking location registration complete when we create a location *************** //
         final User user = businessRepository.findById(locationDTO.getBusiness())
@@ -148,7 +202,6 @@ public class LocationService {
 
         userRepository.save(user);
         // ********************************************************************************************** //
-
 
         return savedLocation.getId();
     }
@@ -166,7 +219,7 @@ public class LocationService {
         locationRepository.deleteById(id);
     }
 
-    private LocationDTO mapToDTO(final Location location, final LocationDTO locationDTO) {
+    private LocationResponseDTO mapToDTO(final Location location, final LocationResponseDTO locationDTO) {
         locationDTO.setId(location.getId());
         locationDTO.setName(location.getName());
         locationDTO.setPhone(location.getPhone());
