@@ -280,9 +280,9 @@ public class BusinessService {
         business.setDescription(businessDTO.getDescription());
         business.setVfdRegistrationState(false);
 //        business.setWebsite(businessDTO.getWebsite());
-        business.setCanDelete(false);
+        business.setCanDelete(true);
         business.setIsArchived(false);
-        business.setStatus(false);
+        business.setStatus(true);
 
         final User user = businessDTO.getUser() == null ? null : userRepository.findById(businessDTO.getUser())
                 .orElseThrow(() -> new NotFoundException("user not found"));
