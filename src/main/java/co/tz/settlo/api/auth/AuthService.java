@@ -120,8 +120,8 @@ public class AuthService implements UserDetailsService {
                 .emailVerified(user.getEmailVerified())
                 .phoneNumberVerified(user.getPhoneNumberVerified())
                 .theme("light")
-                .businessComplete(user.getIsBusinessRegistrationComplete() != null && user.getIsBusinessRegistrationComplete())
-                .locationComplete(user.getIsLocationRegistrationComplete() != null && user.getIsLocationRegistrationComplete())
+                .businessComplete(user.getIsBusinessRegistrationComplete())
+                .locationComplete(user.getIsLocationRegistrationComplete())
                 .build();
     }
 

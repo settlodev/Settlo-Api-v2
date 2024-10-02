@@ -5,6 +5,8 @@ import co.tz.settlo.api.country.CountryDTO;
 import co.tz.settlo.api.country.CountryService;
 import co.tz.settlo.api.role.RoleDTO;
 import co.tz.settlo.api.role.RoleService;
+import co.tz.settlo.api.subscription.SubscriptionDTO;
+import co.tz.settlo.api.subscription.SubscriptionService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,10 +18,12 @@ public class DataSeeder implements CommandLineRunner {
 
     private final RoleService roleService;
     private final CountryService countryService;
+    private final SubscriptionService subscriptionService;
 
-    public DataSeeder(RoleService roleService, CountryService countryService) {
+    public DataSeeder(RoleService roleService, CountryService countryService, SubscriptionService subscriptionService) {
         this.roleService = roleService;
         this.countryService = countryService;
+        this.subscriptionService = subscriptionService;
     }
 
     @Override
@@ -80,6 +84,9 @@ public class DataSeeder implements CommandLineRunner {
         createCountryIfNotExists("UYU", "Uruguayan Peso", "UY", false, "UY", "Uruguay", "es_UY", false);
         createCountryIfNotExists("PEN", "Peruvian Sol", "PE", false, "PE", "Peru", "es_PE", false);
         createCountryIfNotExists("TZS", "Tanzanian Shilling", "TZ", true, "TZ", "Tanzania", "sw_TZ", true);
+
+        // Seed subscriptions
+        createSubscriptionIfNotExists(0.0, 0.0,"Trial", "trl", true);
     }
 
 //    private void createRoleIfNotExists(String roleName) {
@@ -116,6 +123,28 @@ public class DataSeeder implements CommandLineRunner {
             country.setCanDelete(true);
 
             countryService.create(country);
+        }
+    }
+    @Transactional
+    protected void createSubscriptionIfNotExists(
+            Double amount, Double discount, String packageName, String packageCode, Boolean isTrial
+    ) {
+        final boolean subscriptionExists = subscriptionService.packageCodeExists(packageCode);
+
+        if (!subscriptionExists) {
+            SubscriptionDTO subscription = new SubscriptionDTO();
+
+            subscription.setAmount(amount);
+            subscription.setDiscount(discount);
+            subscription.setPackageCode(packageCode);
+            subscription.setPackageName(packageName);
+            subscription.setIsTrial(isTrial);
+            subscription.setStatus(true);
+            subscription.setCanDelete(true);
+            subscription.setIsArchived(true);
+
+
+            subscriptionService.create(subscription);
         }
     }
 }
