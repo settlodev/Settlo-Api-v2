@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/location_subscriptions/{locationId}", produces = MediaType.APPLICATION_JSON_VALUE)
-@Tag(name = "Location Subscription Endpoints")
+@Tag(name = "Location Subscription Endpoints ")
 public class LocationSubscriptionResource {
 
     private final LocationSubscriptionService locationSubscriptionService;
