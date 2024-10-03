@@ -97,6 +97,12 @@
             <artifactId>sentry-spring-boot-starter-jakarta</artifactId>
             <version>7.14.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>5.9</version>
+        </dependency>
+
     </dependencies>
 
     <build>
