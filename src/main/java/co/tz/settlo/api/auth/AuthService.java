@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -88,24 +87,22 @@ public class AuthService implements UserDetailsService {
 
     @Transactional
     public UUID generatePasswordResetToken(String email) {
-        logger.info("Deleting token with email {}", email);
-        passwordResetTokenRepository.deleteByEmail(email);
+        PasswordResetToken passwordResetToken = passwordResetTokenRepository.findByEmail(email)
+                .orElse(new PasswordResetToken());
 
-        logger.info("Creating token with email {}", email);
-
-        // Create and save new token
-        PasswordResetToken passwordResetToken = new PasswordResetToken();
-        passwordResetToken.setUsed(false);
         passwordResetToken.setEmail(email);
+        passwordResetToken.setUsed(false);
+        passwordResetToken.setTokenId(UUID.randomUUID());
         passwordResetToken.setExpiresAt(LocalDateTime.now().plusMinutes(10));
-
-        logger.info("Creating token with details {}", passwordResetToken.toString());
 
         PasswordResetToken savedToken = passwordResetTokenRepository.save(passwordResetToken);
 
-        logger.info("Saved token is {}", savedToken.toString());
+        return savedToken.getTokenId();
+    }
 
-        return savedToken.getId();
+    @Transactional
+    public void deleteByEmail(String email) {
+        refreshTokenRepository.deleteByEmail(email);
     }
 
     @Transactional(readOnly = true)
@@ -142,10 +139,5 @@ public class AuthService implements UserDetailsService {
                 .build();
 
         refreshTokenRepository.save(refreshToken);
-    }
-
-    @Transactional
-    public void deleteByEmail(String email) {
-        refreshTokenRepository.deleteByEmail(email);
     }
 }
