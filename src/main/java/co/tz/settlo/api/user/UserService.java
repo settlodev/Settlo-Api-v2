@@ -19,6 +19,8 @@ import java.util.UUID;
 
 import co.tz.settlo.api.util.UniqueIdGenerator;
 import io.sentry.Sentry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserService {
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     private final UserRepository userRepository;
     private final CountryRepository countryRepository;
@@ -141,7 +144,8 @@ public class UserService {
     }
 
     @Transactional
-    public UUID verifyToken(UUID token) {
+    public UUID verifyToken(final UUID token) {
+        logger.info("Verifying token {}", token);
         VerificationToken tokenData = verificationTokenRepository.findById(token)
                 .orElseThrow(() -> {
                     Sentry.captureException(new Error(TOKEN_NOT_FOUND + ": " + token));
