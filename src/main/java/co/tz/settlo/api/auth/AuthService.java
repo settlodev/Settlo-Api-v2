@@ -83,7 +83,7 @@ public class AuthService implements UserDetailsService {
         throw new BadCredentialsException("Invalid refresh token");
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public UUID generatePasswordResetToken(String email) {
         final Optional<PasswordResetToken> currentToken = passwordResetTokenRepository.findByEmail(email);
         currentToken.ifPresent(verificationToken -> passwordResetTokenRepository.deleteById(verificationToken.getId()));
