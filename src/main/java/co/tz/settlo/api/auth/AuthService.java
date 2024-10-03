@@ -88,10 +88,10 @@ public class AuthService implements UserDetailsService {
 
     @Transactional
     public UUID generatePasswordResetToken(String email) {
-        final Optional<PasswordResetToken> currentToken = passwordResetTokenRepository.findByEmail(email);
-        currentToken.ifPresent(verificationToken -> passwordResetTokenRepository.deleteById(verificationToken.getId()));
+        logger.info("Deleting token with email {}", email);
+        passwordResetTokenRepository.deleteByEmail(email);
 
-        logger.info("Checking token with email {}", email);
+        logger.info("Creating token with email {}", email);
 
         // Create and save new token
         PasswordResetToken passwordResetToken = new PasswordResetToken();
@@ -99,11 +99,11 @@ public class AuthService implements UserDetailsService {
         passwordResetToken.setEmail(email);
         passwordResetToken.setExpiresAt(LocalDateTime.now().plusMinutes(10));
 
-        logger.info("Creating token with details {}", passwordResetToken);
+        logger.info("Creating token with details {}", passwordResetToken.toString());
 
         PasswordResetToken savedToken = passwordResetTokenRepository.save(passwordResetToken);
 
-        logger.info("Saved token is {}", savedToken);
+        logger.info("Saved token is {}", savedToken.toString());
 
         return savedToken.getId();
     }
