@@ -1,6 +1,7 @@
 package co.tz.settlo.api.product_csv_parser;
 
 import co.tz.settlo.api.product_csv_parser.exceptions.CsvParseException;
+import co.tz.settlo.api.product_csv_parser.exceptions.MissingCategoryException;
 import co.tz.settlo.api.product_csv_parser.exceptions.MissingColumnException;
 import com.opencsv.bean.CsvToBeanBuilder;
 
@@ -24,6 +25,25 @@ public class ProductsCsv {
             stringBuilder.append(product).append("\n");
         }
         return stringBuilder.toString();
+    }
+
+    /// Perform checks to make sure the products CSV file meets all
+    /// the expected requirements
+    void performChecks() {
+        checkMissingColumn();
+        checkMissingCategoryForProducts();
+    }
+
+    /// Checks if any product in the csv is missing a column
+    /// Throws MissingCategoryException when a product has no category
+    void checkMissingCategoryForProducts() {
+        int currentLineNumber = 1;
+        for (final Product product: products) {
+            if (product.category.trim().isEmpty()) {
+                throw new MissingCategoryException(currentLineNumber, product.product);
+            }
+            currentLineNumber ++;
+        }
     }
 
     /// Checks for missing columns in the Products CSV
