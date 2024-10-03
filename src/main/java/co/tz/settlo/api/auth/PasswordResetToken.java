@@ -25,6 +25,9 @@ public class PasswordResetToken {
     @UuidGenerator
     private UUID id;
 
+    @Column(nullable = false, unique = true)
+    private UUID tokenId;
+
     @Column(nullable = false, unique = true, length = 100)
     private String email;
 

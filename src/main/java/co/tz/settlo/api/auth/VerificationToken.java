@@ -25,6 +25,9 @@ public class VerificationToken {
     @UuidGenerator
     private UUID id;
 
+    @Column(nullable = false, unique = true)
+    private UUID tokenId;
+
     @Column(nullable = false, unique = true, length = 100)
     private String email;
 
@@ -37,15 +40,4 @@ public class VerificationToken {
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private OffsetDateTime dateCreated;
-
-    @Override
-    public String toString() {
-        return "VerificationToken{" +
-                "id=" + id +
-                ", email='" + email + '\'' +
-                ", used=" + used +
-                ", expiresAt=" + expiresAt +
-                ", dateCreated=" + dateCreated +
-                '}';
-    }
 }
