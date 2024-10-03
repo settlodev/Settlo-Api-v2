@@ -1,12 +1,13 @@
 package co.tz.settlo.api.auth;
 
 import co.tz.settlo.api.JwtHelper;
-import co.tz.settlo.api.business.Business;
 import co.tz.settlo.api.business.BusinessRepository;
 import co.tz.settlo.api.user.User;
 import co.tz.settlo.api.user.UserRepository;
 import co.tz.settlo.api.util.NotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,6 +25,8 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class AuthService implements UserDetailsService {
+    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
+
     private final UserRepository userRepository;
     private final LoginAttemptRepository loginAttemptRepository;
     private final RefreshTokenRepository refreshTokenRepository;
@@ -88,13 +91,19 @@ public class AuthService implements UserDetailsService {
         final Optional<PasswordResetToken> currentToken = passwordResetTokenRepository.findByEmail(email);
         currentToken.ifPresent(verificationToken -> passwordResetTokenRepository.deleteById(verificationToken.getId()));
 
+        logger.info("Checking token with email {}", email);
+
         // Create and save new token
         PasswordResetToken passwordResetToken = new PasswordResetToken();
         passwordResetToken.setUsed(false);
         passwordResetToken.setEmail(email);
         passwordResetToken.setExpiresAt(LocalDateTime.now().plusMinutes(10));
 
+        logger.info("Creating token with details {}", passwordResetToken);
+
         PasswordResetToken savedToken = passwordResetTokenRepository.save(passwordResetToken);
+
+        logger.info("Saved token is {}", savedToken);
 
         return savedToken.getId();
     }
