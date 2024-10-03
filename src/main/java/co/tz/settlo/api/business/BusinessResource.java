@@ -69,9 +69,9 @@ public class BusinessResource {
     @PostMapping("/create")
     @ApiResponse(responseCode = "201")
     @Operation(summary = "Create a business", description = "Create a business by supplying it's body as JSON")
-    public ResponseEntity<UUID> createBusiness(@RequestBody @Valid final BusinessCreateDTO businessDTO) {
-        final UUID createdId = businessService.create(businessDTO);
-        return new ResponseEntity<>(createdId, HttpStatus.CREATED);
+    public ResponseEntity<BusinessResponseDTO> createBusiness(@RequestBody @Valid final BusinessCreateDTO businessDTO) {
+        final BusinessResponseDTO createdBusiness = businessService.create(businessDTO);
+        return new ResponseEntity<>(createdBusiness, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
