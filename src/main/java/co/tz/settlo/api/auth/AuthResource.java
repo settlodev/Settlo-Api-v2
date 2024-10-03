@@ -99,7 +99,7 @@ public class AuthResource {
     // @Operation(summary = "Verify token")
     @GetMapping("/verify-token/{token}")
     @Operation(summary = "Verify token", description = "Verify generated tokens")
-    public ResponseEntity<UUID> verifyToken(@PathVariable UUID token) {
+    public ResponseEntity<UUID> verifyToken(@Valid @PathVariable UUID token) {
         return ResponseEntity.ok(userService.verifyToken(token));
     }
 

@@ -2,6 +2,7 @@ package co.tz.settlo.api.location_subscription;
 
 import co.tz.settlo.api.common.models.SubscriptionStatus;
 import co.tz.settlo.api.subscription.Subscription;
+import co.tz.settlo.api.util.NotFoundException;
 import jakarta.persistence.*;
 
 import java.time.OffsetDateTime;
@@ -58,4 +59,24 @@ public class LocationSubscription {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subscription_id", nullable = false)
     private Subscription subscription;
+
+    /// Creates a Trial Location Subscription
+    ///
+    /// Sets the trial period to 7 Days and Subscription status to Trial
+    public static LocationSubscription createTrial(Subscription trialSubscription) {
+        OffsetDateTime now =OffsetDateTime.now() ;
+        LocationSubscription trialLocationSubscription = new LocationSubscription();
+
+        trialLocationSubscription.setActive(true);
+        trialLocationSubscription.setStartDate(now);
+        trialLocationSubscription.setEndDate(now.plusDays(7));
+        trialLocationSubscription.setActive(true);
+        trialLocationSubscription.setCanDelete(false);
+        trialLocationSubscription.setIsArchived(false);
+        trialLocationSubscription.setStatus(true);
+        trialLocationSubscription.setSubscription(trialSubscription);
+        trialLocationSubscription.setSubscriptionStatus(SubscriptionStatus.TRIAL);
+
+        return trialLocationSubscription;
+    }
 }
