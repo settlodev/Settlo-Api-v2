@@ -2,6 +2,7 @@ package co.tz.settlo.api.auth;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.UuidGenerator;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -19,7 +20,9 @@ import java.util.UUID;
 @Builder
 public class RefreshToken {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(nullable = false, updatable = false)
+    @GeneratedValue
+    @UuidGenerator
     private UUID id;
 
     @Column(nullable = false, unique = true)

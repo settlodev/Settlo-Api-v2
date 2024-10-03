@@ -20,7 +20,7 @@ import java.util.UUID;
 @Builder
 public class PasswordResetToken {
     @Id
-    @Column(nullable = false, updatable = false, columnDefinition = "char(36)")
+    @Column(nullable = false, updatable = false)
     @GeneratedValue
     @UuidGenerator
     private UUID id;

@@ -92,7 +92,7 @@ public class AuthService implements UserDetailsService {
         PasswordResetToken passwordResetToken = new PasswordResetToken();
         passwordResetToken.setUsed(false);
         passwordResetToken.setEmail(email);
-        passwordResetToken.setExpiresAt(LocalDateTime.now().plusHours(1));
+        passwordResetToken.setExpiresAt(LocalDateTime.now().plusMinutes(10));
 
         PasswordResetToken savedToken = passwordResetTokenRepository.save(passwordResetToken);
 

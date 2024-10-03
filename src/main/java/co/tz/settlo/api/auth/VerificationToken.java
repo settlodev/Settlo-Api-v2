@@ -25,7 +25,6 @@ public class VerificationToken {
     @UuidGenerator
     private UUID id;
 
-
     @Column(nullable = false, unique = true, length = 100)
     private String email;
 
