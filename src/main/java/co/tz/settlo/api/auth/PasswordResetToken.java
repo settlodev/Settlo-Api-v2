@@ -37,4 +37,15 @@ public class PasswordResetToken {
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private OffsetDateTime dateCreated;
+
+    @Override
+    public String toString() {
+        return "PasswordResetToken{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", used=" + used +
+                ", expiresAt=" + expiresAt +
+                ", dateCreated=" + dateCreated +
+                '}';
+    }
 }
