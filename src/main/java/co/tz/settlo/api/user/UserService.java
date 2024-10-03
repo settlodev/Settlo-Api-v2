@@ -15,6 +15,7 @@ import co.tz.settlo.api.util.ReferencedWarning;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import co.tz.settlo.api.util.UniqueIdGenerator;
@@ -132,21 +133,35 @@ public class UserService {
 
     @Transactional
     public UUID generateVerificationToken(String email) {
-        verificationTokenRepository.deleteByEmail(email);
+        VerificationToken verificationToken = verificationTokenRepository.findByEmail(email)
+                .map(token -> {
+                    // Update existing token
+                    token.setUsed(false);
+                    token.setExpiresAt(LocalDateTime.now().plusHours(VERIFICATION_TOKEN_EXPIRY_HOURS));
+                    token.setTokenId(UUID.randomUUID());
+                    return token;
+                })
+                .orElseGet(() -> {
+                    // Create new token
+                    return VerificationToken.builder()
+                            .email(email)
+                            .used(false)
+                            .tokenId(UUID.randomUUID())
+                            .expiresAt(LocalDateTime.now().plusHours(VERIFICATION_TOKEN_EXPIRY_HOURS))
+                            .build();
+                });
 
-        VerificationToken verificationToken = VerificationToken.builder()
-                .used(false)
-                .email(email)
-                .expiresAt(LocalDateTime.now().plusHours(VERIFICATION_TOKEN_EXPIRY_HOURS))
-                .build();
+        VerificationToken savedToken = verificationTokenRepository.save(verificationToken);
+        logger.info("Created/Updated verification token with ID: {} for email: {}", savedToken.getId(), email);
 
-        return verificationTokenRepository.save(verificationToken).getId();
+        return savedToken.getTokenId();
     }
+
 
     @Transactional
     public UUID verifyToken(final UUID token) {
         logger.info("Verifying token {}", token);
-        VerificationToken tokenData = verificationTokenRepository.findById(token)
+        VerificationToken tokenData = verificationTokenRepository.findByTokenId(token)
                 .orElseThrow(() -> {
                     Sentry.captureException(new Error(TOKEN_NOT_FOUND + ": " + token));
                     return new NotFoundException(TOKEN_NOT_FOUND);
@@ -169,7 +184,7 @@ public class UserService {
 
     @Transactional
     public UUID updatePassword(UpdatePasswordDTO updatePasswordDTO) {
-        PasswordResetToken tokenData = passwordResetTokenRepository.findById(updatePasswordDTO.token())
+        PasswordResetToken tokenData = passwordResetTokenRepository.findByTokenId(updatePasswordDTO.token())
                 .orElseThrow(() -> new NotFoundException(TOKEN_NOT_FOUND));
 
         if (tokenData.getUsed()) {
