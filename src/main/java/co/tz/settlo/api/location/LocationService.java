@@ -142,7 +142,7 @@ public class LocationService {
     }
 
     @Transactional
-    public UUID create(final LocationCreateDTO locationDTO) {
+    public LocationResponseDTO create(final LocationCreateDTO locationDTO) {
         // Setting up default location settings when just creating a location
         LocationSetting defaultLocationSetting = LocationSetting.createDefault();
 
@@ -172,7 +172,13 @@ public class LocationService {
 
         userRepository.save(user);
 
-        return savedLocation.getId();
+        LocationResponseDTO locationResponseDTO =  mapToDTO(savedLocation, new LocationResponseDTO());
+
+        // Setting up for the ResponseDTO EndDate and SubscriptionStatus
+        locationResponseDTO.setEndDate(trialLocationSubscription.getEndDate());
+        locationResponseDTO.setSubscriptionStatus(trialLocationSubscription.getSubscriptionStatus());
+
+        return locationResponseDTO;
     }
 
     @Transactional
