@@ -137,7 +137,7 @@ public class BusinessService {
     }
 
     @Transactional
-    public UUID create(final BusinessCreateDTO businessDTO) {
+    public BusinessResponseDTO create(final BusinessCreateDTO businessDTO) {
         final Business business = new Business();
         mapCreateToEntity(businessDTO, business);
 
@@ -152,7 +152,7 @@ public class BusinessService {
         userRepository.save(user);
         // ********************************************************************************************** //
 
-        return savedBusiness.getId();
+        return mapToDTO(savedBusiness, new BusinessResponseDTO());
     }
 
     public void update(final UUID id, final BusinessDTO businessDTO) {
@@ -203,7 +203,7 @@ public class BusinessService {
         businessDTO.setUser(business.getUser() == null ? null : business.getUser().getId());
         businessDTO.setCountry(business.getCountry() == null ? null : business.getCountry().getId());
         businessDTO.setCountryName(business.getCountry().getName());
-        businessDTO.setTotalLocations(business.getLocations().size());
+        businessDTO.setTotalLocations(business.getLocations() == null ? 0 : business.getLocations().size());
         return businessDTO;
     }
 
