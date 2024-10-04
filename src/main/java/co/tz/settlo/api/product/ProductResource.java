@@ -1,5 +1,6 @@
 package co.tz.settlo.api.product;
 
+import co.tz.settlo.api.product_csv_parser.ProductsCsv;
 import co.tz.settlo.api.util.ReferencedException;
 import co.tz.settlo.api.util.ReferencedWarning;
 import co.tz.settlo.api.util.RestApiFilter.FieldType;
@@ -74,6 +75,17 @@ public class ProductResource {
 
         final UUID createdId = productService.create(productDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/import-products")
+    @ApiResponse(responseCode = "201")
+    @Operation(summary = "Import products in a CSV format", description = "The body of this request should be text containing the contents of the CSV")
+    public ResponseEntity<HttpStatus> importProducts(@PathVariable UUID locationId, @RequestBody @Valid final String productsCsvText) {
+        ProductsCsv productsCsv = new ProductsCsv(productsCsvText);
+
+        productsCsv.performChecks();
+
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")

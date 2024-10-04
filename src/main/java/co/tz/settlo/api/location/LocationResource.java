@@ -54,13 +54,36 @@ public class LocationResource {
     }
 
     @GetMapping
-    @Operation(summary = "Get all Locations")
+    @Operation(
+            summary = "Get all Locations",
+            description = """
+                    Subscription statuses that can be return include:
+                    - PAST_DUE
+                    - DUE
+                    - EXPIRED
+                    - OK
+                    - ALMOST_DUE
+                    - TRIAL
+                    """
+
+    )
     public ResponseEntity<List<LocationResponseDTO>> getAllLocations(@PathVariable final UUID businessId) {
         return ResponseEntity.ok(locationService.findAll(businessId));
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Get a Location")
+    @Operation(
+            summary = "Get a Location",
+            description = """
+                    Subscription statuses that can be return include:
+                    - PAST_DUE
+                    - DUE
+                    - EXPIRED
+                    - OK
+                    - ALMOST_DUE
+                    - TRIAL
+                    """
+    )
     public ResponseEntity<LocationResponseDTO> getLocation(@PathVariable final UUID businessId, @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(locationService.get(id));
     }
