@@ -5,18 +5,24 @@ import co.tz.settlo.api.product_csv_parser.exceptions.MissingColumnException;
 import co.tz.settlo.api.product_csv_parser.exceptions.MissingFieldException;
 import com.opencsv.bean.CsvToBeanBuilder;
 
+import java.io.StringReader;
 import java.util.List;
 
 /// Represents all products rows in the CSV
 public class ProductsCsv {
     final List<Product> products;
 
-    ProductsCsv(CsvToBeanBuilder<Product> csvToBeanBuilder) {
+    public ProductsCsv(String csvText) {
+        StringReader stringReader = new StringReader(csvText);
+        CsvToBeanBuilder<Product> csvToBeanBuilder = new CsvToBeanBuilder<>(stringReader);
+
         try {
             this.products = csvToBeanBuilder.withType(Product.class).build().parse();
         } catch (RuntimeException e) {
             throw new CsvParseException(e);
         }
+
+
     }
 
     public String toString() {
@@ -29,7 +35,7 @@ public class ProductsCsv {
 
     /// Perform checks to make sure the products CSV file meets all
     /// the expected requirements
-    void performChecks() {
+    public void performChecks() {
         checkMissingColumn();
         checkMissingField();
     }
