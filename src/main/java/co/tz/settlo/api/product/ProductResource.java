@@ -79,7 +79,23 @@ public class ProductResource {
 
     @PostMapping("/import-products")
     @ApiResponse(responseCode = "201")
-    @Operation(summary = "Import products in a CSV format", description = "The body of this request should be text containing the contents of the CSV")
+    @Operation(
+            summary = "Import products in a CSV format",
+            description = """
+                    The body of this request should be text containing the contents of the CSV. The CSV file should contain the following columns.
+                    - product (non blank string).
+                    - category (non blank string).
+                    - variant (non blank string).
+                    - price (non blank floating point).
+                    - cost (non blank floating point).
+                    - quantity (non blank floating point).
+                    - SKU (string - can be blank).
+                    - barcode (string - can be blank).
+                    
+                    For the product, category and variant columns, these should not be blank.
+                    For the price, cost and quantity, these should also not be blank and the value should be valid floating points. 400 BAD REQUEST will be returned
+                    with the error message explaining the violation when these conditions are not met.
+                    """)
     public ResponseEntity<HttpStatus> importProducts(@PathVariable UUID locationId, @RequestBody @Valid final String productsCsvText) {
         ProductsCsv productsCsv = new ProductsCsv(productsCsvText);
 
