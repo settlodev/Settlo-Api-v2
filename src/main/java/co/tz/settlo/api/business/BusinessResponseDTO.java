@@ -1,11 +1,13 @@
 package co.tz.settlo.api.business;
 
+import co.tz.settlo.api.location.LocationResponseDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.UUID;
 
 
@@ -126,4 +128,5 @@ public class BusinessResponseDTO {
     @NotNull
     private int totalLocations;
 
+    private List<LocationResponseDTO> allLocations;
 }
