@@ -194,7 +194,7 @@ public class LocationService {
         locationRepository.deleteById(id);
     }
 
-    private LocationResponseDTO mapToDTO(final Location location, final LocationResponseDTO locationDTO) {
+    public static LocationResponseDTO mapToDTO(final Location location, final LocationResponseDTO locationDTO) {
         locationDTO.setId(location.getId());
         locationDTO.setName(location.getName());
         locationDTO.setPhone(location.getPhone());

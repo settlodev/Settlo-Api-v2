@@ -10,9 +10,7 @@ import co.tz.settlo.api.expense.Expense;
 import co.tz.settlo.api.expense.ExpenseRepository;
 import co.tz.settlo.api.expense_category.ExpenseCategory;
 import co.tz.settlo.api.expense_category.ExpenseCategoryRepository;
-import co.tz.settlo.api.location.Location;
-import co.tz.settlo.api.location.LocationDTO;
-import co.tz.settlo.api.location.LocationRepository;
+import co.tz.settlo.api.location.*;
 import co.tz.settlo.api.product.Product;
 import co.tz.settlo.api.product.ProductRepository;
 import co.tz.settlo.api.reservation.Reservation;
@@ -39,6 +37,8 @@ import co.tz.settlo.api.user.User;
 import co.tz.settlo.api.user.UserRepository;
 import co.tz.settlo.api.util.NotFoundException;
 import co.tz.settlo.api.util.ReferencedWarning;
+
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -204,6 +204,7 @@ public class BusinessService {
         businessDTO.setCountry(business.getCountry() == null ? null : business.getCountry().getId());
         businessDTO.setCountryName(business.getCountry().getName());
         businessDTO.setTotalLocations(business.getLocations() == null ? 0 : business.getLocations().size());
+        businessDTO.setAllLocations(business.getLocations() == null ? Collections.emptyList() :business.getLocations().stream().map(location -> LocationService.mapToDTO(location, new LocationResponseDTO())).toList());
         return businessDTO;
     }
 
