@@ -97,6 +97,7 @@ public class ProductsCsv {
                 throw new MissingFieldException(currentLineNumber, "variant");
             }
 
+            currentLineNumber ++;
         }
     }
 }
