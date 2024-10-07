@@ -29,14 +29,14 @@ public class ExpenseDTO {
     private BigDecimal amount;
 
     @NotNull
-    private Boolean status;
+    private Boolean status = true;
 
     @NotNull
     @Size(max = 255)
-    private String isArchived;
+    private String isArchived = "";
 
     @NotNull
-    private Boolean canDelete;
+    private Boolean canDelete = true;
 
     private UUID expenseCategory;
 
