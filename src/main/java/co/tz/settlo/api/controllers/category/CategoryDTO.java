@@ -24,14 +24,11 @@ public class CategoryDTO {
     @CategoryParentIdUnique
     private UUID parentId;
 
-    @NotNull
     private Boolean status = true;
 
-    @NotNull
     @JsonProperty("isArchived")
     private Boolean isArchived = false;
 
-    @NotNull
     private Boolean canDelete = true;
 
     private UUID location;
