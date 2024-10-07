@@ -46,7 +46,7 @@ public class CustomerResource {
 
     @GetMapping("/{id}")
     @Operation(summary = "Get a customer")
-    public ResponseEntity<CustomerCreateDTO> getCustomer(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
+    public ResponseEntity<CustomerDTO> getCustomer(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(customerService.get(id));
     }
 
@@ -68,7 +68,7 @@ public class CustomerResource {
     @PostMapping("/create")
     @ApiResponse(responseCode = "201")
     @Operation(summary = "Create a customer")
-    public ResponseEntity<UUID> createCustomer(@PathVariable UUID locationId, @RequestBody @Valid final CustomerDTO customerDTO) {
+    public ResponseEntity<UUID> createCustomer(@PathVariable UUID locationId, @RequestBody @Valid final CustomerCreateDTO customerDTO) {
         customerDTO.setLocation(locationId);
 
         final UUID createdId = customerService.create(customerDTO);
