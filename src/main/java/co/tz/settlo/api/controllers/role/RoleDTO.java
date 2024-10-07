@@ -21,14 +21,14 @@ public class RoleDTO {
     private String description;
 
     @NotNull
-    private Boolean canDelete;
+    private Boolean canDelete = true;
 
     @NotNull
     private Boolean status;
 
     @NotNull
     @JsonProperty("isArchived")
-    private Boolean isArchived;
+    private Boolean isArchived  = false;
 
     @NotNull
     private UUID business;
