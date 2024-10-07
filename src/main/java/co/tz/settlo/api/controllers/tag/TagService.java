@@ -84,9 +84,9 @@ public class TagService {
 
     private Tag mapToEntity(final TagDTO tagDTO, final Tag tag) {
         tag.setName(tagDTO.getName());
-        tag.setStatus(tagDTO.getStatus());
-        tag.setIsArchived(tagDTO.getIsArchived());
-        tag.setCanDelete(tagDTO.getCanDelete());
+        tag.setStatus(true);
+        tag.setIsArchived(false);
+        tag.setCanDelete(true);
         return tag;
     }
 

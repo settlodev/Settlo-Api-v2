@@ -19,14 +19,11 @@ public class TagDTO {
     @TagNameUnique
     private String name;
 
-    @NotNull
     private Boolean status;
 
-    @NotNull
     @JsonProperty("isArchived")
     private Boolean isArchived;
 
-    @NotNull
     private Boolean canDelete;
 
     private UUID locationId;
