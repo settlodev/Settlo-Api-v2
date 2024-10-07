@@ -1,0 +1,108 @@
+package co.tz.settlo.api.controllers.brand;
+
+import co.tz.settlo.api.controllers.product.Product;
+import co.tz.settlo.api.controllers.product.ProductRepository;
+import co.tz.settlo.api.util.NotFoundException;
+import co.tz.settlo.api.util.ReferencedWarning;
+import java.util.List;
+import java.util.UUID;
+
+import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import co.tz.settlo.api.util.RestApiFilter.SearchSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+
+@Service
+public class BrandService {
+
+    private final BrandRepository brandRepository;
+    private final ProductRepository productRepository;
+
+    public BrandService(final BrandRepository brandRepository,
+            final ProductRepository productRepository) {
+        this.brandRepository = brandRepository;
+        this.productRepository = productRepository;
+    }
+
+    @Transactional(readOnly = true)
+    public List<BrandDTO> findAll(final UUID locationId) {
+        final List<Brand> brands = brandRepository.findAllByLocationId(locationId);
+        return brands.stream()
+                .map(brand -> mapToDTO(brand, new BrandDTO()))
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<BrandDTO> searchAll(SearchRequest request) {
+        SearchSpecification<Brand> specification = new SearchSpecification<>(request);
+        Pageable pageable = SearchSpecification.getPageable(request.getPage(), request.getSize());
+        Page<Brand> brandPage = brandRepository.findAll(specification, pageable);
+
+        return brandPage.map(brand -> mapToDTO(brand, new BrandDTO()));
+    }
+
+    @Transactional(readOnly = true)
+    public BrandDTO get(final UUID id) {
+        return brandRepository.findById(id)
+                .map(brand -> mapToDTO(brand, new BrandDTO()))
+                .orElseThrow(NotFoundException::new);
+    }
+
+    @Transactional
+    public UUID create(final BrandDTO brandDTO) {
+        final Brand brand = new Brand();
+        mapToEntity(brandDTO, brand);
+        return brandRepository.save(brand).getId();
+    }
+
+    @Transactional
+    public void update(final UUID id, final BrandDTO brandDTO) {
+        final Brand brand = brandRepository.findById(id)
+                .orElseThrow(NotFoundException::new);
+        mapToEntity(brandDTO, brand);
+        brandRepository.save(brand);
+    }
+
+    @Transactional
+    public void delete(final UUID id) {
+        brandRepository.deleteById(id);
+    }
+
+    private BrandDTO mapToDTO(final Brand brand, final BrandDTO brandDTO) {
+        brandDTO.setId(brand.getId());
+        brandDTO.setName(brand.getName());
+        brandDTO.setStatus(brand.getStatus());
+        brandDTO.setCanDelete(brand.getCanDelete());
+        brandDTO.setIsArchived(brand.getIsArchived());
+        return brandDTO;
+    }
+
+    private Brand mapToEntity(final BrandDTO brandDTO, final Brand brand) {
+        brand.setName(brandDTO.getName());
+        brand.setStatus(brandDTO.getStatus());
+        brand.setCanDelete(brandDTO.getCanDelete());
+        brand.setIsArchived(brandDTO.getIsArchived());
+        return brand;
+    }
+
+    public boolean nameExists(final String name) {
+        return brandRepository.existsByNameIgnoreCase(name);
+    }
+
+    public ReferencedWarning getReferencedWarning(final UUID id) {
+        final ReferencedWarning referencedWarning = new ReferencedWarning();
+        final Brand brand = brandRepository.findById(id)
+                .orElseThrow(NotFoundException::new);
+        final Product brandProduct = productRepository.findFirstByBrand(brand);
+        if (brandProduct != null) {
+            referencedWarning.setKey("brand.product.brand.referenced");
+            referencedWarning.addParam(brandProduct.getId());
+            return referencedWarning;
+        }
+        return null;
+    }
+
+}

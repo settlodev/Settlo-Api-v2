@@ -1,0 +1,12 @@
+package co.tz.settlo.api.controllers.auth;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+import java.util.UUID;
+
+public interface PasswordResetTokenRepository extends JpaRepository<PasswordResetToken, UUID> {
+    Optional<PasswordResetToken> findByEmail(String email);
+    Optional<PasswordResetToken> findByTokenId(UUID token);
+    void deleteByEmail(String email);
+}
