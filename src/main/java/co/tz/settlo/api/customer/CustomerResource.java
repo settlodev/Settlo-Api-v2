@@ -46,7 +46,7 @@ public class CustomerResource {
 
     @GetMapping("/{id}")
     @Operation(summary = "Get a customer")
-    public ResponseEntity<CustomerDTO> getCustomer(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
+    public ResponseEntity<CustomerCreateDTO> getCustomer(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(customerService.get(id));
     }
 

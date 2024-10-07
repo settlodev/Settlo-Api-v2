@@ -49,9 +49,9 @@ public class CustomerService {
     }
 
     @Transactional(readOnly = true)
-    public CustomerDTO get(final UUID id) {
+    public CustomerCreateDTO get(final UUID id) {
         return customerRepository.findById(id)
-                .map(customer -> mapToDTO(customer, new CustomerDTO()))
+                .map(customer -> mapCreateToDTO(customer, new CustomerCreateDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
@@ -84,6 +84,22 @@ public class CustomerService {
         customerRepository.deleteById(id);
     }
 
+    private CustomerCreateDTO mapCreateToDTO(final Customer customer, final CustomerCreateDTO customerDTO) {
+        customerDTO.setId(customer.getId());
+        customerDTO.setFirstName(customer.getFirstName());
+        customerDTO.setLastName(customer.getLastName());
+        customerDTO.setGender(customer.getGender());
+        customerDTO.setPhoneNumber(customer.getPhoneNumber());
+        customerDTO.setEmail(customer.getEmail());
+        customerDTO.setAllowNotifications(customer.getAllowNotifications());
+        customerDTO.setStatus(customer.getStatus());
+        customerDTO.setIsArchived(customer.getIsArchived());
+        customerDTO.setCanDelete(customer.getCanDelete());
+        customerDTO.setStatus(true);
+        customerDTO.setCanDelete(true);
+        customerDTO.setIsArchived(false);
+        return customerDTO;
+    }
     private CustomerDTO mapToDTO(final Customer customer, final CustomerDTO customerDTO) {
         customerDTO.setId(customer.getId());
         customerDTO.setFirstName(customer.getFirstName());
