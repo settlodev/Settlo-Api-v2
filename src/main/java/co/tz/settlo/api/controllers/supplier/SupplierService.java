@@ -63,14 +63,14 @@ public class SupplierService {
     }
 
     @Transactional
-    public UUID create(final SupplierDTO supplierDTO) {
+    public UUID create(final SupplierRequestDTO supplierDTO) {
         final Supplier supplier = new Supplier();
         mapToEntity(supplierDTO, supplier);
         return supplierRepository.save(supplier).getId();
     }
 
     @Transactional
-    public void update(final UUID id, final SupplierDTO supplierDTO) {
+    public void update(final UUID id, final SupplierRequestDTO supplierDTO) {
         final Supplier supplier = supplierRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
         mapToEntity(supplierDTO, supplier);
@@ -95,13 +95,13 @@ public class SupplierService {
         return supplierDTO;
     }
 
-    private Supplier mapToEntity(final SupplierDTO supplierDTO, final Supplier supplier) {
+    private Supplier mapToEntity(final SupplierRequestDTO supplierDTO, final Supplier supplier) {
         supplier.setName(supplierDTO.getName());
         supplier.setPhoneNumber(supplierDTO.getPhoneNumber());
         supplier.setEmail(supplierDTO.getEmail());
-        supplier.setStatus(supplierDTO.getStatus());
-        supplier.setCanDelete(supplierDTO.getCanDelete());
-        supplier.setIsArchived(supplierDTO.getIsArchived());
+        supplier.setStatus(true);
+        supplier.setCanDelete(true);
+        supplier.setIsArchived(false);
         final Business business = supplierDTO.getBusiness() == null ? null : businessRepository.findById(supplierDTO.getBusiness())
                 .orElseThrow(() -> new NotFoundException("business not found"));
         supplier.setBusiness(business);

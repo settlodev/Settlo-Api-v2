@@ -68,7 +68,7 @@ public class SupplierResource {
     @PostMapping("/create")
     @ApiResponse(responseCode = "201")
     @Operation(summary = "Create Supplier")
-    public ResponseEntity<UUID> createSupplier(@PathVariable final UUID locationId, @RequestBody @Valid final SupplierDTO supplierDTO) {
+    public ResponseEntity<UUID> createSupplier(@PathVariable final UUID locationId, @RequestBody @Valid final SupplierRequestDTO supplierDTO) {
         supplierDTO.setLocation(locationId);
 
         final UUID createdId = supplierService.create(supplierDTO);
@@ -78,7 +78,7 @@ public class SupplierResource {
     @PutMapping("/{id}")
     @Operation(summary = "Create Supplier")
     public ResponseEntity<UUID> updateSupplier(@PathVariable final UUID locationId, @PathVariable(name = "id") final UUID id,
-            @RequestBody @Valid final SupplierDTO supplierDTO) {
+            @RequestBody @Valid final SupplierRequestDTO supplierDTO) {
         supplierDTO.setLocation(locationId);
 
         supplierService.update(id, supplierDTO);
