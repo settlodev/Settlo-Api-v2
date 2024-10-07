@@ -76,7 +76,7 @@ public class SupplierResource {
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Create Supplier")
+    @Operation(summary = "Update Supplier")
     public ResponseEntity<UUID> updateSupplier(@PathVariable final UUID locationId, @PathVariable(name = "id") final UUID id,
             @RequestBody @Valid final SupplierRequestDTO supplierDTO) {
         supplierDTO.setLocation(locationId);
