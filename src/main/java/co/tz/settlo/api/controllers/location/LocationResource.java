@@ -43,9 +43,9 @@ public class LocationResource {
     public Page<LocationResponseDTO> searchLocations(@PathVariable UUID businessId, @RequestBody SearchRequest request) {
         // Enforce Location filter
         FilterRequest businessFilter = new FilterRequest();
-        businessFilter.setKey("business");
+        businessFilter.setKey("business.id");
         businessFilter.setOperator(Operator.EQUAL);
-        businessFilter.setFieldType(FieldType.STRING);
+        businessFilter.setFieldType(FieldType.UUID_STRING);
         businessFilter.setValue(businessId);
 
         request.getFilters().add(businessFilter);
