@@ -1,17 +1,14 @@
 package co.tz.settlo.api.common.services;
 
 
-import co.tz.settlo.api.country.CountryDTO;
-import co.tz.settlo.api.country.CountryService;
-import co.tz.settlo.api.role.RoleDTO;
-import co.tz.settlo.api.role.RoleService;
-import co.tz.settlo.api.subscription.SubscriptionDTO;
-import co.tz.settlo.api.subscription.SubscriptionService;
+import co.tz.settlo.api.controllers.country.CountryDTO;
+import co.tz.settlo.api.controllers.country.CountryService;
+import co.tz.settlo.api.controllers.role.RoleService;
+import co.tz.settlo.api.controllers.subscription.SubscriptionDTO;
+import co.tz.settlo.api.controllers.subscription.SubscriptionService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.UUID;
 
 @Component
 public class DataSeeder implements CommandLineRunner {
