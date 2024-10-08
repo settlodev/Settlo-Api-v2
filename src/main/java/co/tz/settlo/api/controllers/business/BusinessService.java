@@ -17,6 +17,7 @@ import co.tz.settlo.api.controllers.reservation.Reservation;
 import co.tz.settlo.api.controllers.reservation.ReservationRepository;
 import co.tz.settlo.api.controllers.role.Role;
 import co.tz.settlo.api.controllers.role.RoleRepository;
+import co.tz.settlo.api.controllers.role.RoleService;
 import co.tz.settlo.api.controllers.sender_id.SenderId;
 import co.tz.settlo.api.controllers.sender_id.SenderIdRepository;
 import co.tz.settlo.api.controllers.settlement.Settlement;
@@ -45,6 +46,7 @@ import java.util.UUID;
 
 import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
 import co.tz.settlo.api.util.RestApiFilter.SearchSpecification;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -73,7 +75,9 @@ public class BusinessService {
     private final SenderIdRepository senderIdRepository;
     private final CampaignRepository campaignRepository;
     private final StockUsageRepository stockUsageRepository;
+    private final RoleService roleService;
 
+    @Autowired
     public BusinessService(final BusinessRepository businessRepository,
             final UserRepository userRepository, final CountryRepository countryRepository,
             final SettlementAccountRepository settlementAccountRepository,
@@ -87,7 +91,9 @@ public class BusinessService {
             final ReservationRepository reservationRepository,
             final SenderIdRepository senderIdRepository,
             final CampaignRepository campaignRepository,
-            final StockUsageRepository stockUsageRepository) {
+            final StockUsageRepository stockUsageRepository,
+            final RoleService roleService
+    ) {
         this.businessRepository = businessRepository;
         this.userRepository = userRepository;
         this.countryRepository = countryRepository;
@@ -107,6 +113,7 @@ public class BusinessService {
         this.senderIdRepository = senderIdRepository;
         this.campaignRepository = campaignRepository;
         this.stockUsageRepository = stockUsageRepository;
+        this.roleService = roleService;
     }
 
     @Transactional(readOnly = true)
@@ -142,14 +149,21 @@ public class BusinessService {
 
         Business savedBusiness = businessRepository.save(business);
 
-        // ************ Marking business registration complete when we create a business *************** //
+
+        // Marking business registration complete when we create a business
         final User user = userRepository.findById(businessDTO.getUser())
                 .orElseThrow(NotFoundException::new);
 
         user.setIsBusinessRegistrationComplete(true);
 
         userRepository.save(user);
-        // ********************************************************************************************** //
+
+        // Forcing the business creation to be persisted as we need a valid business when creating
+        // default roles
+        businessRepository.flush();
+
+        // Creating default roles for this business
+        roleService.createDefaultRoles(savedBusiness.getId());
 
         return mapToDTO(savedBusiness, new BusinessResponseDTO());
     }

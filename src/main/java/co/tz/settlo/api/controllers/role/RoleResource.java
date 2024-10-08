@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping(value = "/api/roles", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/roles/{businessId}", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Roles Endpoints")
 public class RoleResource {
 
@@ -34,20 +35,20 @@ public class RoleResource {
 
     @GetMapping
     @Operation(summary = "Get all Roles")
-    public ResponseEntity<List<RoleDTO>> getAllRoles() {
-        return ResponseEntity.ok(roleService.findAll());
+    public ResponseEntity<List<RoleDTO>> getAllRoles(@PathVariable final UUID businessId) {
+        return ResponseEntity.ok(roleService.findAll(businessId));
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Get a Role")
-    public ResponseEntity<RoleDTO> getRole(@PathVariable(name = "id") final UUID id) {
+    public ResponseEntity<RoleDTO> getRole(@PathVariable final UUID businessId, @PathVariable(name = "id") final UUID id) {
         return ResponseEntity.ok(roleService.get(id));
     }
 
-    @PostMapping
+    @PostMapping("/create")
     @ApiResponse(responseCode = "201")
     @Operation(summary = "Create a Role")
-    public ResponseEntity<UUID> createRole(@RequestBody @Valid final RoleDTO roleDTO) {
+    public ResponseEntity<UUID> createRole(@PathVariable final UUID businessId, @RequestBody @Valid final RoleDTO roleDTO) {
         final UUID createdId = roleService.create(roleDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }

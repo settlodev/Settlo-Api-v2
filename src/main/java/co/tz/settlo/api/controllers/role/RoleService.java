@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -26,25 +27,29 @@ public class RoleService {
         this.staffRepository = staffRepository;
     }
 
-    public List<RoleDTO> findAll() {
-        final List<Role> roles = roleRepository.findAll(Sort.by("id"));
+    @Transactional(readOnly = true)
+    public List<RoleDTO> findAll(final UUID businessId) {
+        final List<Role> roles = roleRepository.findAllByBusinessId(businessId);
         return roles.stream()
                 .map(role -> mapToDTO(role, new RoleDTO()))
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public RoleDTO get(final UUID id) {
         return roleRepository.findById(id)
                 .map(role -> mapToDTO(role, new RoleDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
+    @Transactional
     public UUID create(final RoleDTO roleDTO) {
         final Role role = new Role();
         mapToEntity(roleDTO, role);
         return roleRepository.save(role).getId();
     }
 
+    @Transactional
     public void update(final UUID id, final RoleDTO roleDTO) {
         final Role role = roleRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
@@ -52,17 +57,51 @@ public class RoleService {
         roleRepository.save(role);
     }
 
-    public UUID getDefaultRole() {
-        return roleRepository.findByNameIgnoreCase("User")
-                .map(Role::getId)
-                .orElseGet(this::createDefaultRole);
+//    public UUID getDefaultRole() {
+//        return roleRepository.findByNameIgnoreCase("User")
+//                .map(Role::getId)
+//                .orElseGet(this::createDefaultRole);
+//    }
+
+    public List<UUID> createDefaultRoles(final UUID businessId) {
+        return List.of(
+                createDefaultUserRole(businessId),
+                createDefaultAdminRole(businessId),
+                createDefaultOwnerRole(businessId)
+        );
     }
 
-    private UUID createDefaultRole() {
-        RoleDTO defaultRoleDTO = new RoleDTO();
-        defaultRoleDTO.setName("User");
+    private UUID createDefaultUserRole(final UUID businessId) {
+        RoleDTO roleDTO = new RoleDTO();
+        roleDTO.setName("User");
+        roleDTO.setDescription("A normal user in the system");
+        roleDTO.setBusiness(businessId);
 
-        return create(defaultRoleDTO);
+        return create(setDefaultFields(roleDTO));
+    }
+
+    private UUID createDefaultAdminRole(final UUID businessId) {
+        RoleDTO roleDTO = new RoleDTO();
+        roleDTO.setName("Admin");
+        roleDTO.setDescription("The most privileged user in the system");
+        roleDTO.setBusiness(businessId);
+
+        return create(setDefaultFields(roleDTO));
+    }
+
+    private UUID createDefaultOwnerRole(final UUID businessId) {
+        RoleDTO roleDTO = new RoleDTO();
+        roleDTO.setName("Owner");
+        roleDTO.setDescription("The owner of a business");
+        roleDTO.setBusiness(businessId);
+        return create(setDefaultFields(roleDTO));
+    }
+
+    private RoleDTO setDefaultFields(RoleDTO roleDTO) {
+        roleDTO.setStatus(true);
+        roleDTO.setIsArchived(false);
+        roleDTO.setCanDelete(true);
+        return roleDTO;
     }
 
     public boolean nameExists(final String name) {
