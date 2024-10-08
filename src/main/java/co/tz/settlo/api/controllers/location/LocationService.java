@@ -31,6 +31,7 @@ import co.tz.settlo.api.controllers.user.UserRepository;
 import co.tz.settlo.api.util.NotFoundException;
 import co.tz.settlo.api.util.ReferencedWarning;
 
+import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -201,8 +202,8 @@ public class LocationService {
         locationDTO.setStreet(location.getStreet());
         locationDTO.setAddress(location.getAddress());
         locationDTO.setDescription(location.getDescription());
-        locationDTO.setOpeningTime(location.getOpeningTime());
-        locationDTO.setClosingTime(location.getClosingTime());
+        locationDTO.setOpeningTime(location.getOpeningTime().toString());
+        locationDTO.setClosingTime(location.getClosingTime().toString());
         locationDTO.setStatus(location.getStatus());
         locationDTO.setIsArchived(location.getIsArchived());
         locationDTO.setCanDelete(location.getCanDelete());
@@ -220,8 +221,8 @@ public class LocationService {
         location.setStreet(locationDTO.getStreet());
         location.setAddress(locationDTO.getAddress());
         location.setDescription(locationDTO.getDescription());
-        location.setOpeningTime(locationDTO.getOpeningTime());
-        location.setClosingTime(locationDTO.getClosingTime());
+        location.setOpeningTime(LocalTime.parse(locationDTO.getOpeningTime()));
+        location.setClosingTime(LocalTime.parse(locationDTO.getOpeningTime()));
         location.setStatus(locationDTO.getStatus());
         location.setIsArchived(locationDTO.getIsArchived());
         location.setCanDelete(locationDTO.getCanDelete());
@@ -243,8 +244,8 @@ public class LocationService {
         location.setStreet(locationDTO.getStreet());
         location.setAddress(locationDTO.getAddress());
         location.setDescription(locationDTO.getDescription());
-        location.setOpeningTime(locationDTO.getOpeningTime());
-        location.setClosingTime(locationDTO.getClosingTime());
+        location.setOpeningTime(LocalTime.parse(locationDTO.getOpeningTime()));
+        location.setClosingTime(LocalTime.parse(locationDTO.getOpeningTime()));
         location.setStatus(locationDTO.getStatus());
         location.setIsArchived(locationDTO.getIsArchived());
         location.setCanDelete(locationDTO.getCanDelete());

@@ -13,6 +13,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 import lombok.Getter;
@@ -61,10 +63,10 @@ public class Location {
     private String description;
 
     @Column(nullable = false, length = 10)
-    private String openingTime;
+    private LocalTime openingTime;
 
     @Column(nullable = false, length = 10)
-    private String closingTime;
+    private LocalTime closingTime;
 
     @Column(nullable = false)
     private Boolean status;
