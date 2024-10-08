@@ -11,10 +11,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface ExpenseCategoryRepository extends JpaRepository<ExpenseCategory, UUID>, JpaSpecificationExecutor<ExpenseCategory> {
 
-    List<ExpenseCategory> findAllByLocationId(UUID locationId);
-
-    ExpenseCategory findFirstByBusiness(Business business);
-
     boolean existsByNameIgnoreCase(String name);
 
 }

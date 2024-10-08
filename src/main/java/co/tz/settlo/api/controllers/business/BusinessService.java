@@ -367,12 +367,12 @@ public class BusinessService {
             referencedWarning.addParam(businessSupplier.getId());
             return referencedWarning;
         }
-        final ExpenseCategory businessExpenseCategory = expenseCategoryRepository.findFirstByBusiness(business);
-        if (businessExpenseCategory != null) {
-            referencedWarning.setKey("business.expenseCategory.business.referenced");
-            referencedWarning.addParam(businessExpenseCategory.getId());
-            return referencedWarning;
-        }
+//        final ExpenseCategory businessExpenseCategory = expenseCategoryRepository.findFirstByBusiness(business);
+//        if (businessExpenseCategory != null) {
+//            referencedWarning.setKey("business.expenseCategory.business.referenced");
+//            referencedWarning.addParam(businessExpenseCategory.getId());
+//            return referencedWarning;
+//        }
         final Expense businessExpense = expenseRepository.findFirstByBusiness(business);
         if (businessExpense != null) {
             referencedWarning.setKey("business.expense.business.referenced");

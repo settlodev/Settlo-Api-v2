@@ -46,7 +46,7 @@ public class Expense {
     private Boolean status;
 
     @Column(nullable = false)
-    private String isArchived;
+    private Boolean isArchived;
 
     @Column(nullable = false)
     private Boolean canDelete;

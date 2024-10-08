@@ -34,7 +34,7 @@ public class ExpenseResponseDTO {
 
     @NotNull
     @Size(max = 255)
-    private String isArchived;
+    private Boolean isArchived;
 
     @NotNull
     private Boolean canDelete;

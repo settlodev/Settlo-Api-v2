@@ -28,10 +28,4 @@ public class ExpenseCategoryDTO {
 
     @NotNull
     private Boolean canDelete = true;
-
-    @NotNull
-    private UUID business;
-
-    private UUID location;
-
 }
