@@ -33,7 +33,7 @@ public class ExpenseDTO {
 
     @NotNull
     @Size(max = 255)
-    private String isArchived = "";
+    private Boolean isArchived = false;
 
     @NotNull
     private Boolean canDelete = true;
