@@ -3,6 +3,9 @@ package co.tz.settlo.api.common.services;
 
 import co.tz.settlo.api.controllers.country.CountryDTO;
 import co.tz.settlo.api.controllers.country.CountryService;
+import co.tz.settlo.api.controllers.expense_category.ExpenseCategory;
+import co.tz.settlo.api.controllers.expense_category.ExpenseCategoryDTO;
+import co.tz.settlo.api.controllers.expense_category.ExpenseCategoryService;
 import co.tz.settlo.api.controllers.role.RoleService;
 import co.tz.settlo.api.controllers.subscription.SubscriptionDTO;
 import co.tz.settlo.api.controllers.subscription.SubscriptionService;
@@ -16,11 +19,13 @@ public class DataSeeder implements CommandLineRunner {
     private final RoleService roleService;
     private final CountryService countryService;
     private final SubscriptionService subscriptionService;
+    private final ExpenseCategoryService expenseCategoryService;
 
-    public DataSeeder(RoleService roleService, CountryService countryService, SubscriptionService subscriptionService) {
+    public DataSeeder(RoleService roleService, CountryService countryService, SubscriptionService subscriptionService, ExpenseCategoryService expenseCategoryService) {
         this.roleService = roleService;
         this.countryService = countryService;
         this.subscriptionService = subscriptionService;
+        this.expenseCategoryService = expenseCategoryService;
     }
 
     @Override
@@ -84,6 +89,19 @@ public class DataSeeder implements CommandLineRunner {
 
         // Seed subscriptions
         createSubscriptionIfNotExists(0.0, 0.0,"Trial", "trl", true);
+
+        // seed expense categories
+        // source https://medium.com/@BuySimply/10-common-expense-categories-every-business-owner-should-be-tracking-84c9738baea5
+        createExpenseCategoryIfNotExists("Employee Salary and Benefits");
+        createExpenseCategoryIfNotExists("Office Equipment/Supplies");
+        createExpenseCategoryIfNotExists("Rent and Utilities");
+        createExpenseCategoryIfNotExists("Marketing Expenses");
+        createExpenseCategoryIfNotExists("Business Dues and Subscriptions");
+        createExpenseCategoryIfNotExists("Maintenance and Repairs");
+        createExpenseCategoryIfNotExists("Legal and Professional Fees");
+        createExpenseCategoryIfNotExists("Transport Expenses");
+        createExpenseCategoryIfNotExists("Vehicle Expenses");
+        createExpenseCategoryIfNotExists("Charitable Contributions");
     }
 
 //    private void createRoleIfNotExists(String roleName) {
@@ -122,6 +140,7 @@ public class DataSeeder implements CommandLineRunner {
             countryService.create(country);
         }
     }
+
     @Transactional
     protected void createSubscriptionIfNotExists(
             Double amount, Double discount, String packageName, String packageCode, Boolean isTrial
@@ -138,10 +157,27 @@ public class DataSeeder implements CommandLineRunner {
             subscription.setIsTrial(isTrial);
             subscription.setStatus(true);
             subscription.setCanDelete(true);
-            subscription.setIsArchived(true);
+            subscription.setIsArchived(false);
 
 
             subscriptionService.create(subscription);
+        }
+    }
+
+    @Transactional
+    protected void createExpenseCategoryIfNotExists(final String expenseName ) {
+        final boolean expenseCategoryExists = expenseCategoryService.nameExists(expenseName);
+
+        if (!expenseCategoryExists) {
+            ExpenseCategoryDTO expenseCategoryDTO = new ExpenseCategoryDTO();
+
+            expenseCategoryDTO.setName(expenseName);
+            expenseCategoryDTO.setStatus(true);
+            expenseCategoryDTO.setCanDelete(true);
+            expenseCategoryDTO.setIsArchived(false);
+
+
+            expenseCategoryService.create(expenseCategoryDTO);
         }
     }
 }

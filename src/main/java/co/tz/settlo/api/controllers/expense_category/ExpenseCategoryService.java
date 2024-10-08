@@ -32,8 +32,8 @@ public class ExpenseCategoryService {
         this.expenseRepository = expenseRepository;
     }
 
-    public List<ExpenseCategoryDTO> findAll(final UUID locationId) {
-        final List<ExpenseCategory> expenseCategories = expenseCategoryRepository.findAllByLocationId(locationId);
+    public List<ExpenseCategoryDTO> findAll() {
+        final List<ExpenseCategory> expenseCategories = expenseCategoryRepository.findAll();
         return expenseCategories.stream()
                 .map(expenseCategory -> mapToDTO(expenseCategory, new ExpenseCategoryDTO()))
                 .toList();
@@ -78,7 +78,6 @@ public class ExpenseCategoryService {
         expenseCategoryDTO.setStatus(expenseCategory.getStatus());
         expenseCategoryDTO.setIsArchived(expenseCategory.getIsArchived());
         expenseCategoryDTO.setCanDelete(expenseCategory.getCanDelete());
-        expenseCategoryDTO.setBusiness(expenseCategory.getBusiness() == null ? null : expenseCategory.getBusiness().getId());
         return expenseCategoryDTO;
     }
 
@@ -88,9 +87,6 @@ public class ExpenseCategoryService {
         expenseCategory.setStatus(expenseCategoryDTO.getStatus());
         expenseCategory.setIsArchived(expenseCategoryDTO.getIsArchived());
         expenseCategory.setCanDelete(expenseCategoryDTO.getCanDelete());
-        final Business business = expenseCategoryDTO.getBusiness() == null ? null : businessRepository.findById(expenseCategoryDTO.getBusiness())
-                .orElseThrow(() -> new NotFoundException("business not found"));
-        expenseCategory.setBusiness(business);
         return expenseCategory;
     }
 
