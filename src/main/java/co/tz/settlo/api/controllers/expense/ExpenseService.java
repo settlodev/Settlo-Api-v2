@@ -4,6 +4,8 @@ import co.tz.settlo.api.controllers.business.Business;
 import co.tz.settlo.api.controllers.business.BusinessRepository;
 import co.tz.settlo.api.controllers.expense_category.ExpenseCategory;
 import co.tz.settlo.api.controllers.expense_category.ExpenseCategoryRepository;
+import co.tz.settlo.api.controllers.location.Location;
+import co.tz.settlo.api.controllers.location.LocationRepository;
 import co.tz.settlo.api.util.NotFoundException;
 import java.util.List;
 import java.util.UUID;
@@ -22,13 +24,17 @@ public class ExpenseService {
     private final ExpenseRepository expenseRepository;
     private final ExpenseCategoryRepository expenseCategoryRepository;
     private final BusinessRepository businessRepository;
+    private final LocationRepository locationRepository;
 
     public ExpenseService(final ExpenseRepository expenseRepository,
             final ExpenseCategoryRepository expenseCategoryRepository,
-            final BusinessRepository businessRepository) {
+            final BusinessRepository businessRepository,
+                          final LocationRepository locationRepository
+    ) {
         this.expenseRepository = expenseRepository;
         this.expenseCategoryRepository = expenseCategoryRepository;
         this.businessRepository = businessRepository;
+        this.locationRepository = locationRepository;
     }
 
     @Transactional(readOnly = true)
@@ -100,6 +106,10 @@ public class ExpenseService {
         expense.setExpenseCategory(expenseCategory);
         final Business business = expenseDTO.getBusiness() == null ? null : businessRepository.findById(expenseDTO.getBusiness())
                 .orElseThrow(() -> new NotFoundException("business not found"));
+        final Location location = expenseDTO.getBusiness() == null ? null : locationRepository.findById(expenseDTO.getLocation())
+                .orElseThrow(() -> new NotFoundException("location not found"));
+
+        expense.setLocation(location);
         expense.setBusiness(business);
         return expense;
     }
