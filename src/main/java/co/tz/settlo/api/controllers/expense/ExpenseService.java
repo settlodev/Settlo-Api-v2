@@ -101,12 +101,13 @@ public class ExpenseService {
         expense.setStatus(expenseDTO.getStatus());
         expense.setIsArchived(expenseDTO.getIsArchived());
         expense.setCanDelete(expenseDTO.getCanDelete());
+
         final ExpenseCategory expenseCategory = expenseDTO.getExpenseCategory() == null ? null : expenseCategoryRepository.findById(expenseDTO.getExpenseCategory())
                 .orElseThrow(() -> new NotFoundException("expenseCategory not found"));
         expense.setExpenseCategory(expenseCategory);
         final Business business = expenseDTO.getBusiness() == null ? null : businessRepository.findById(expenseDTO.getBusiness())
                 .orElseThrow(() -> new NotFoundException("business not found"));
-        final Location location = expenseDTO.getBusiness() == null ? null : locationRepository.findById(expenseDTO.getLocation())
+        final Location location = expenseDTO.getLocation() == null ? null : locationRepository.findById(expenseDTO.getLocation())
                 .orElseThrow(() -> new NotFoundException("location not found"));
 
         expense.setLocation(location);
