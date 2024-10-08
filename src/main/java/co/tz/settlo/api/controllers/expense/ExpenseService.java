@@ -85,6 +85,7 @@ public class ExpenseService {
         expenseDTO.setExpenseCategory(expense.getExpenseCategory() == null ? null : expense.getExpenseCategory().getId());
         expenseDTO.setExpenseCategoryName(expense.getExpenseCategory() == null ? null : expense.getExpenseCategory().getName());
         expenseDTO.setBusiness(expense.getBusiness() == null ? null : expense.getBusiness().getId());
+        
         return expenseDTO;
     }
 
