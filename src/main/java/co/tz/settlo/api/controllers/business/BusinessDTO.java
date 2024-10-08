@@ -103,15 +103,12 @@ public class BusinessDTO {
     @Size(max = 255)
     private String website;
 
-    @NotNull
-    private Boolean canDelete;
+    private Boolean canDelete = true;
 
-    @NotNull
     @JsonProperty("isArchived")
-    private Boolean isArchived;
+    private Boolean isArchived = false;
 
-    @NotNull
-    private Boolean status;
+    private Boolean status = true;
 
     @NotNull
     private UUID user;

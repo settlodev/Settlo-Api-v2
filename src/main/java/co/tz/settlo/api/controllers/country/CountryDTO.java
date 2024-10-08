@@ -35,14 +35,11 @@ public class CountryDTO {
     @NotNull
     private Boolean supported;
 
-    @NotNull
-    private Boolean status;
+    private Boolean status = true;
 
-    @NotNull
-    private Boolean canDelete;
+    private Boolean canDelete = true;
 
-    @NotNull
     @JsonProperty("isArchived")
-    private Boolean isArchived;
+    private Boolean isArchived = false;
 
 }

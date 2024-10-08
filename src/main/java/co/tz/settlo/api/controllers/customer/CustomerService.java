@@ -94,6 +94,7 @@ public class CustomerService {
         customerDTO.setStatus(customer.getStatus());
         customerDTO.setIsArchived(customer.getIsArchived());
         customerDTO.setCanDelete(customer.getCanDelete());
+        customerDTO.setLocation(customer.getId());
         return customerDTO;
     }
 
