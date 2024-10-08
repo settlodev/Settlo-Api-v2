@@ -56,6 +56,9 @@ public class Variant {
     private String description;
 
     @Column
+    private String barcode;
+
+    @Column
     private String image;
 
     @Column(nullable = false)
