@@ -23,15 +23,12 @@ public class AddonDTO {
     @AddonTitleUnique
     private String title;
 
-    @NotNull
-    private Boolean status;
+    private Boolean status = true;
 
-    @NotNull
-    private Boolean canDelete;
+    private Boolean canDelete = true;
 
-    @NotNull
     @JsonProperty("isArchived")
-    private Boolean isArchived;
+    private Boolean isArchived = false;
 
     @NotNull
     @Digits(integer = 10, fraction = 2)
