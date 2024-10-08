@@ -24,7 +24,7 @@ public class RoleDTO {
     private Boolean canDelete = true;
 
     @NotNull
-    private Boolean status;
+    private Boolean status = true;
 
     @NotNull
     @JsonProperty("isArchived")
