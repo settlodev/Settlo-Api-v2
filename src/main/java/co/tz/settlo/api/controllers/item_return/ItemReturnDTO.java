@@ -20,14 +20,13 @@ public class ItemReturnDTO {
     private OffsetDateTime dateOfReturn;
 
     @NotNull
-    private Boolean status;
+    private Boolean status = true;
 
     @NotNull
-    private Boolean canDelete;
+    private Boolean canDelete = false;
 
-    @NotNull
     @JsonProperty("isArchived")
-    private Boolean isArchived;
+    private Boolean isArchived = true;
 
     @NotNull
     private UUID orderItem;
