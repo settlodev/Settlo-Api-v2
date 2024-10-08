@@ -32,7 +32,6 @@ public class ExpenseDTO {
     private Boolean status = true;
 
     @NotNull
-    @Size(max = 255)
     private Boolean isArchived = false;
 
     @NotNull
