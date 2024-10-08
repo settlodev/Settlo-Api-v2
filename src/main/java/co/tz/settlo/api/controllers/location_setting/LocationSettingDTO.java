@@ -71,10 +71,10 @@ public class LocationSettingDTO {
     private Boolean isActive;
 
     @NotNull
-    private Boolean canDelete;
+    private Boolean canDelete = true;
 
     @NotNull
     @JsonProperty("isArchived")
-    private Boolean isArchived;
+    private Boolean isArchived = false;
 
 }
