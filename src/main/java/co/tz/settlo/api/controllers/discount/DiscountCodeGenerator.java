@@ -1,6 +1,5 @@
 package co.tz.settlo.api.controllers.discount;
 
-import java.sql.Timestamp;
 import java.time.OffsetDateTime;
 
 public class DiscountCodeGenerator {
@@ -10,7 +9,9 @@ public class DiscountCodeGenerator {
             case DiscountType.PERCENTAGE -> 'P';
         };
 
-        return String.format("%s-%s-%s", expirationDate.toEpochSecond(), discountTypeChar, discountName.substring(0, 5));
+        final String reversedShortedName = new StringBuilder(discountName.substring(0, 5)).reverse().toString();
+
+        return String.format("%s-%s-%s", expirationDate.toEpochSecond(), discountTypeChar, reversedShortedName);
     }
 
 }
