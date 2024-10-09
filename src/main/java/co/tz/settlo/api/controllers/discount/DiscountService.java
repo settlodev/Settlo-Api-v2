@@ -67,14 +67,14 @@ public class DiscountService {
     }
 
     @Transactional
-    public UUID create(final DiscountDTO discountDTO) {
+    public UUID create(final DiscountCreateDTO discountDTO) {
         final Discount discount = new Discount();
         mapToEntity(discountDTO, discount);
         return discountRepository.save(discount).getId();
     }
 
     @Transactional
-    public void update(final UUID id, final DiscountDTO discountDTO) {
+    public void update(final UUID id, final DiscountCreateDTO discountDTO) {
         final Discount discount = discountRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
         mapToEntity(discountDTO, discount);
@@ -107,12 +107,12 @@ public class DiscountService {
         return discountDTO;
     }
 
-    private Discount mapToEntity(final DiscountDTO discountDTO, final Discount discount) {
+    private Discount mapToEntity(final DiscountCreateDTO discountDTO, final Discount discount) {
         discount.setName(discountDTO.getName());
         discount.setDiscountValue(discountDTO.getDiscountValue());
         discount.setValidFrom(discountDTO.getValidFrom());
         discount.setValidTo(discountDTO.getValidTo());
-        discount.setDiscountCode(discountDTO.getDiscountCode());
+        discount.setDiscountCode(DiscountCodeGenerator.generateDiscountCode(discountDTO.getName(), discountDTO.getDiscountType(), discountDTO.getValidTo()));
         discount.setMinimumSpend(discountDTO.getMinimumSpend());
         discount.setDiscountType(discountDTO.getDiscountType());
         discount.setUsageLimit(discountDTO.getUsageLimit());

@@ -66,7 +66,7 @@ public class DiscountResource {
     @PostMapping("/create")
     @ApiResponse(responseCode = "201")
     @Operation(summary = "Create a Discount")
-    public ResponseEntity<UUID> createDiscount(@PathVariable final UUID locationId, @RequestBody @Valid final DiscountDTO discountDTO) {
+    public ResponseEntity<UUID> createDiscount(@PathVariable final UUID locationId, @RequestBody @Valid final DiscountCreateDTO discountDTO) {
         discountDTO.setLocation(locationId);
 
         final UUID createdId = discountService.create(discountDTO);
@@ -76,7 +76,7 @@ public class DiscountResource {
     @PutMapping("/{id}")
     @Operation(summary = "Update a Discount")
     public ResponseEntity<UUID> updateDiscount(@PathVariable final UUID locationId, @PathVariable(name = "id") final UUID id,
-            @RequestBody @Valid final DiscountDTO discountDTO) {
+            @RequestBody @Valid final DiscountCreateDTO discountDTO) {
         discountDTO.setLocation(locationId);
 
         discountService.update(id, discountDTO);
