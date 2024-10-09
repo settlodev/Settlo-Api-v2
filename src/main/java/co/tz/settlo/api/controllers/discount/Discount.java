@@ -85,7 +85,7 @@ public class Discount {
     private Customer customer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "location_id")
+    @JoinColumn(name = "location_id", nullable = false)
     private Location location;
 
     @ManyToOne(fetch = FetchType.LAZY)
