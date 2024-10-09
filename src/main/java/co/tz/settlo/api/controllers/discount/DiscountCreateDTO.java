@@ -45,9 +45,6 @@ public class DiscountCreateDTO {
     @NotNull
     private Integer usageLimit;
 
-    @NotNull
-    private Integer activations;
-
     private Boolean status = true;
 
     @JsonProperty("isArchived")
