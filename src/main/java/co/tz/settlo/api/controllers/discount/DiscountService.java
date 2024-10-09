@@ -116,7 +116,7 @@ public class DiscountService {
         discount.setMinimumSpend(discountDTO.getMinimumSpend());
         discount.setDiscountType(discountDTO.getDiscountType());
         discount.setUsageLimit(discountDTO.getUsageLimit());
-        discount.setActivations(discountDTO.getActivations());
+        discount.setActivations(0); // Since we haven't used the discount yet, we set activations to zero
         discount.setStatus(discountDTO.getStatus());
         discount.setIsArchived(discountDTO.getIsArchived());
         discount.setCanDelete(discountDTO.getCanDelete());
