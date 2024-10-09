@@ -39,7 +39,7 @@ public class Discount {
     @UuidGenerator
     private UUID id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String name;
 
     @Column(nullable = false, precision = 10, scale = 2)
@@ -51,7 +51,7 @@ public class Discount {
     @Column(nullable = false)
     private OffsetDateTime validTo;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String discountCode;
 
     @Column
