@@ -10,7 +10,7 @@ public class DiscountCodeGenerator {
             case DiscountType.PERCENTAGE -> 'P';
         };
 
-        return String.format("%s-%s-%s", Timestamp.valueOf(expirationDate.toLocalDateTime()), discountTypeChar, discountName.substring(0, 5));
+        return String.format("%s-%s-%s", expirationDate.toEpochSecond(), discountTypeChar, discountName.substring(0, 5));
     }
 
 }
