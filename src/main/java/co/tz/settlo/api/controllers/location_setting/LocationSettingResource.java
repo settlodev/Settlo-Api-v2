@@ -44,16 +44,17 @@ public class LocationSettingResource {
         return ResponseEntity.ok(locationSettingService.get(id));
     }
 
-    @PostMapping("/create")
-    @ApiResponse(responseCode = "201")
-    @Operation(summary = "Create a location setting")
-    public ResponseEntity<UUID> createLocationSetting(@PathVariable UUID locationId, @RequestBody @Valid final LocationSettingCreateDTO locationSettingDTO) {
-
-        locationSettingDTO.setLocationId(locationId);
-
-        final UUID createdId = locationSettingService.create(locationSettingDTO);
-        return new ResponseEntity<>(createdId, HttpStatus.CREATED);
-    }
+   // Commenting this out as default locationSetting should be created automatically when creating a location
+//    @PostMapping("/create")
+//    @ApiResponse(responseCode = "201")
+//    @Operation(summary = "Create a location setting")
+//    public ResponseEntity<UUID> createLocationSetting(@PathVariable UUID locationId, @RequestBody @Valid final LocationSettingCreateDTO locationSettingDTO) {
+//
+//        locationSettingDTO.setLocationId(locationId);
+//
+//        final UUID createdId = locationSettingService.create(locationSettingDTO);
+//        return new ResponseEntity<>(createdId, HttpStatus.CREATED);
+//    }
 
     @PutMapping("/{id}")
     @Operation(summary = "Update a location setting")
