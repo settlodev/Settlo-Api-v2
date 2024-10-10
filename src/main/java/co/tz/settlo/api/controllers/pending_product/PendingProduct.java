@@ -1,10 +1,10 @@
-package co.tz.settlo.api.controllers.reservation;
+package co.tz.settlo.api.controllers.pending_product;
 
+import co.tz.settlo.api.controllers.brand.Brand;
 import co.tz.settlo.api.controllers.business.Business;
-import co.tz.settlo.api.controllers.customer.Customer;
+import co.tz.settlo.api.controllers.category.Category;
+import co.tz.settlo.api.controllers.department.Department;
 import co.tz.settlo.api.controllers.location.Location;
-import co.tz.settlo.api.controllers.pending_product.PendingProduct;
-import co.tz.settlo.api.controllers.product.Product;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -25,11 +25,11 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 
 @Entity
-@Table(name = "Reservations")
+@Table(name = "PendingProducts")
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
-public class Reservation {
+public class PendingProduct {
 
     @Id
     @Column(nullable = false, updatable = false)
@@ -37,26 +37,26 @@ public class Reservation {
     @UuidGenerator
     private UUID id;
 
-    @Column(nullable = false)
-    private OffsetDateTime date;
-
-    @Column(nullable = false)
-    private OffsetDateTime startDate;
-
-    @Column(nullable = false)
-    private OffsetDateTime endDate;
-
-    @Column(nullable = false)
-    private Integer numberOfPeople;
-
     @Column(nullable = false, unique = true)
     private String name;
 
-    @Column(nullable = false, length = 15)
-    private String phone;
+    @Column(nullable = false, unique = true, length = 100)
+    private String slug;
 
-    @Column(unique = true, length = 100)
-    private String email;
+    @Column
+    private String sku;
+
+    @Column
+    private String image;
+
+    @Column(columnDefinition = "text")
+    private String description;
+
+    @Column(length = 100)
+    private String color;
+
+    @Column
+    private Boolean sellOnline;
 
     @Column(nullable = false)
     private Boolean status;
@@ -68,24 +68,24 @@ public class Reservation {
     private Boolean isArchived;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "business_id")
+    @JoinColumn(name = "business_id", nullable = false)
     private Business business;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "location_id")
+    @JoinColumn(name = "location_id", nullable = false)
     private Location location;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customer_id")
-    private Customer customer;
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id")
-    private Product product;
+    @JoinColumn(name = "department_id")
+    private Department department;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pending_product_id")
-    private PendingProduct pendingProduct;
+    @JoinColumn(name = "brand_id")
+    private Brand brand;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)

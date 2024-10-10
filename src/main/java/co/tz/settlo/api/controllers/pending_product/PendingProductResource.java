@@ -1,0 +1,135 @@
+package co.tz.settlo.api.controllers.pending_product;
+
+import co.tz.settlo.api.csv_parsers.product_csv_parser.ProductsCsv;
+import co.tz.settlo.api.util.ReferencedException;
+import co.tz.settlo.api.util.ReferencedWarning;
+import co.tz.settlo.api.util.RestApiFilter.FieldType;
+import co.tz.settlo.api.util.RestApiFilter.FilterRequest;
+import co.tz.settlo.api.util.RestApiFilter.Operator;
+import co.tz.settlo.api.util.RestApiFilter.SearchRequest;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+
+@RestController
+@RequestMapping(value = "/api/pending-products/{locationId}", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(
+        name = "Pending Products Endpoints",
+        description = "This is stage of which products start with when imported using a CSV file"
+)
+public class PendingProductResource {
+
+    private final PendingProductService pendingProductService;
+
+    public PendingProductResource(final PendingProductService pendingProductService) {
+        this.pendingProductService = pendingProductService;
+    }
+
+    @GetMapping
+    @Operation(summary = "Get all pending products")
+    public ResponseEntity<List<PendingProductResponseDTO>> getAllProducts(@PathVariable UUID locationId) {
+        return ResponseEntity.ok(pendingProductService.findAll(locationId));
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Get a pending product")
+    public ResponseEntity<PendingProductResponseDTO> getProduct(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
+        return ResponseEntity.ok(pendingProductService.get(id));
+    }
+
+    @PostMapping
+    @Operation(summary = "Search a pending product")
+    public Page<PendingProductResponseDTO> searchProducts(@PathVariable UUID locationId, @RequestBody SearchRequest request) {
+        // Enforce Location filter
+        FilterRequest locationFilter = new FilterRequest();
+        locationFilter.setKey("location.id");
+        locationFilter.setOperator(Operator.EQUAL);
+        locationFilter.setFieldType(FieldType.UUID_STRING);
+        locationFilter.setValue(locationId);
+
+        request.getFilters().add(locationFilter);
+
+        return pendingProductService.searchAll(request);
+    }
+
+//    @PostMapping("/create")
+//    @ApiResponse(responseCode = "201")
+//    @Operation(summary = "Create a pending product")
+//    public ResponseEntity<UUID> createProduct(@PathVariable UUID locationId, @RequestBody @Valid final PendingProductDTO productDTO) {
+//
+//        productDTO.setLocation(locationId);
+//
+//        final UUID createdId = pendingProductService.create(productDTO);
+//        return new ResponseEntity<>(createdId, HttpStatus.CREATED);
+//    }
+
+    @PostMapping("/upload-csv")
+    @ApiResponse(responseCode = "201")
+    @Operation(
+            summary = "Import pending products in a CSV format",
+            description = """
+                    The body of this request should be text containing the contents of the CSV. The CSV file should contain the following columns.
+                    - product (non blank string).
+                    - category (non blank string).
+                    - variant (non blank string).
+                    - price (non blank floating point).
+                    - cost (non blank floating point).
+                    - quantity (non blank floating point).
+                    - SKU (string - can be blank).
+                    - barcode (string - can be blank).
+                    
+                    For the product, category and variant columns, these should not be blank.
+                    For the price, cost and quantity, these should also not be blank and the value should be valid floating points. 400 BAD REQUEST will be returned
+                    with the error message explaining the violation when these conditions are not met.
+                    """)
+    public ResponseEntity<HttpStatus> importProducts(@PathVariable UUID locationId, @RequestBody @Valid final String productsCsvText) {
+        ProductsCsv productsCsv = new ProductsCsv(productsCsvText);
+
+        productsCsv.performChecks();
+
+        pendingProductService.import_products_csv(productsCsv, locationId);
+
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Update a pending product")
+    public ResponseEntity<UUID> updateProduct(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id,
+            @RequestBody @Valid final PendingProductDTO productDTO) {
+
+        productDTO.setLocation(locationId);
+
+        pendingProductService.update(id, productDTO);
+        return ResponseEntity.ok(id);
+    }
+
+    @DeleteMapping("/{id}")
+    @ApiResponse(responseCode = "204")
+    @Operation(summary = "Delete a pending product")
+    public ResponseEntity<Void> deleteProduct(@PathVariable UUID locationId, @PathVariable(name = "id") final UUID id) {
+        final ReferencedWarning referencedWarning = pendingProductService.getReferencedWarning(id);
+        if (referencedWarning != null) {
+            throw new ReferencedException(referencedWarning);
+        }
+        pendingProductService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+}

@@ -1,19 +1,19 @@
-package co.tz.settlo.api.controllers.reservation;
+package co.tz.settlo.api.controllers.pending_product_variants;
 
-import co.tz.settlo.api.controllers.business.Business;
-import co.tz.settlo.api.controllers.customer.Customer;
-import co.tz.settlo.api.controllers.location.Location;
 import co.tz.settlo.api.controllers.pending_product.PendingProduct;
-import co.tz.settlo.api.controllers.product.Product;
+import co.tz.settlo.api.controllers.tag.Tag;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 import lombok.Getter;
@@ -25,11 +25,11 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 
 @Entity
-@Table(name = "Reservations")
+@Table(name = "PendingProductVariants")
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
-public class Reservation {
+public class PendingVariant {
 
     @Id
     @Column(nullable = false, updatable = false)
@@ -37,26 +37,29 @@ public class Reservation {
     @UuidGenerator
     private UUID id;
 
-    @Column(nullable = false)
-    private OffsetDateTime date;
-
-    @Column(nullable = false)
-    private OffsetDateTime startDate;
-
-    @Column(nullable = false)
-    private OffsetDateTime endDate;
-
-    @Column(nullable = false)
-    private Integer numberOfPeople;
-
     @Column(nullable = false, unique = true)
     private String name;
 
-    @Column(nullable = false, length = 15)
-    private String phone;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal price;
 
-    @Column(unique = true, length = 100)
-    private String email;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal cost;
+
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal quantity;
+
+    @Column
+    private String sku;
+
+    @Column(columnDefinition = "text")
+    private String description;
+
+    @Column
+    private String barcode;
+
+    @Column
+    private String image;
 
     @Column(nullable = false)
     private Boolean status;
@@ -67,25 +70,26 @@ public class Reservation {
     @Column(nullable = false)
     private Boolean isArchived;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "business_id")
-    private Business business;
+    @Column(length = 100)
+    private String color;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "location_id")
-    private Location location;
+    @Column
+    private Boolean taxIncluded;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customer_id")
-    private Customer customer;
+    @Column(precision = 10, scale = 2)
+    private BigDecimal taxAmount;
+
+    @Column
+    @Enumerated(EnumType.STRING)
+    private TaxClass taxClass;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
-    private Product product;
+    private PendingProduct pendingProduct;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pending_product_id")
-    private PendingProduct pendingProduct;
+    @JoinColumn(name = "tag_id")
+    private Tag tag;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)

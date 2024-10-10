@@ -1,4 +1,4 @@
-package co.tz.settlo.api.controllers.product;
+package co.tz.settlo.api.controllers.pending_product;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
@@ -10,18 +10,18 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ProductDTO {
+public class PendingProductDTO {
 
     private UUID id;
 
     @NotNull
     @Size(max = 255)
-    @ProductNameUnique
+    @PendingProductNameUnique
     private String name;
 
     @NotNull
     @Size(max = 100)
-    @ProductSlugUnique
+    @PendingProductSlugUnique
     private String slug;
 
     @Size(max = 255)

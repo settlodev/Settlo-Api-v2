@@ -55,4 +55,15 @@ public class Category {
     @Column(nullable = false)
     private OffsetDateTime lastUpdated;
 
+    /// Creates a new category with just a name, setting the rest to default
+    public static Category withName(String name) {
+       var category = new Category();
+       category.setName(name);
+       category.setStatus(true);
+       category.setIsArchived(false);
+       category.setCanDelete(true);
+
+       return category;
+    }
+
 }

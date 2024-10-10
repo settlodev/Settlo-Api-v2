@@ -2,6 +2,7 @@ package co.tz.settlo.api.controllers.product;
 
 import co.tz.settlo.api.controllers.brand.Brand;
 import co.tz.settlo.api.controllers.business.Business;
+import co.tz.settlo.api.controllers.category.Category;
 import co.tz.settlo.api.controllers.department.Department;
 import co.tz.settlo.api.controllers.location.Location;
 import jakarta.persistence.Column;
@@ -73,6 +74,10 @@ public class Product {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id", nullable = false)
     private Location location;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "department_id")

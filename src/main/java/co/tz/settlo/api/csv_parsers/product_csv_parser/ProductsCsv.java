@@ -1,14 +1,17 @@
 package co.tz.settlo.api.csv_parsers.product_csv_parser;
 
+import co.tz.settlo.api.controllers.category.Category;
 import co.tz.settlo.api.csv_parsers.product_csv_parser.exceptions.CsvParseException;
 import co.tz.settlo.api.csv_parsers.product_csv_parser.exceptions.MissingColumnException;
 import co.tz.settlo.api.csv_parsers.product_csv_parser.exceptions.MissingFieldException;
 import com.opencsv.bean.CsvToBeanBuilder;
+import lombok.Getter;
 
 import java.io.StringReader;
 import java.util.List;
 
 /// Represents all products rows in the CSV
+@Getter
 public class ProductsCsv {
     final List<Product> products;
 
@@ -38,6 +41,13 @@ public class ProductsCsv {
     public void performChecks() {
         checkMissingColumn();
         checkMissingField();
+    }
+
+
+    /// Since products in a CSV file can have repeating categories, this ensures we get unique list
+    /// of categories while being stripped and lowercased
+    public List<Category> getCategoryEntities() {
+        return this.products.stream().map(product -> product.getCategory().strip().toLowerCase()).distinct().map(Category::withName).toList();
     }
 
     /// Checks for missing columns in the Products CSV
